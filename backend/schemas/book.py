@@ -3,13 +3,19 @@ from pydantic import BaseModel, ConfigDict
 from models.book import BookStatus
 
 
-# Book base schema
-class Book(BaseModel):
+class IdSchema(BaseModel):
+    """Mixin schema for models with an ID."""
+
     id: int
+
+
+class BookBase(BaseModel):
+    """Base schema for book properties."""
+
     title: str
     price: Decimal
     description: str
-    cover_img: str | None
+    cover_img: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -35,11 +41,18 @@ class BookDetailsSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class BookResponse(Book):
+class BookResponse(IdSchema, BookBase):
     author: AuthorSchema
     category: CategorySchema
-    book_details: list[
-        BookDetailsSchema  # Changed to list because a book can have multiple details(borrowed, purchased)
-    ]
+    book_details: list[BookDetailsSchema]
 
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CreateBook(BookBase):
+    category_id: int
+    author_id: int
+
+
+class CreateBookResponse(CreateBook, IdSchema):
     model_config = ConfigDict(from_attributes=True)
