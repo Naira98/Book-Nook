@@ -3,12 +3,10 @@ import asyncio
 import cloudinary
 import cloudinary.uploader
 from fastapi import HTTPException, UploadFile, status
-from fastapi.responses import JSONResponse
 from settings import settings
 
 
 def init_cloudinary():
-    """Initialize the Cloudinary SDK with credentials from settings."""
     if not all(
         [
             settings.CLOUDINARY_CLOUD_NAME,
@@ -32,9 +30,7 @@ def init_cloudinary():
 
 async def upload_image(file: UploadFile) -> str:
     # cloudinary.uploader.unsigned_upload(file=file)
-    """
-    Uploads an image file to Cloudinary asynchronously.
-    """
+
     if not cloudinary.config().api_key:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

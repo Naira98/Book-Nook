@@ -4,11 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_db
 from crud.book import (
     search_books_by_title,
-    get_books_by_status,
+    get_books_by_status as get_books,
     create_book,
     is_book_exists,
 )
-from schemas.book import BookResponse, BookStatus, CreateBook, CreateBookResponse
+from schemas.book import BookResponse, BookStatus, CreateBookRequest, CreateBookResponse
 from typing import Annotated
 from decimal import Decimal
 from core.cloudinary import upload_image
@@ -26,7 +26,7 @@ async def search_books(
 
 @router.get("/status/{status}", response_model=list[BookResponse])
 async def get_books_by_status(status: BookStatus, db: AsyncSession = Depends(get_db)):
-    return await get_books_by_status(db, status.value)
+    return await get_books(db, status)
 
 
 @router.post(
@@ -47,7 +47,7 @@ async def create_book_endpoint(
             content={"message": "Book with this title and author already exists."},
         )
     secure_url = await upload_image(img_file)
-    book_data = CreateBook(
+    book_data = CreateBookRequest(
         title=title,
         price=price,
         description=description,

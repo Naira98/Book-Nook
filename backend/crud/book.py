@@ -3,7 +3,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload, contains_eager
 from fastapi.responses import JSONResponse
 from models.book import Book, BookDetails, BookStatus
-from schemas.book import CreateBook
+from schemas.book import CreateBookRequest
+from fastapi import status
 
 
 # Fetch books by partial match in title (case-insensitive)
@@ -49,7 +50,7 @@ async def is_book_exists(db: AsyncSession, title: str, author_id: int):
     return existing_book is not None
 
 
-async def create_book(book_data: CreateBook, db: AsyncSession):
+async def create_book(book_data: CreateBookRequest, db: AsyncSession):
     try:
         book_to_create = Book(
             **book_data.model_dump(),
@@ -60,7 +61,7 @@ async def create_book(book_data: CreateBook, db: AsyncSession):
     except Exception:
         await db.rollback()
         return JSONResponse(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             content={"message": "Failed to create book"},
         )
     return book_to_create

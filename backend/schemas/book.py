@@ -4,20 +4,14 @@ from models.book import BookStatus
 
 
 class IdSchema(BaseModel):
-    """Mixin schema for models with an ID."""
-
     id: int
 
 
 class BookBase(BaseModel):
-    """Base schema for book properties."""
-
     title: str
     price: Decimal
     description: str
     cover_img: str | None = None
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class AuthorSchema(BaseModel):
@@ -49,10 +43,10 @@ class BookResponse(IdSchema, BookBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-class CreateBook(BookBase):
+class CreateBookRequest(BookBase):
     category_id: int
     author_id: int
 
 
-class CreateBookResponse(CreateBook, IdSchema):
+class CreateBookResponse(CreateBookRequest, IdSchema):
     model_config = ConfigDict(from_attributes=True)
