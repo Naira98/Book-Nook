@@ -1,1 +1,1 @@
-from . import auth  # noqa: F401
+from . import auth, book  # noqa: F401

@@ -13,10 +13,10 @@ from typing import Annotated
 from decimal import Decimal
 from core.cloudinary import upload_image
 
-router = APIRouter(prefix="/books", tags=["Books"])
+book_router = APIRouter(prefix="/books", tags=["Books"])
 
 
-@router.get("/search/", response_model=list[BookResponse])
+@book_router.get("/search/", response_model=list[BookResponse])
 async def search_books(
     title: str = Query(..., min_length=1),
     db: AsyncSession = Depends(get_db),
@@ -24,12 +24,12 @@ async def search_books(
     return await search_books_by_title(db, title)
 
 
-@router.get("/status/{status}", response_model=list[BookResponse])
+@book_router.get("/status/{status}", response_model=list[BookResponse])
 async def get_books_by_status(status: BookStatus, db: AsyncSession = Depends(get_db)):
     return await get_books(db, status)
 
 
-@router.post(
+@book_router.post(
     "/create", status_code=status.HTTP_201_CREATED, response_model=CreateBookResponse
 )
 async def create_book_endpoint(
