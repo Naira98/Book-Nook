@@ -66,11 +66,7 @@ async def register(
             national_id=user_data.national_id,
             role=UserRole.CLIENT.value,  # Default role
         )
-
-        db.add(new_user)
-        await db.commit()
-        await db.refresh(new_user)
-
+      
     except SQLAlchemyError as db_error:
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(db_error)}")
@@ -89,9 +85,14 @@ async def register(
             "EMAIL_VERIFICATION_SECRET_KEY",
             settings.EMAIL_VERIFICATION_TOKEN_EXPIRATION_MINUTES,
         )
+        new_user.email_verification_token = token
+        db.add(new_user)
+        await db.commit()
+        await db.refresh(new_user)
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Token generation failed: {str(e)}")
-
+# shroukkhamis239@gmail.com
     # Send verification email
     try:
         verification_link = f"{settings.APP_HOST}/verify-email?token={token}"
@@ -117,14 +118,13 @@ async def register(
     }
 
 
-
 @auth_router.post("/verify-email", response_model=SuccessMessage)
 async def verify_email(
     email_verification: EmailVerificationRequest,
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        # Decode the token
+        # Decode the token to extract email
         email = decode_token_generic(
             email_verification.token,
             settings.EMAIL_VERIFICATION_SECRET_KEY,
@@ -142,17 +142,28 @@ async def verify_email(
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
-        # Update user status to activated
+        # Validate that token matches the one stored in DB
+        if user.email_verification_token != email_verification.token:
+            raise HTTPException(status_code=400, detail="Invalid verification token")
+
+        # Activate user and clear verification token
         user.status = UserStatus.ACTIVATED.value
+        user.email_verified = True  # if you have this field
+        user.email_verification_token = None 
+
         await db.commit()
+
+        return {
+            "success": True,
+            "status_code": 200,
+            "message": "Email verified successfully."
+        }
 
     except HTTPException as e:
         raise e
     except Exception as e:
         await db.rollback()
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")  
-    
-
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
 
 @auth_router.post("/login", response_model=LoginResponse)
 async def login(
