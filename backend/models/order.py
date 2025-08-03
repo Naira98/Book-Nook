@@ -34,6 +34,7 @@ class ReturnOrderStatus(Enum):
     ON_THE_WAY = "ON_THE_WAY"
     PICKED_UP = "PICKED_UP"
     CHECKING = "CHECKING"
+    DONE = "DONE"
     PROBLEM = "PROBLEM"
 
 

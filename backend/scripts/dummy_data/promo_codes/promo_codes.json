@@ -2,26 +2,31 @@
   {
     "code": "SAVE15",
     "discount_perc": 0.15,
-    "is_active": true
+    "is_active": true,
+    "id": 1001
   },
   {
     "code": "WELCOME20",
     "discount_perc": 0.2,
-    "is_active": true
+    "is_active": true,
+    "id": 1002
   },
   {
     "code": "BOOKLOVER",
     "discount_perc": 0.1,
-    "is_active": false
+    "is_active": false,
+    "id": 1003
   },
   {
     "code": "SUMMER30",
     "discount_perc": 0.3,
-    "is_active": true
+    "is_active": true,
+    "id": 1004
   },
   {
     "code": "FIVEOFF",
     "discount_perc": 0.05,
-    "is_active": true
+    "is_active": true,
+    "id": 1005
   }
 ]

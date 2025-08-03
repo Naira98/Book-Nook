@@ -1,47 +1,52 @@
 [
   {
-    "id": 1,
+    "id": 1001,
     "address": "123 Maple Street",
     "phone_number": "+1-555-123-4567",
     "pick_up_type": "SITE",
     "status": "CREATED",
-    "user_id": 2,
-    "courier_id": 6
+    "user_id": 1002,
+    "courier_id": 1006,
+    "created_at": "2025-08-14T19:01:10Z"
   },
   {
-    "id": 2,
+    "id": 1002,
     "address": "456 Oak Avenue",
     "phone_number": "+1-555-987-6543",
     "pick_up_type": "COURIER",
     "status": "CREATED",
-    "user_id": 3,
-    "courier_id": 7
+    "user_id": 1003,
+    "courier_id": 1007,
+    "created_at": "2025-08-24T19:01:10Z"
   },
   {
-    "id": 3,
+    "id": 1003,
     "address": "789 Pine Road",
     "phone_number": "+1-555-555-5555",
     "pick_up_type": "SITE",
     "status": "CREATED",
-    "user_id": 4,
-    "courier_id": 6
+    "user_id": 1004,
+    "courier_id": 1006,
+    "created_at": "2025-08-26T19:01:10Z"
   },
   {
-    "id": 4,
+    "id": 1004,
     "address": "101 Cherry Lane",
     "phone_number": "+1-555-444-3333",
     "pick_up_type": "COURIER",
     "status": "CREATED",
-    "user_id": 2,
-    "courier_id": 7
+    "user_id": 1002,
+    "courier_id": 1007,
+    "created_at": "2025-08-12T19:01:10Z"
   },
   {
-    "id": 5,
+    "id": 1005,
     "address": "202 Birch Court",
     "phone_number": "+1-555-111-2222",
     "pick_up_type": "SITE",
     "status": "CREATED",
-    "user_id": 3,
-    "courier_id": 6
+    "user_id": 1003,
+    "courier_id": 1006,
+    "created_at": "2025-09-04T19:01:10Z"
   }
 ]

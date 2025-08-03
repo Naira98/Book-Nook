@@ -7,6 +7,7 @@ from fastapi import APIRouter, FastAPI
 from routers.auth import auth_router
 from settings import settings
 from routers import book
+from core.cloudinary import init_cloudinary
 
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__))))
 
@@ -16,6 +17,7 @@ load_dotenv()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Logic here will run before the application starts receiving requests.
+    init_cloudinary()
     print("Application startup...")
     yield
     # Logic here will run after the application finishes handling requests.

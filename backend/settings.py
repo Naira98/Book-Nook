@@ -35,5 +35,10 @@ class Settings(BaseSettings):
     MAIL_SSL_TLS: bool = os.getenv("MAIL_SSL_TLS", "False").lower() == "true"
     USE_CREDENTIALS: bool = os.getenv("USE_CREDENTIALS", "True").lower() == "true"
 
+    # Cloudinary Configuration
+    CLOUDINARY_CLOUD_NAME: str | None = os.getenv("CLOUDINARY_CLOUD_NAME")
+    CLOUDINARY_API_KEY: str | None = os.getenv("CLOUDINARY_API_KEY")
+    CLOUDINARY_API_SECRET: str | None = os.getenv("CLOUDINARY_API_SECRET")
+
 
 settings = Settings()

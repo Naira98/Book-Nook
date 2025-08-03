@@ -1,9 +1,9 @@
 import json
 from pathlib import Path
-
-from models.order import ReturnOrder
 from sqlalchemy import select
+from models.order import ReturnOrder
 from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import datetime
 
 current_dir = Path(__file__).resolve().parent
 
@@ -21,6 +21,12 @@ async def add_dummy_return_orders(db: AsyncSession):
         )
 
         if not result.scalars().first():
+            # Convert 'created_at' string to a datetime object
+            if isinstance(return_order["created_at"], str):
+                return_order["created_at"] = datetime.strptime(
+                    return_order["created_at"], "%Y-%m-%dT%H:%M:%SZ"
+                )
+
             return_orders_to_add.append(ReturnOrder(**return_order))
             print(
                 f"  - Preparing to add return order for user id : {return_order['user_id']}"

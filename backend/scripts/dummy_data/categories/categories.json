@@ -1,32 +1,42 @@
 [
   {
+    "id": 1001,
     "name": "Science Fiction"
   },
   {
+    "id": 1002,
     "name": "Fantasy"
   },
   {
+    "id": 1003,
     "name": "Mystery"
   },
   {
+    "id": 1004,
     "name": "Biography"
   },
   {
+    "id": 1005,
     "name": "Historical Fiction"
   },
   {
+    "id": 1006,
     "name": "Horror"
   },
   {
+    "id": 1007,
     "name": "Romance"
   },
   {
+    "id": 1008,
     "name": "Thriller"
   },
   {
+    "id": 1009,
     "name": "Young Adult"
   },
   {
+    "id": 1010,
     "name": "Children's Literature"
   }
 ]

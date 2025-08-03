@@ -1,32 +1,42 @@
 [
   {
+    "id": 1001,
     "name": "J.K. Rowling"
   },
   {
+    "id": 1002,
     "name": "George Orwell"
   },
   {
+    "id": 1003,
     "name": "Jane Austen"
   },
   {
+    "id": 1004,
     "name": "Stephen King"
   },
   {
+    "id": 1005,
     "name": "Agatha Christie"
   },
   {
+    "id": 1006,
     "name": "Isaac Asimov"
   },
   {
+    "id": 1007,
     "name": "Virginia Woolf"
   },
   {
+    "id": 1008,
     "name": "Homer"
   },
   {
+    "id": 1009,
     "name": "Haruki Murakami"
   },
   {
+    "id": 1010,
     "name": "Gabriel García Márquez"
   }
 ]
