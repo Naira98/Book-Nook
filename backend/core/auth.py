@@ -29,6 +29,8 @@ def create_token_generic(
     subject: Literal["FORGET_PASSWORD_SECRET_KEY", "EMAIL_VERIFICATION_SECRET_KEY"],
     expiration_minutes: int,
 ):
+    print("🤡🤡*******🤡🤡🤡")
+
     if secret_key is None:
         raise ValueError(f"{subject} is not set")
 
@@ -70,42 +72,43 @@ def decode_token_generic(
         return None
 
 
+conf = ConnectionConfig(
+    MAIL_USERNAME=settings.MAIL_USERNAME,
+    MAIL_PASSWORD=settings.MAIL_PASSWORD,
+    MAIL_FROM=settings.MAIL_FROM,
+    MAIL_PORT=settings.MAIL_PORT,
+    MAIL_SERVER=settings.MAIL_SERVER,
+    MAIL_STARTTLS=settings.MAIL_STARTTLS,
+    MAIL_SSL_TLS=settings.MAIL_SSL_TLS,
+    USE_CREDENTIALS=settings.USE_CREDENTIALS
+)
+
+
 # Sending mails
 async def send_email(
+    *,
     user_email: str,
+    subject: str,
     html_body: str,
-    message_subject: str,
     background_tasks: BackgroundTasks,
 ):
+    # Validate email configuration
     if (
-        settings.MAIL_USERNAME is None
-        or settings.MAIL_PASSWORD is None
-        or settings.MAIL_FROM is None
-        or settings.MAIL_SERVER is None
-        or settings.MAIL_PORT is None
+        not settings.MAIL_USERNAME
+        or not settings.MAIL_PASSWORD
+        or not settings.MAIL_FROM
+        or not settings.MAIL_SERVER
+        or not settings.MAIL_PORT
     ):
-        raise ValueError(
-            "Email configuration is not set properly. Check MAIL_USERNAME and MAIL_PASSWORD."
-        )
+        raise ValueError("Email configuration is incomplete.")
 
-    conf = ConnectionConfig(
-        MAIL_USERNAME=settings.MAIL_USERNAME,
-        MAIL_PASSWORD=SecretStr(settings.MAIL_PASSWORD),
-        MAIL_FROM=settings.MAIL_FROM,
-        MAIL_PORT=settings.MAIL_PORT,
-        MAIL_SERVER=settings.MAIL_SERVER,
-        MAIL_SSL_TLS=settings.MAIL_SSL_TLS,
-        MAIL_STARTTLS=settings.MAIL_STARTTLS,
-        USE_CREDENTIALS=settings.USE_CREDENTIALS,
-    )
-
-    fm = FastMail(conf)
     message = MessageSchema(
-        subject=message_subject,
+        subject=subject,
         recipients=[user_email],
         body=html_body,
         subtype=MessageType.html,
     )
 
+    fm = FastMail(conf)
     background_tasks.add_task(fm.send_message, message)
     print(f"Added task to send email to {user_email}")

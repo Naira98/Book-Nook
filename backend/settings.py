@@ -19,6 +19,11 @@ class Settings(BaseSettings):
     RESET_PASSWORD_TOKEN_EXPIRATION_MINUTES: int = 10
     RESET_PASSWORD_URL: str = "/reset-password"
     ALGORITHM: str = "HS256"
+    # Email verification settings
+    JWT_SECRET_KEY: str | None = os.getenv("JWT_SECRET_KEY")
+    EMAIL_VERIFICATION_SECRET_KEY: str | None = os.getenv("EMAIL_VERIFICATION_SECRET_KEY")
+    EMAIL_VERIFICATION_TOKEN_EXPIRATION_MINUTES: int = 60 * 24 * 30 
+
 
     # Email Configuration
     MAIL_USERNAME: str | None = os.getenv("MAIL_USERNAME")
