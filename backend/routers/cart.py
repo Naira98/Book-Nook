@@ -32,16 +32,6 @@ async def add_to_cart (
     cart_item = await cart_crud.add_to_cart(db, user_id, book_details_id, quantity)
     return cart_item
 
-# @cart_router.patch("/update")
-# async def update_cart(
-#     user_id: int, 
-#     book_details_id: int, 
-#     quantity: int, 
-#     db: AsyncSession = Depends(get_db)
-# ):
-#     cart_item = await cart_crud.update_cart(db, user_id, book_details_id, quantity)
-#     return cart_item
-
 @cart_router.delete("/delete")
 async def delete_cart_item(
     book_details_id: int, 

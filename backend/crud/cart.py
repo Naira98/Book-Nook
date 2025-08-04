@@ -43,20 +43,7 @@ async def add_to_cart(db: AsyncSession, user_id: int, book_details_id: int, quan
         await db.refresh(cart_item)
         return cart_item    
 
-# async def update_cart(db: AsyncSession, user_id: int, book_details_id: int, quantity: int):
-#     cart_item = await db.execute(
-#         select(Cart).where(
-#             Cart.user_id == user_id,
-#             Cart.book_details_id == book_details_id
-#         )
-#     )
-#     cart_item = cart_item.scalars().first()
-#     if cart_item:
-#         cart_item.quantity += quantity
-#         await db.commit()
-#         await db.refresh(cart_item)
-#         return cart_item
-#     return None
+
 
 async def delete_cart_item(db: AsyncSession, user_id: int, book_details_id: int):
     cart_item = await db.execute(
