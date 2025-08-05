@@ -7,11 +7,14 @@ import ForgetPassword from "./pages/auth/ForgetPassword";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
+import OrderPage from "./pages/auth/OrdersPage";
+
 
 const App = () => {
   const queryClient = new QueryClient();
   return (
     <BrowserRouter>
+
       <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools initialIsOpen={false} />
         <Routes>
@@ -20,6 +23,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="/reset-password/:reset_token" element={<ResetPassword />} />
+          <Route path="/order" element={<OrderPage/>} />
         </Routes>
 
         <ToastContainer
@@ -35,6 +39,7 @@ const App = () => {
           theme="light"
         />
       </QueryClientProvider>
+
     </BrowserRouter>
   );
 };

@@ -2,9 +2,9 @@ from datetime import datetime, timedelta
 from typing import Literal, Optional
 
 from fastapi import BackgroundTasks
-from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
-from jose import JWTError, jwt
-from passlib.context import CryptContext
+from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType # type: ignore
+from jose import ExpiredSignatureError, JWTError, jwt # type: ignore
+from passlib.context import CryptContext # type: ignore
 from pydantic import SecretStr
 from settings import settings
 
@@ -38,7 +38,7 @@ def create_token_generic(
         "exp": token_expires_at,
     }
     token = jwt.encode(data, secret_key, algorithm)
-    return (token, token_expires_at)
+    return token
 
 
 def decode_token_generic(
@@ -49,24 +49,23 @@ def decode_token_generic(
         "JWT_SECRET_KEY", "FORGET_PASSWORD_SECRET_KEY", "EMAIL_VERIFICATION_SECRET_KEY"
     ],
 ):
-    if secret_key is None:
-        raise ValueError(f"{subject} is not set")
+        if secret_key is None:
+            raise ValueError(f"{subject} is not set")
 
-    try:
-        payload = jwt.decode(
-            token,
-            secret_key,
-            algorithms=[algorithm],
-        )
-
-        email_from_payload = payload.get("sub")
-        if email_from_payload is None:
+        try:
+            payload = jwt.decode(
+                token,
+                secret_key,
+                algorithms=[algorithm],
+            )
+            email_from_payload = payload.get("sub")
+            if email_from_payload is None:
+                return None
+            return str(email_from_payload)
+        except ExpiredSignatureError:
+            raise
+        except JWTError:
             return None
-
-        email: str = str(email_from_payload)
-        return email
-    except JWTError:
-        return None
 
 
 if (

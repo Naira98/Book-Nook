@@ -51,7 +51,7 @@ async def create_book_endpoint(
     author_id: Annotated[int, Form()],
     img_file: Annotated[UploadFile, File()],
     db: AsyncSession = Depends(get_db),
-    porchase_available_stock: Annotated[int | None, Form()] = None,
+    purchase_available_stock: Annotated[int | None, Form()] = None,
     borrow_available_stock: Annotated[int | None, Form()] = None,
 ):
     if await is_book_exists(db, title, author_id):
@@ -60,7 +60,7 @@ async def create_book_endpoint(
             content={"message": "Book with this title and author already exists."},
         )
 
-    if not porchase_available_stock and not borrow_available_stock:
+    if not purchase_available_stock and not borrow_available_stock:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={"message": "At least one stock type must be provided."},
@@ -79,7 +79,7 @@ async def create_book_endpoint(
     book = await create_book(book_data, db)
     await create_book_details(
         book.id,
-        porchase_available_stock,
+        purchase_available_stock,
         borrow_available_stock,
         db=db,
     )

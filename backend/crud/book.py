@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, insert
 from sqlalchemy.orm import selectinload, contains_eager
 from fastapi.responses import JSONResponse
-from models.book import Book, BookDetails, BookStatus, BookStatus
+from models.book import Book, BookDetails, BookStatus
 from schemas.book import CreateBookRequest, EditBookRequest, UpdateStockRequest
 from fastapi import status, HTTPException
 
@@ -120,17 +120,17 @@ async def update_book_image(book_id: int, img_file: str, db: AsyncSession):
 
 async def create_book_details(
     book_id: int,
-    porchase_available_stock: int | None,
+    purchase_available_stock: int | None,
     borrow_available_stock: int | None,
     db: AsyncSession,
 ):
     rows_to_insert = []
-    if porchase_available_stock:
+    if purchase_available_stock:
         rows_to_insert.append(
             {
                 "book_id": book_id,
                 "status": BookStatus.PURCHASE.value,
-                "available_stock": porchase_available_stock,
+                "available_stock": purchase_available_stock,
             }
         )
     if borrow_available_stock:
