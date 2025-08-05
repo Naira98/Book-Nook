@@ -1,9 +1,9 @@
 from __future__ import annotations
-from .settings import PromoCode
+
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-
+from typing import Optional
 
 from db.base import Base
 from sqlalchemy import DateTime, ForeignKey, Index, Numeric
@@ -42,17 +42,27 @@ class BorrowOrderBook(Base):
     __tablename__ = "borrow_order_books"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    borrowing_days: Mapped[int]
+    borrowing_weeks: Mapped[int]
     return_date: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
     borrow_book_problem: Mapped[BorrowBookProblem] = mapped_column(
         default=BorrowBookProblem.NORMAL.value
     )
-    deposit_fees: Mapped[Decimal] = mapped_column(Numeric(5, 2))
-    borrow_fees: Mapped[Decimal] = mapped_column(Numeric(5, 2))
-    delay_fees_per_day: Mapped[Decimal] = mapped_column(Numeric(5, 2))
-    promo_code_discount: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    deposit_fees: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2)
+    )  # The refundable deposit amount.
+    borrow_fees: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2)
+    )  # The borrowing fee after discount.
+    delay_fees_per_day: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2)
+    )  # The daily late fee.
+    promocode_discount: Mapped[Decimal | None] = (
+        mapped_column(  # The monetary value of the discount.
+            Numeric(10, 2), nullable=True
+        )
+    )
 
     # Foreign Keys
     book_details_id: Mapped[int] = mapped_column(ForeignKey("book_details.id"))
@@ -78,7 +88,10 @@ class PurchaseOrderBook(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     quantity: Mapped[int] = mapped_column(default=1)
-    price: Mapped[Decimal] = mapped_column(Numeric(4, 2))
+    paid_price_per_book: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    promocode_discount_per_book: Mapped[Optional[Decimal]] = mapped_column(
+        Numeric(10, 2), nullable=True
+    )
 
     # Foreign Keys
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
@@ -106,6 +119,7 @@ class Order(Base):
     pick_up_date: Mapped[datetime | None] = mapped_column(default=None, nullable=True)
     pick_up_type: Mapped[PickUpType]
     status: Mapped[OrderStatus] = mapped_column(default=OrderStatus.CREATED.value)
+    delivery_fees: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
 
     # Foreign Keys
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
@@ -137,6 +151,7 @@ class ReturnOrder(Base):
     status: Mapped[ReturnOrderStatus] = mapped_column(
         default=ReturnOrderStatus.CREATED.value
     )
+    delivery_fees: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
 
     # Foreign Keys
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))

@@ -9,9 +9,6 @@ from db.database import get_db
 
 
 async def get_user_by_email(email: str, db: AsyncSession):
-    """
-    Helper function to get user from email.
-    """
     result = await db.execute(select(User).where(User.email == email))
     return result.scalars().first()
 

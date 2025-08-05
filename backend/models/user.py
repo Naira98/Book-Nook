@@ -39,6 +39,7 @@ class User(Base):
     status: Mapped[UserStatus] = mapped_column(default=UserStatus.DEACTIVATED.value)
     role: Mapped[UserRole] = mapped_column(default=UserRole.CLIENT.value)
     interests: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    current_borrowed_books: Mapped[int] = mapped_column(default=0)
     created_date: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
