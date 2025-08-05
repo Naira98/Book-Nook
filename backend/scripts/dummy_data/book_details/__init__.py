@@ -1,0 +1,1 @@
+from .book_details import add_dummy_book_details

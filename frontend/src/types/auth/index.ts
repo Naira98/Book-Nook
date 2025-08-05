@@ -17,7 +17,7 @@ export interface EmailFormValues {
   email: string;
 }
 
-export interface ResetPasswordValues {
-  newPassword: string;
-  confirmPassword: string;
-}
+export type ResetPasswordValues = {
+  new_password: string;
+  confirm_password: string;
+};

@@ -1,4 +1,4 @@
-Borrownies
+Book Nook
 │
 ├── backend/
 │   ├── main.py             # Main FastAPI application entry point; includes all API routers.
@@ -38,6 +38,15 @@ Borrownies
 │   │   ├── book.py         # Implements CRUD functions for the Book model.
 │   │   ├── author.py       # Implements CRUD functions for the Author model.
 │   │   └── borrow_order.py # Implements CRUD functions for the BorrowOrder model.
+│   │
+│   ├── scripts/            # Contains standalone scripts for various tasks.
+│   │   ├── dummy_data/     # Modules and data for database seeding.
+│   │   │   ├── __init__.py # Makes 'dummy_data' a package.
+│   │   │   ├── users.py    # Seeding logic for users.
+│   │   │   ├── authors.py  # Seeding logic for authors.
+│   │   │   ├── users.json  # Dummy user data.
+│   │   │   └── authors.json# Dummy author data.
+│   │   └── seed.py         # Script to seed the database with initial/dummy data.
 │   │
 │   ├── .env                # Environment variables for backend (e.g., DATABASE_URL).
 │   └── requirements.txt    # Python dependencies for the backend.

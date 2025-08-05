@@ -42,12 +42,11 @@ class User(Base):
     created_date: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
-    reset_token: Mapped[str | None] = mapped_column(String, unique=True, nullable=True)
-    reset_token_expires_at: Mapped[datetime | None] = mapped_column(
-        DateTime, nullable=True
+    forget_password_token: Mapped[str | None] = mapped_column(String, unique=True, nullable=True)
+    email_verification_token: Mapped[str | None] = mapped_column(
+        String,  nullable=True
     )
 
-    # Relationships
     cart: Mapped[list[Cart]] = relationship(  # type: ignore  # noqa: F821
         back_populates="user", foreign_keys="[Cart.user_id]"
     )
@@ -72,6 +71,7 @@ class User(Base):
     purchase_order_books: Mapped[list[PurchaseOrderBook]] = relationship(  # type: ignore # noqa: F821
         back_populates="user"
     )
+    sessions: Mapped[list[Session]] = relationship(back_populates="user")  # type: ignore # noqa: F821
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email={self.email}, role={self.role.value})>"

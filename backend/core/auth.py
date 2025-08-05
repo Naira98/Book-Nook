@@ -1,37 +1,12 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Literal, Optional
 
 from fastapi import BackgroundTasks
-from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
-from jose import JWTError, jwt
-from passlib.context import CryptContext
+from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType # type: ignore
+from jose import ExpiredSignatureError, JWTError, jwt # type: ignore
+from passlib.context import CryptContext # type: ignore
 from pydantic import SecretStr
-from schemas.auth import TokenData
 from settings import settings
-
-
-def create_access_token(
-    data: TokenData, expires_delta: Optional[timedelta] = None
-) -> str:
-    to_encode = data.model_dump()  # Converts the BaseModel to a dict
-
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
-    else:
-        expire = datetime.now(timezone.utc) + timedelta(
-            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-        )
-
-    to_encode["exp"] = expire
-
-    if settings.JWT_SECRET_KEY is None:
-        raise ValueError("JWT_SECRET_KEY is not set")
-
-    encoded_jwt = jwt.encode(
-        to_encode, settings.JWT_SECRET_KEY, algorithm=settings.ALGORITHM
-    )
-    return encoded_jwt
-
 
 # Password Hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -45,6 +20,7 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
+# Token generation and decoding
 def create_token_generic(
     email: str,
     secret_key: Optional[str],
@@ -62,7 +38,7 @@ def create_token_generic(
         "exp": token_expires_at,
     }
     token = jwt.encode(data, secret_key, algorithm)
-    return (token, token_expires_at)
+    return token
 
 
 def decode_token_generic(
@@ -73,62 +49,71 @@ def decode_token_generic(
         "JWT_SECRET_KEY", "FORGET_PASSWORD_SECRET_KEY", "EMAIL_VERIFICATION_SECRET_KEY"
     ],
 ):
-    if secret_key is None:
-        raise ValueError(f"{subject} is not set")
+        if secret_key is None:
+            raise ValueError(f"{subject} is not set")
 
-    try:
-        payload = jwt.decode(
-            token,
-            secret_key,
-            algorithms=[algorithm],
-        )
-
-        email_from_payload = payload.get("sub")
-        if email_from_payload is None:
+        try:
+            payload = jwt.decode(
+                token,
+                secret_key,
+                algorithms=[algorithm],
+            )
+            email_from_payload = payload.get("sub")
+            if email_from_payload is None:
+                return None
+            return str(email_from_payload)
+        except ExpiredSignatureError:
+            raise
+        except JWTError:
             return None
 
-        email: str = str(email_from_payload)
-        return email
-    except JWTError:
-        return None
+
+if (
+    settings.MAIL_USERNAME is None
+    or settings.MAIL_PASSWORD is None
+    or settings.MAIL_FROM is None
+    or settings.MAIL_SERVER is None
+    or settings.MAIL_PORT is None
+    or settings.MAIL_STARTTLS is None
+):
+    raise ValueError("Email configuration is incomplete. Please check your settings.")
+
+conf = ConnectionConfig(
+    MAIL_USERNAME=settings.MAIL_USERNAME,
+    MAIL_PASSWORD=SecretStr(settings.MAIL_PASSWORD),
+    MAIL_FROM=settings.MAIL_FROM,
+    MAIL_PORT=settings.MAIL_PORT,
+    MAIL_SERVER=settings.MAIL_SERVER,
+    MAIL_STARTTLS=settings.MAIL_STARTTLS,
+    MAIL_SSL_TLS=settings.MAIL_SSL_TLS,
+    USE_CREDENTIALS=settings.USE_CREDENTIALS,
+)
 
 
+# Sending mails
 async def send_email(
     user_email: str,
+    subject: str,
     html_body: str,
-    message_subject: str,
     background_tasks: BackgroundTasks,
 ):
+    # Validate email configuration
     if (
-        settings.MAIL_USERNAME is None
-        or settings.MAIL_PASSWORD is None
-        or settings.MAIL_FROM is None
-        or settings.MAIL_SERVER is None
-        or settings.MAIL_PORT is None
+        not settings.MAIL_USERNAME
+        or not settings.MAIL_PASSWORD
+        or not settings.MAIL_FROM
+        or not settings.MAIL_SERVER
+        or not settings.MAIL_PORT
     ):
-        raise ValueError(
-            "Email configuration is not set properly. Check MAIL_USERNAME and MAIL_PASSWORD."
-        )
+        raise ValueError("Email configuration is incomplete.")
 
-    # --- FastAPI-Mail Configuration ---
-    conf = ConnectionConfig(
-        MAIL_USERNAME=settings.MAIL_USERNAME,
-        MAIL_PASSWORD=SecretStr(settings.MAIL_PASSWORD),
-        MAIL_FROM=settings.MAIL_FROM,
-        MAIL_PORT=settings.MAIL_PORT,
-        MAIL_SERVER=settings.MAIL_SERVER,
-        MAIL_SSL_TLS=settings.MAIL_SSL_TLS,
-        MAIL_STARTTLS=settings.MAIL_STARTTLS,
-        USE_CREDENTIALS=settings.USE_CREDENTIALS,
-    )
-
-    fm = FastMail(conf)
     message = MessageSchema(
-        subject=message_subject,
+        subject=subject,
         recipients=[user_email],
         body=html_body,
         subtype=MessageType.html,
     )
 
+    fm = FastMail(conf)
     background_tasks.add_task(fm.send_message, message)
     print(f"Added task to send email to {user_email}")
