@@ -5,6 +5,7 @@ import Login from "./pages/auth/Login";
 import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import EmailVerification from "./pages/auth/EmailVerification";
 import EmailPage from "./pages/auth/EmailPage";
+import OrderPage from "./pages/auth/OrdersPage";
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
         <Route path="/email_verification" element={<EmailVerification />} />
         <Route path="/reset-password-request" element={<EmailPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/order" element={<OrderPage/>} />
       </Routes>
     </BrowserRouter>
   );
