@@ -35,7 +35,7 @@ class BookDetailsSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class BookResponse(IdSchema, BookBase):
+class BookResponse(BookBase, IdSchema):
     author: AuthorSchema
     category: CategorySchema
     book_details: list[BookDetailsSchema]
@@ -50,3 +50,9 @@ class CreateBookRequest(BookBase):
 
 class CreateBookResponse(CreateBookRequest, IdSchema):
     model_config = ConfigDict(from_attributes=True)
+
+
+class EditBookRequest(BaseModel):
+    price: Decimal
+    description: str
+    category_id: int
