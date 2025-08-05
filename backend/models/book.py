@@ -34,7 +34,7 @@ class Book(Base):
     title: Mapped[str] = mapped_column(String(255))
     price: Mapped[Decimal] = mapped_column(Numeric(6, 2))
     description: Mapped[str] = mapped_column(String(1000), nullable=True)
-    cover_img: Mapped[str] = mapped_column(String, nullable=True)
+    cover_img: Mapped[str | None] = mapped_column(String, nullable=True)
 
     # Foreign Keys
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
