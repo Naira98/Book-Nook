@@ -3,7 +3,7 @@ from sqlalchemy import select, update, insert
 from sqlalchemy.orm import selectinload, contains_eager
 from fastapi.responses import JSONResponse
 from models.book import Book, BookDetails, BookStatus, BookStatus
-from schemas.book import CreateBookRequest, BookResponse, EditBookRequest
+from schemas.book import CreateBookRequest, EditBookRequest, UpdateStockRequest
 from fastapi import status, HTTPException
 
 
@@ -154,3 +154,31 @@ async def create_book_details(
                 "rows_to_insert": rows_to_insert,
             },
         )
+
+
+async def update_book_stock_crud(new_stock_data: UpdateStockRequest, db: AsyncSession):
+    stmt = (
+        update(BookDetails)
+        .where(
+            BookDetails.book_id == new_stock_data.book_id,
+            BookDetails.status == new_stock_data.stock_type,
+        )
+        .values(available_stock=new_stock_data.new_stock)
+        .returning(BookDetails)
+    )
+    try:
+        result = await db.execute(stmt)
+        book_details_after_update = result.scalars().first()
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": "Failed to update book details"},
+        )
+
+    if not book_details_after_update:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": "Book details not found"},
+        )
+
+    await db.commit()

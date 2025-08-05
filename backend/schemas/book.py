@@ -56,3 +56,9 @@ class EditBookRequest(BaseModel):
     price: Decimal
     description: str
     category_id: int
+
+
+class UpdateStockRequest(BaseModel):
+    book_id: int
+    stock_type: BookStatus
+    new_stock: int

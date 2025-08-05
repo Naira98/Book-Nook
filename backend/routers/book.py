@@ -10,6 +10,7 @@ from crud.book import (
     update_book as update_book_crud,
     update_book_image as update_book_image_crud,
     create_book_details,
+    update_book_stock_crud,
 )
 from schemas.book import (
     BookResponse,
@@ -17,6 +18,7 @@ from schemas.book import (
     CreateBookRequest,
     CreateBookResponse,
     EditBookRequest,
+    UpdateStockRequest,
 )
 from typing import Annotated
 from decimal import Decimal
@@ -103,3 +105,13 @@ async def update_book_image(
     secure_url = await upload_image(img_file)
     book_after_update = await update_book_image_crud(book_id, secure_url, db)
     return book_after_update
+
+
+@book_router.patch("/update/{book_id}/stock", status_code=200)
+async def update_book_stock(
+    new_stock_data: UpdateStockRequest, db: AsyncSession = Depends(get_db)
+):
+    await update_book_stock_crud(new_stock_data, db)
+    return JSONResponse(
+        content={"message": "Book stock updated successfully."},
+    )
