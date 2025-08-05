@@ -21,7 +21,7 @@ from schemas.auth import (
     RegisterRequest,
     ResetForegetPassword,
     SuccessMessage,
-    EmailVerificationRequest,  # Added missing import
+    EmailVerificationRequest,
 )
 from settings import settings
 from sqlalchemy import delete, select
@@ -36,21 +36,26 @@ auth_router = APIRouter(
     tags=["Auth"],
 )
 
+
 @auth_router.post("/register", response_model=SuccessMessage)
 async def register(
     user_data: RegisterRequest,
+    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
-    background_tasks: BackgroundTasks = None
 ):
     try:
         result = await db.execute(select(User).where(User.email == user_data.email))
         if result.scalars().first():
             raise HTTPException(status_code=400, detail="Email already exists")
 
-        result = await db.execute(select(User).where(User.phone_number == user_data.phone_number))
+        result = await db.execute(
+            select(User).where(User.phone_number == user_data.phone_number)
+        )
         if result.scalars().first():
             raise HTTPException(status_code=400, detail="Phone number already exists")
-        result = await db.execute(select(User).where(User.national_id == user_data.national_id))
+        result = await db.execute(
+            select(User).where(User.national_id == user_data.national_id)
+        )
         if result.scalars().first():
             raise HTTPException(status_code=400, detail="National ID already exists")
 
@@ -66,7 +71,7 @@ async def register(
             national_id=user_data.national_id,
             role=UserRole.CLIENT.value,  # Default role
         )
-      
+
     except SQLAlchemyError as db_error:
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(db_error)}")
@@ -74,7 +79,9 @@ async def register(
         raise  # Re-raise known HTTP exceptions (email/phone/national_id exists)
     except Exception as e:
         await db.rollback()
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"An unexpected error occurred: {str(e)}"
+        )
 
     # Generate verification token
     try:
@@ -91,8 +98,9 @@ async def register(
         await db.refresh(new_user)
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Token generation failed: {str(e)}")
-# shroukkhamis239@gmail.com
+        raise HTTPException(
+            status_code=500, detail=f"Token generation failed: {str(e)}"
+        )
     # Send verification email
     try:
         verification_link = f"{settings.APP_HOST}/verify-email?token={token}"
@@ -102,14 +110,16 @@ async def register(
             <a href="{verification_link}">Verify Email</a>
         """
         await send_email(
-            user_email=new_user.email,
-            subject="Verify Your Email",
-            html_body=email_body,
-            background_tasks=background_tasks,
+            new_user.email,
+            email_body,
+            "Verify Your Email",
+            background_tasks,
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to send verification email: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to send verification email: {str(e)}"
+        )
 
     return {
         "success": True,
@@ -120,8 +130,7 @@ async def register(
 
 @auth_router.post("/verify-email", response_model=SuccessMessage)
 async def verify_email(
-    email_verification: EmailVerificationRequest,
-    db: AsyncSession = Depends(get_db)
+    email_verification: EmailVerificationRequest, db: AsyncSession = Depends(get_db)
 ):
     try:
         # Decode the token to extract email
@@ -147,45 +156,47 @@ async def verify_email(
             raise HTTPException(status_code=400, detail="Invalid verification token")
 
         # Activate user and clear verification token
-        user.status = UserStatus.ACTIVATED.value
+        user.status = UserStatus.ACTIVATED
         user.email_verified = True  # if you have this field
-        user.email_verification_token = None 
+        user.email_verification_token = None
 
         await db.commit()
 
         return {
             "success": True,
             "status_code": 200,
-            "message": "Email verified successfully."
+            "message": "Email verified successfully.",
         }
 
     except HTTPException as e:
         raise e
     except Exception as e:
         await db.rollback()
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"An unexpected error occurred: {str(e)}"
+        )
+
 
 @auth_router.post("/login", response_model=LoginResponse)
 async def login(
     user_login: LoginRequest, response: Response, db: AsyncSession = Depends(get_db)
 ):
-    # """ GENERATE DUMMY USER DATA FOR TESTING PURPOSE """
-    dummy_user = User(
-        **{
-            "first_name": "test",
-            "last_name": "test",
-            "email": "test@test.com",
-            "password": get_password_hash("test"),
-            "status": UserStatus.ACTIVATED.value,
-            "role": UserRole.CLIENT.value,
-            "national_id": "12345678901234",
-            "phone_number": "12345678901",
-        }
-    )
-    db.add(dummy_user)
-    await db.commit()
-    await db.refresh(dummy_user)
-    print("ADDED DUMMY USER 🤡🤡🤡🤡🤡", dummy_user.id)
+    # dummy_user = User(
+    #     **{
+    #         "first_name": "test",
+    #         "last_name": "test",
+    #         "email": "test@test.com",
+    #         "password": get_password_hash("test"),
+    #         "status": UserStatus.ACTIVATED.value,
+    #         "role": UserRole.CLIENT.value,
+    #         "national_id": "12345678901234",
+    #         "phone_number": "12345678901",
+    #     }
+    # )
+    # db.add(dummy_user)
+    # await db.commit()
+    # await db.refresh(dummy_user)
+    # print("ADDED DUMMY USER 🤡🤡🤡🤡🤡", dummy_user.id)
 
     user = await get_user_by_email(user_login.email, db)
 
@@ -256,7 +267,9 @@ async def forget_password(
 
     await db.commit()
 
-    reset_link = f"{settings.APP_HOST}{settings.RESET_PASSWORD_URL}/{forget_password_token}"
+    reset_link = (
+        f"{settings.APP_HOST}{settings.RESET_PASSWORD_URL}/{forget_password_token}"
+    )
 
     html_body = f"""
         <html>
