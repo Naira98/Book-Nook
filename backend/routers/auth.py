@@ -8,12 +8,14 @@ from core.auth import (
     verify_password,
 )
 from db.database import get_db
-from fastapi import APIRouter, BackgroundTasks, Depends, Response, status, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response, status
 from fastapi.responses import JSONResponse
+from jose import ExpiredSignatureError, JWTError # type: ignore
 from models.session import Session
-from models.user import UserStatus
-from nanoid import generate
+from models.user import User, UserRole, UserStatus
+from nanoid import generate  # type: ignore
 from schemas.auth import (
+    EmailVerificationRequest,
     ForgetPasswordRequest,
     LoginRequest,
     LoginResponse,
@@ -21,15 +23,12 @@ from schemas.auth import (
     RegisterRequest,
     ResetForegetPassword,
     SuccessMessage,
-    EmailVerificationRequest,
 )
 from settings import settings
 from sqlalchemy import delete, select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
 from utils.auth import get_user_by_email
-
-from models.user import User, UserRole
 
 auth_router = APIRouter(
     prefix="/auth",
@@ -69,7 +68,7 @@ async def register(
             status=UserStatus.DEACTIVATED.value,
             phone_number=user_data.phone_number,
             national_id=user_data.national_id,
-            role=UserRole.CLIENT.value,  # Default role
+            role=UserRole.CLIENT.value,
         )
 
     except SQLAlchemyError as db_error:
@@ -85,7 +84,7 @@ async def register(
 
     # Generate verification token
     try:
-        token, token_expires_at = create_token_generic(
+        token = create_token_generic(
             new_user.email,
             settings.EMAIL_VERIFICATION_SECRET_KEY,
             settings.ALGORITHM,
@@ -111,8 +110,8 @@ async def register(
         """
         await send_email(
             new_user.email,
-            email_body,
             "Verify Your Email",
+            email_body,
             background_tasks,
         )
 
@@ -254,7 +253,7 @@ async def forget_password(
             content={"message": "Invalid Email address"},
         )
 
-    forget_password_token, reset_token_expires_at = create_token_generic(
+    forget_password_token = create_token_generic(
         user.email,
         settings.FORGET_PASSWORD_SECRET_KEY,
         settings.ALGORITHM,
@@ -263,7 +262,6 @@ async def forget_password(
     )
 
     user.forget_password_token = forget_password_token
-    user.reset_token_expires_at = reset_token_expires_at
 
     await db.commit()
 
@@ -282,7 +280,7 @@ async def forget_password(
         </html>
         """
 
-    await send_email(user.email, html_body, "Password Reset Request", background_tasks)
+    await send_email(user.email, "Password Reset Request", html_body, background_tasks)
 
     return {"message": "Password reset email has been sent."}
 
@@ -295,16 +293,30 @@ async def reset_password(rfp: ResetForegetPassword, db: AsyncSession = Depends(g
             content={"message": "New password and confirm password are not same."},
         )
 
-    info = decode_token_generic(
-        rfp.reset_token,
-        settings.FORGET_PASSWORD_SECRET_KEY,
-        settings.ALGORITHM,
-        "FORGET_PASSWORD_SECRET_KEY",
-    )
-    if info is None:
+    try:
+        info = decode_token_generic(
+            rfp.reset_token,
+            settings.FORGET_PASSWORD_SECRET_KEY,
+            settings.ALGORITHM,
+            "FORGET_PASSWORD_SECRET_KEY",
+        )
+        if info is None:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={"message": "Invalid password reset token."},
+            )
+
+    except ExpiredSignatureError:
+        # The JWT library raises this specific error for expired tokens
         return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": "Invalid Password Reset Payload"},
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"message": "Password reset token has expired."},
+        )
+    except JWTError:
+        # Catch any other generic JWT errors (e.g., malformed token)
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"message": "Invalid password reset token."},
         )
 
     user = await get_user_by_email(info, db)
@@ -315,20 +327,11 @@ async def reset_password(rfp: ResetForegetPassword, db: AsyncSession = Depends(g
             content={"message": "User not found"},
         )
 
-    if (
-        user.reset_token_expires_at is None
-        or user.reset_token_expires_at < datetime.now()
-    ):
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content={"message": "Reset token has expired"},
-        )
 
     hashed_password = get_password_hash(rfp.new_password)
 
     user.password = hashed_password
     user.forget_password_token = None
-    user.reset_token_expires_at = None
 
     # remove all sessions after reseting password
     await db.execute(delete(Session).where(Session.user_id == user.id))
