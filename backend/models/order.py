@@ -136,6 +136,7 @@ class Order(Base):
     purchase_order_books_details: Mapped[list[PurchaseOrderBook]] = relationship(
         back_populates="order"
     )
+    transactions: Mapped[list[Transaction]] = relationship(back_populates="order")  # type: ignore  # noqa: F821
 
 
 class ReturnOrder(Base):

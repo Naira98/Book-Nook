@@ -76,3 +76,32 @@ class OrderResponseSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
+
+
+
+class BorrowBookItem(BaseModel):
+    book_details_id: int
+    borrowing_weeks: int
+
+
+class PurchaseBookItem(BaseModel):
+    book_details_id: int
+    quantity: int
+
+
+class CreateOrderRequest(BaseModel):
+    borrow_books: list[BorrowBookItem] = []
+    purchase_books: list[PurchaseBookItem] = []
+    pick_up_type: PickUpType
+    address: str
+    phone_number: str
+    promocode_id: Optional[int] = None
+
+
+class OrderCreatedResponse(BaseModel):
+    message: str
+    order_id: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
