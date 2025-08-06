@@ -5,6 +5,7 @@ from typing import Annotated, List
 from db.database import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from models.book import BookDetails
+from models.cart import Cart
 from models.order import (
     BorrowBookProblem,
     BorrowOrderBook,
@@ -19,7 +20,7 @@ from schemas.order import (
     OrderCreatedUpdateResponse,
     OrderResponseSchema,
 )
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 from utils.auth import get_user
@@ -47,28 +48,36 @@ order_router = APIRouter(
 async def get_orders(
     user: Annotated[User, Depends(get_user)], db: AsyncSession = Depends(get_db)
 ):
-    query = (
-        select(Order)
-        .where(Order.user_id == user.id)
-        .options(
-            selectinload(Order.borrow_order_books_details).options(
-                joinedload(BorrowOrderBook.book_details).options(
-                    joinedload(BookDetails.book)
+    try:
+        query = (
+            select(Order)
+            .where(Order.user_id == user.id)
+            .options(
+                selectinload(Order.borrow_order_books_details).options(
+                    joinedload(BorrowOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    ),
+                    joinedload(BorrowOrderBook.return_order),
                 ),
-                joinedload(BorrowOrderBook.return_order),
-            ),
-            selectinload(Order.purchase_order_books_details).options(
-                joinedload(PurchaseOrderBook.book_details).options(
-                    joinedload(BookDetails.book)
-                )
-            ),
+                selectinload(Order.purchase_order_books_details).options(
+                    joinedload(PurchaseOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    )
+                ),
+            )
+            .order_by(Order.created_at.desc())
         )
-        .order_by(Order.created_at.desc())
-    )
 
-    result = await db.execute(query)
-    orders = result.scalars().unique().all()
-    return orders
+        result = await db.execute(query)
+        orders = result.scalars().unique().all()
+        return orders
+
+    except Exception as e:
+        # For any unexpected error, raise a generic 500 error with the exception details
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred while fetching orders: {str(e)}",
+        )
 
 
 @order_router.post(
@@ -233,6 +242,9 @@ async def create_order(
         db.add_all(borrow_order_books)
         db.add_all(purchase_order_books)
 
+        # Delete cart items after order creation
+        await db.execute(delete(Cart).where(Cart.user_id == user.id))
+
         # Commit the transaction
         await db.commit()
         await db.refresh(order)
@@ -263,33 +275,45 @@ async def update_order_status(
     new_status: OrderStatus,
     db: AsyncSession = Depends(get_db),
 ):
-    query = select(Order).where(Order.id == order_id)
-    result = await db.execute(query)
-    order = result.scalar_one_or_none()
+    try:
+        query = select(Order).where(Order.id == order_id)
+        result = await db.execute(query)
+        order = result.scalar_one_or_none()
 
-    if not order:
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Order with id {order_id} not found.",
+            )
+
+        if new_status == OrderStatus.PICKED_UP:
+            order.pick_up_date = datetime.now()
+        elif new_status == OrderStatus.PROBLEM:
+            # TODO: send notification to user about the problem
+            pass
+
+        order.status = new_status
+        await db.commit()
+        await db.refresh(order)
+
+        return {
+            "message": f"Order status updated successfully to {new_status.value}",
+            "order_id": order.id,
+        }
+
+    except HTTPException as e:
+        # If an HTTPException is raised, rollback and re-raise it
+        await db.rollback()
+        raise e
+    except Exception as e:
+        # For any other unexpected error, rollback and raise a generic 500 error
+        await db.rollback()
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Order with id {order_id} not found.",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred while updating the order status: {str(e)}",
         )
 
-    if new_status == OrderStatus.PICKED_UP:
-        order.pick_up_date = datetime.now()
-    elif new_status == OrderStatus.PROBLEM:
-        # TODO: send notification to user about the problem
-        pass
 
-    order.status = new_status
-    await db.commit()
-
-    return {
-        "message": f"Order status updated successfully to {new_status.value}",
-        "order_id": order.id,
-    }
-
-
-# update borrow order books status normal, lost, damaged
-# TODO: ensure employee or user related to order who update borrow order book status
 @order_router.patch(
     "/borrow_order_book_problem",
     response_model=BorrowOrderBookUpdateProblemResponse,
@@ -300,50 +324,65 @@ async def update_borrow_order_book_status(
     new_status: BorrowBookProblem,
     db: AsyncSession = Depends(get_db),
 ):
-    query = (
-        select(BorrowOrderBook)
-        .options(joinedload(BorrowOrderBook.user))
-        .where(BorrowOrderBook.id == borrow_order_book_id)
-    )
-    result = await db.execute(query)
-    borrow_order_book = result.scalar_one_or_none()
+    try:
+        query = (
+            select(BorrowOrderBook)
+            .options(joinedload(BorrowOrderBook.user))
+            .where(BorrowOrderBook.id == borrow_order_book_id)
+        )
+        result = await db.execute(query)
+        borrow_order_book = result.scalar_one_or_none()
 
-    if not borrow_order_book:
+        if not borrow_order_book:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Borrow order book with id {borrow_order_book_id} not found.",
+            )
+
+        if borrow_order_book.borrow_book_problem != BorrowBookProblem.NORMAL:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot update status from {borrow_order_book.borrow_book_problem.value} to {new_status.value}. Only updates from NORMAL are allowed to a non-NORMAL state.",
+            )
+
+        if (
+            new_status == BorrowBookProblem.LOST
+            or new_status == BorrowBookProblem.DAMAGED
+        ):
+            # TODO: send notification to user about the problem
+
+            # TODO: what if book is damaged should all its fees be charged?
+            # TODO: What should happen if user has insufficient funds in wallet?
+
+            plenty_fees = borrow_order_book.original_book_price - (
+                borrow_order_book.deposit_fees + borrow_order_book.borrow_fees
+            )
+            await pay_from_wallet(
+                db=db,
+                user=borrow_order_book.user,
+                amount=plenty_fees,
+                description=f"Charge for lost or damaged book (ID: {borrow_order_book.book_details_id})",
+                order_id=None,
+            )
+
+        borrow_order_book.borrow_book_problem = new_status
+        await db.commit()
+        await db.refresh(borrow_order_book)
+
+        return {
+            "message": f"Borrow order book status updated successfully to {new_status.value}",
+            "borrow_order_book_id": borrow_order_book.id,
+        }
+
+    except HTTPException as e:
+        await db.rollback()
+        raise e
+    except Exception as e:
+        await db.rollback()
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Borrow order book with id {borrow_order_book_id} not found.",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred while updating the borrow order book status: {str(e)}",
         )
-
-    if borrow_order_book.borrow_book_problem != BorrowBookProblem.NORMAL:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Cannot update status from {borrow_order_book.borrow_book_problem.value} to {new_status.value}. Only updates from NORMAL are allowed to a non-NORMAL state.",
-        )
-
-    if new_status == BorrowBookProblem.LOST or new_status == BorrowBookProblem.DAMAGED:
-        # TODO: send notification to user about the problem
-
-        # TODO: what if book is damaged should all its fees be charged?
-        # TODO: What should happen if user has insufficient funds in wallet?
-
-        plenty_fees = borrow_order_book.original_book_price - (
-            borrow_order_book.deposit_fees + borrow_order_book.borrow_fees
-        )
-        await pay_from_wallet(
-            db=db,
-            user=borrow_order_book.user,
-            amount=plenty_fees,
-            description=f"Charge for lost or damaged book (ID: {borrow_order_book.book_details_id})",
-            order_id=None,
-        )
-
-    borrow_order_book.borrow_book_problem = new_status
-    await db.commit()
-
-    return {
-        "message": f"Borrow order book status updated successfully to {new_status.value}",
-        "borrow_order_book_id": borrow_order_book.id,
-    }
 
 
 # PATCH /return_order/{order_id}  update status. order_id
