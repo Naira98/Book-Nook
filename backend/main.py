@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI
 from routers.auth import auth_router
 from settings import settings
-from routers import book
+from routers.book import book_router
 from core.cloudinary import init_cloudinary
 
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__))))
@@ -30,8 +30,5 @@ app = FastAPI(title=settings.APP_NAME, version=settings.VERSION, lifespan=lifesp
 api_router = APIRouter(prefix="/api")
 
 api_router.include_router(auth_router)
-
-
+api_router.include_router(book_router)
 app.include_router(api_router)
-
-app.include_router(book.router)

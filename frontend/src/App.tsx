@@ -10,6 +10,7 @@ import ResetPassword from "./pages/auth/ResetPassword";
 import BorrowBooks from "./pages/client/BorrowBooks";
 import PurchaseBooks from "./pages/client/PurchaseBooks";
 import Navbar from "./components/Navbar";
+import OrderPage from "./pages/auth/OrdersPage";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => {
           <Route path="/reset-password/:reset_token" element={<ResetPassword />} />
           <Route path="/borrow-books" element={<><Navbar/><BorrowBooks /></>} />
           <Route path="/purchase-books" element={<><Navbar/><PurchaseBooks /></>} />
+          <Route path="/order" element={<OrderPage/>} />
         </Routes>
 
         <ToastContainer
