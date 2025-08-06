@@ -91,6 +91,9 @@ async def create_order(
     try:
         settings = await get_settings(db)
 
+        # Check borrowing limit
+        validate_borrowing_limit(cart, user, settings.max_num_of_borrow_books)
+
         promocode_discount_perc = await get_promocode_discount_perc(cart, db)
 
         # Fetch all BookDetails and their related Book objects
@@ -108,15 +111,12 @@ async def create_order(
             book_details.id: book_details for book_details in result.scalars().all()
         }
 
-        # Check borrowing limit
-        validate_borrowing_limit(cart, user, settings)
-
         borrow_order_books = []
         purchase_order_books = []
         total_order_value = Decimal("0.0")
 
         # Delivery fees
-        delivery_fees = get_delivery_fees(cart, settings)
+        delivery_fees = get_delivery_fees(cart, settings.delivery_fees)
         if delivery_fees is not None:
             total_order_value = total_order_value + delivery_fees
 
@@ -198,7 +198,6 @@ async def create_order(
             # Use the new function to calculate fees for purchased books
             purchase_fees_data = calculate_purchase_order_book_fees(
                 book_price=book_details.book.price,
-                quantity=item.quantity,
                 promocode_perc=promocode_discount_perc,
             )
 
@@ -247,7 +246,6 @@ async def create_order(
 
         # Commit the transaction
         await db.commit()
-        await db.refresh(order)
 
         return {"message": "Order created successfully", "order_id": order.id}
 
