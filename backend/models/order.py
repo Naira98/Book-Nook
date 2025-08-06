@@ -63,6 +63,9 @@ class BorrowOrderBook(Base):
             Numeric(10, 2), nullable=True
         )
     )
+    original_book_price: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2)
+    )  # The original price of the book before any discounts.
 
     # Foreign Keys
     book_details_id: Mapped[int] = mapped_column(ForeignKey("book_details.id"))
@@ -108,7 +111,10 @@ class PurchaseOrderBook(Base):
 
 class Order(Base):
     __tablename__ = "orders"
-    __table_args__ = (Index("ix_user_promo_code", "user_id", "promo_code_id"),)
+    __table_args__ = (
+        Index("ix_user_promo_code", "user_id", "promo_code_id"),
+        Index("ix_order_id_user_id", "id", "user_id"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     created_at: Mapped[datetime] = mapped_column(

@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from typing import Annotated, List
 
@@ -12,7 +13,12 @@ from models.order import (
     PurchaseOrderBook,
 )
 from models.user import User
-from schemas.order import CreateOrderRequest, OrderCreatedResponse, OrderResponseSchema
+from schemas.order import (
+    BorrowOrderBookUpdateProblemResponse,
+    CreateOrderRequest,
+    OrderCreatedUpdateResponse,
+    OrderResponseSchema,
+)
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
@@ -66,7 +72,7 @@ async def get_orders(
 
 
 @order_router.post(
-    "/", response_model=OrderCreatedResponse, status_code=status.HTTP_201_CREATED
+    "/", response_model=OrderCreatedUpdateResponse, status_code=status.HTTP_201_CREATED
 )
 async def create_order(
     cart: CreateOrderRequest,
@@ -157,6 +163,7 @@ async def create_order(
                 borrow_fees=borrow_fees,
                 delay_fees_per_day=delay_fees_per_day,
                 promocode_discount=promocode_discount,
+                original_book_price=book_details.book.price,
                 book_details_id=book_details.id,
                 order=order,
                 user_id=user.id,
@@ -245,7 +252,99 @@ async def create_order(
         )
 
 
+# TODO: ensure employee or courier who update order status
+@order_router.patch(
+    "/order_status",
+    response_model=OrderCreatedUpdateResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def update_order_status(
+    order_id: int,
+    new_status: OrderStatus,
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(Order).where(Order.id == order_id)
+    result = await db.execute(query)
+    order = result.scalar_one_or_none()
+
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Order with id {order_id} not found.",
+        )
+
+    if new_status == OrderStatus.PICKED_UP:
+        order.pick_up_date = datetime.now()
+    elif new_status == OrderStatus.PROBLEM:
+        # TODO: send notification to user about the problem
+        pass
+
+    order.status = new_status
+    await db.commit()
+
+    return {
+        "message": f"Order status updated successfully to {new_status.value}",
+        "order_id": order.id,
+    }
 
 
-# PATCH /order/{order_id}         update status. order_id
+# update borrow order books status normal, lost, damaged
+# TODO: ensure employee or user related to order who update borrow order book status
+@order_router.patch(
+    "/borrow_order_book_problem",
+    response_model=BorrowOrderBookUpdateProblemResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def update_borrow_order_book_status(
+    borrow_order_book_id: int,
+    new_status: BorrowBookProblem,
+    db: AsyncSession = Depends(get_db),
+):
+    query = (
+        select(BorrowOrderBook)
+        .options(joinedload(BorrowOrderBook.user))
+        .where(BorrowOrderBook.id == borrow_order_book_id)
+    )
+    result = await db.execute(query)
+    borrow_order_book = result.scalar_one_or_none()
+
+    if not borrow_order_book:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Borrow order book with id {borrow_order_book_id} not found.",
+        )
+
+
+    if borrow_order_book.borrow_book_problem != BorrowBookProblem.NORMAL:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot update status from {borrow_order_book.borrow_book_problem.value} to {new_status.value}. Only updates from NORMAL are allowed to a non-NORMAL state.",
+        )
+
+    if new_status == BorrowBookProblem.LOST or new_status == BorrowBookProblem.DAMAGED:
+        # TODO: send notification to user about the problem
+
+        # TODO: what if book is damaged should all its fees be charged?
+        # TODO: What should happen if user has insufficient funds in wallet?
+
+        plenty_fees = borrow_order_book.original_book_price - (
+            borrow_order_book.deposit_fees + borrow_order_book.borrow_fees
+        )
+        await pay_from_wallet(
+            db=db,
+            user=borrow_order_book.user,
+            amount=plenty_fees,
+            description=f"Charge for lost or damaged book (ID: {borrow_order_book.book_details_id})",
+            order_id=None,
+        )
+
+    borrow_order_book.borrow_book_problem = new_status
+    await db.commit()
+
+    return {
+        "message": f"Borrow order book status updated successfully to {new_status.value}",
+        "borrow_order_book_id": borrow_order_book.id,
+    }
+
+
 # PATCH /return_order/{order_id}  update status. order_id

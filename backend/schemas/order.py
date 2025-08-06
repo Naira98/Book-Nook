@@ -46,6 +46,7 @@ class BorrowOrderBookSchema(BaseModel):
     delay_fees_per_day: float
     return_order: Optional[ReturnOrderSchema]
     book_details: BookDetailsSchema
+    original_book_price: float
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
@@ -77,8 +78,6 @@ class OrderResponseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
 
-
-
 class BorrowBookItem(BaseModel):
     book_details_id: int
     borrowing_weeks: int
@@ -98,10 +97,19 @@ class CreateOrderRequest(BaseModel):
     promocode_id: Optional[int] = None
 
 
-class OrderCreatedResponse(BaseModel):
+class OrderCeatedUpdateResponseBase(BaseModel):
     message: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class OrderCreatedUpdateResponse(OrderCeatedUpdateResponseBase):
     order_id: int
 
     model_config = ConfigDict(from_attributes=True)
 
 
+class BorrowOrderBookUpdateProblemResponse(OrderCeatedUpdateResponseBase):
+    borrow_order_book_id: int
+
+    model_config = ConfigDict(from_attributes=True)
