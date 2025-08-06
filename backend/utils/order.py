@@ -28,15 +28,15 @@ async def get_promocode_discount_perc(cart, db):
     return promocode_discount_perc
 
 
-def validate_borrowing_limit(cart, user, settings):
+def validate_borrowing_limit(cart, user, max_num_of_borrow_books):
     borrowing_book_count = len(cart.borrow_books)
     if (
         borrowing_book_count + user.current_borrowed_books
-        > settings.max_num_of_borrow_books
+        > max_num_of_borrow_books
     ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Cannot borrow more than {settings.max_num_of_borrow_books} books at once.",
+            detail=f"Cannot borrow more than {max_num_of_borrow_books} books at once.",
         )
 
 
@@ -69,8 +69,6 @@ def calculate_borrow_order_book_fees(
         borrow_fees = original_borrowing_fees - promocode_discount
 
     return {
-        "book_price": book_price.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
-        "borrowing_weeks": Decimal(borrowing_weeks),
         "borrow_fees": borrow_fees.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
         "deposit_fees": deposit_fees.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
         "delay_fees_per_day": delay_fees_per_day.quantize(
@@ -83,17 +81,13 @@ def calculate_borrow_order_book_fees(
 
 
 def calculate_purchase_order_book_fees(
-    book_price: Decimal, quantity: int, promocode_perc: Optional[Decimal] = None
+    book_price: Decimal, promocode_perc: Optional[Decimal] = None
 ):
-    original_total_price = book_price * Decimal(quantity)
-
-    promocode_discount = Decimal(0)
     promocode_discount_per_book = Decimal(0)
     paid_price_per_book = book_price
 
     if promocode_perc is not None:
-        promocode_discount = original_total_price * (promocode_perc / 100)
-        promocode_discount_per_book = promocode_discount / Decimal(quantity)
+        promocode_discount_per_book = book_price * (promocode_perc / 100)
         paid_price_per_book = book_price - promocode_discount_per_book
 
     return {
@@ -106,11 +100,11 @@ def calculate_purchase_order_book_fees(
     }
 
 
-def get_delivery_fees(cart, settings):
+def get_delivery_fees(cart, settings_delivery_fees):
     delivery_fees = None
 
     if cart.pick_up_type == PickUpType.COURIER:
-        delivery_fees = settings.delivery_fees
+        delivery_fees = settings_delivery_fees
 
     return delivery_fees
 
