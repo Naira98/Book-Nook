@@ -13,18 +13,18 @@ async def get_promocode_discount_perc(cart, db):
 
     # Check for and validate promo code if an ID is provided
     if cart.promocode_id:
-        promo_code_result = await db.execute(
+        promocode_result = await db.execute(
             select(PromoCode).where(PromoCode.id == cart.promocode_id)
         )
-        promo_code = promo_code_result.scalar_one_or_none()
+        promocode = promocode_result.scalar_one_or_none()
 
-        if not promo_code or not promo_code.is_active:
+        if not promocode or not promocode.is_active:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid or inactive promo code.",
             )
 
-        promocode_discount_perc = promo_code.discount_perc
+        promocode_discount_perc = promocode.discount_perc
     return promocode_discount_perc
 
 

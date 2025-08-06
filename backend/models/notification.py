@@ -18,7 +18,7 @@ class NotificationType(Enum):
     ORDER_STATUS_UPDATE = "ORDER_STATUS_UPDATE"
     RETURN_ORDER_STATUS_UPDATE = "RETURN_ORDER_STATUS_UPDATE"
     RETURN_REMINDER = "RETURN_REMINDER"
-    NEW_PROMO_CODE = "NEW_PROMO_CODE"
+    NEW_PROMOCODE = "NEW_PROMOCODE"
     WALLET_UPDATED = "WALLET_UPDATED"
 
 
@@ -40,12 +40,12 @@ class Notification(Base):
     return_order_id: Mapped[int | None] = mapped_column(
         ForeignKey("return_orders.id"), nullable=True
     )
-    promo_code_id: Mapped[int | None] = mapped_column(
-        ForeignKey("promo_codes.id"), nullable=True
+    promocode_id: Mapped[int | None] = mapped_column(
+        ForeignKey("promocodes.id"), nullable=True
     )
 
     # Relationships
     user: Mapped[User] = relationship(back_populates="notifications")  # type: ignore # noqa: F821
     order: Mapped[Order | None] = relationship()  # type: ignore # noqa: F821
     return_order: Mapped[ReturnOrder | None] = relationship()  # type: ignore # noqa: F821
-    promo_code: Mapped[PromoCode | None] = relationship()  # type: ignore # noqa: F821
+    promocode: Mapped[PromoCode | None] = relationship()  # type: ignore # noqa: F821

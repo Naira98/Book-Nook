@@ -7,7 +7,7 @@
     "pick_up_type": "SITE",
     "status": "PICKED_UP",
     "user_id": 1002,
-    "promo_code_id": null,
+    "promocode_id": null,
     "created_at": "2025-08-03T01:01:10Z",
     "delivery_fees": null
   },
@@ -19,7 +19,7 @@
     "pick_up_type": "COURIER",
     "status": "CREATED",
     "user_id": 1003,
-    "promo_code_id": 1002,
+    "promocode_id": 1002,
     "created_at": "2025-08-02T19:01:10Z",
     "delivery_fees": 20
   },
@@ -31,7 +31,7 @@
     "pick_up_type": "SITE",
     "status": "ON_THE_WAY",
     "user_id": 1004,
-    "promo_code_id": 1001,
+    "promocode_id": 1001,
     "created_at": "2025-08-02T19:01:10Z",
     "delivery_fees": null
   },
@@ -43,7 +43,7 @@
     "pick_up_type": "COURIER",
     "status": "PROBLEM",
     "user_id": 1002,
-    "promo_code_id": null,
+    "promocode_id": null,
     "created_at": "2025-08-02T19:01:10Z",
     "delivery_fees": 20
   },
@@ -55,7 +55,7 @@
     "pick_up_type": "SITE",
     "status": "CREATED",
     "user_id": 1003,
-    "promo_code_id": 1004,
+    "promocode_id": 1004,
     "created_at": "2025-08-02T19:01:10Z",
     "delivery_fees": null
   },
@@ -67,7 +67,7 @@
     "pick_up_type": "COURIER",
     "status": "PICKED_UP",
     "user_id": 1004,
-    "promo_code_id": null,
+    "promocode_id": null,
     "created_at": "2025-08-13T05:14:48Z",
     "delivery_fees": 20
   },
@@ -79,7 +79,7 @@
     "pick_up_type": "SITE",
     "status": "ON_THE_WAY",
     "user_id": 1002,
-    "promo_code_id": 1005,
+    "promocode_id": 1005,
     "created_at": "2025-08-02T19:01:10Z",
     "delivery_fees": null
   },
@@ -91,7 +91,7 @@
     "pick_up_type": "COURIER",
     "status": "CREATED",
     "user_id": 1003,
-    "promo_code_id": 1003,
+    "promocode_id": 1003,
     "created_at": "2025-08-02T19:01:10Z",
     "delivery_fees": 20
   },
@@ -103,7 +103,7 @@
     "pick_up_type": "SITE",
     "status": "PICKED_UP",
     "user_id": 1004,
-    "promo_code_id": null,
+    "promocode_id": null,
     "created_at": "2025-08-04T11:06:20Z",
     "delivery_fees": null
   },
@@ -115,7 +115,7 @@
     "pick_up_type": "COURIER",
     "status": "PROBLEM",
     "user_id": 1002,
-    "promo_code_id": 1002,
+    "promocode_id": 1002,
     "created_at": "2025-08-02T19:01:10Z",
     "delivery_fees": 20
   },
@@ -127,7 +127,7 @@
     "pick_up_type": "SITE",
     "status": "CREATED",
     "user_id": 1003,
-    "promo_code_id": null,
+    "promocode_id": null,
     "created_at": "2025-08-02T19:01:10Z",
     "delivery_fees": null
   },
@@ -139,7 +139,7 @@
     "pick_up_type": "COURIER",
     "status": "PICKED_UP",
     "user_id": 1004,
-    "promo_code_id": 1001,
+    "promocode_id": 1001,
     "created_at": "2025-08-23T00:21:52Z",
     "delivery_fees": 20
   },
@@ -151,7 +151,7 @@
     "pick_up_type": "SITE",
     "status": "ON_THE_WAY",
     "user_id": 1002,
-    "promo_code_id": null,
+    "promocode_id": null,
     "created_at": "2025-08-02T19:01:10Z",
     "delivery_fees": null
   },
@@ -163,7 +163,7 @@
     "pick_up_type": "COURIER",
     "status": "CREATED",
     "user_id": 1003,
-    "promo_code_id": 1004,
+    "promocode_id": 1004,
     "created_at": "2025-08-02T19:01:10Z",
     "delivery_fees": 20
   },
@@ -175,7 +175,7 @@
     "pick_up_type": "SITE",
     "status": "PICKED_UP",
     "user_id": 1004,
-    "promo_code_id": null,
+    "promocode_id": null,
     "created_at": "2025-08-16T14:31:23Z",
     "delivery_fees": null
   },
@@ -187,7 +187,7 @@
     "pick_up_type": "COURIER",
     "status": "PROBLEM",
     "user_id": 1002,
-    "promo_code_id": 1005,
+    "promocode_id": 1005,
     "created_at": "2025-08-02T19:01:10Z",
     "delivery_fees": 20
   },
@@ -199,7 +199,7 @@
     "pick_up_type": "SITE",
     "status": "CREATED",
     "user_id": 1003,
-    "promo_code_id": 1003,
+    "promocode_id": 1003,
     "created_at": "2025-08-02T19:01:10Z",
     "delivery_fees": null
   },
@@ -211,7 +211,7 @@
     "pick_up_type": "COURIER",
     "status": "PICKED_UP",
     "user_id": 1004,
-    "promo_code_id": null,
+    "promocode_id": null,
     "created_at": "2025-08-18T08:45:58Z",
     "delivery_fees": 20
   },
@@ -223,7 +223,7 @@
     "pick_up_type": "SITE",
     "status": "ON_THE_WAY",
     "user_id": 1002,
-    "promo_code_id": 1002,
+    "promocode_id": 1002,
     "created_at": "2025-08-02T19:01:10Z",
     "delivery_fees": null
   },
@@ -235,7 +235,7 @@
     "pick_up_type": "COURIER",
     "status": "CREATED",
     "user_id": 1003,
-    "promo_code_id": 1001,
+    "promocode_id": 1001,
     "created_at": "2025-08-02T19:01:10Z",
     "delivery_fees": 20
   }

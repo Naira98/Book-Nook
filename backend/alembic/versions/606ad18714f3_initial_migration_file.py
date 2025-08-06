@@ -37,14 +37,14 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_categories_id"), "categories", ["id"], unique=False)
     op.create_table(
-        "promo_codes",
+        "promocodes",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("code", sa.String(), nullable=False),
         sa.Column("discount_perc", sa.Numeric(precision=4, scale=2), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_promo_codes_id"), "promo_codes", ["id"], unique=False)
+    op.create_index(op.f("ix_promocodes_id"), "promocodes", ["id"], unique=False)
     op.create_table(
         "settings",
         sa.Column("id", sa.Integer(), nullable=False),
@@ -142,18 +142,18 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_orders_id"), "orders", ["id"], unique=False)
     op.create_table(
-        "promo_code_accounts",
+        "promocode_accounts",
         sa.Column("user_id", sa.Integer(), nullable=False),
-        sa.Column("promo_code_id", sa.Integer(), nullable=False),
+        sa.Column("promocode_id", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
-            ["promo_code_id"],
-            ["promo_codes.id"],
+            ["promocode_id"],
+            ["promocodes.id"],
         ),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["users.id"],
         ),
-        sa.PrimaryKeyConstraint("user_id", "promo_code_id"),
+        sa.PrimaryKeyConstraint("user_id", "promocode_id"),
     )
     op.create_table(
         "return_orders",
@@ -222,7 +222,7 @@ def upgrade() -> None:
                 "ORDER_STATUS_UPDATE",
                 "RETURN_ORDER_STATUS_UPDATE",
                 "RETURN_REMINDER",
-                "NEW_PROMO_CODE",
+                "NEW_PROMOCODE",
                 "WALLET_UPDATED",
                 name="notificationtype",
             ),
@@ -241,14 +241,14 @@ def upgrade() -> None:
         ),
         sa.Column("order_id", sa.Integer(), nullable=True),
         sa.Column("return_order_id", sa.Integer(), nullable=True),
-        sa.Column("promo_code_id", sa.Integer(), nullable=True),
+        sa.Column("promocode_id", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(
             ["order_id"],
             ["orders.id"],
         ),
         sa.ForeignKeyConstraint(
-            ["promo_code_id"],
-            ["promo_codes.id"],
+            ["promocode_id"],
+            ["promocodes.id"],
         ),
         sa.ForeignKeyConstraint(
             ["return_order_id"],
@@ -279,7 +279,7 @@ def upgrade() -> None:
         sa.Column("book_details_id", sa.Integer(), nullable=False),
         sa.Column("order_id", sa.Integer(), nullable=False),
         sa.Column("return_order_id", sa.Integer(), nullable=True),
-        sa.Column("promo_code_id", sa.Integer(), nullable=True),
+        sa.Column("promocode_id", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(
             ["book_details_id"],
             ["book_details.id"],
@@ -289,8 +289,8 @@ def upgrade() -> None:
             ["orders.id"],
         ),
         sa.ForeignKeyConstraint(
-            ["promo_code_id"],
-            ["promo_codes.id"],
+            ["promocode_id"],
+            ["promocodes.id"],
         ),
         sa.ForeignKeyConstraint(
             ["return_order_id"],
@@ -354,7 +354,7 @@ def downgrade() -> None:
     op.drop_table("book_details")
     op.drop_index(op.f("ix_return_orders_id"), table_name="return_orders")
     op.drop_table("return_orders")
-    op.drop_table("promo_code_accounts")
+    op.drop_table("promocode_accounts")
     op.drop_index(op.f("ix_orders_id"), table_name="orders")
     op.drop_table("orders")
     op.drop_index(op.f("ix_books_id"), table_name="books")
@@ -365,8 +365,8 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_users_email"), table_name="users")
     op.drop_table("users")
     op.drop_table("settings")
-    op.drop_index(op.f("ix_promo_codes_id"), table_name="promo_codes")
-    op.drop_table("promo_codes")
+    op.drop_index(op.f("ix_promocodes_id"), table_name="promocodes")
+    op.drop_table("promocodes")
     op.drop_index(op.f("ix_categories_id"), table_name="categories")
     op.drop_table("categories")
     op.drop_index(op.f("ix_authors_id"), table_name="authors")

@@ -68,7 +68,7 @@ class OrderResponseSchema(BaseModel):
     pick_up_date: Optional[datetime]
     pick_up_type: PickUpType
     delivery_fees: Optional[float]
-    promo_code_id: Optional[int]
+    promocode_id: Optional[int]
     phone_number: str
     status: OrderStatus
     user_id: int

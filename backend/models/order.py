@@ -112,7 +112,7 @@ class PurchaseOrderBook(Base):
 class Order(Base):
     __tablename__ = "orders"
     __table_args__ = (
-        Index("ix_user_promo_code", "user_id", "promo_code_id"),
+        Index("ix_user_promocode", "user_id", "promocode_id"),
         Index("ix_order_id_user_id", "id", "user_id"),
     )
 
@@ -129,13 +129,13 @@ class Order(Base):
 
     # Foreign Keys
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    promo_code_id: Mapped[int | None] = mapped_column(
-        ForeignKey("promo_codes.id"), nullable=True
+    promocode_id: Mapped[int | None] = mapped_column(
+        ForeignKey("promocodes.id"), nullable=True
     )
 
     # Relationships
     user: Mapped[User] = relationship(back_populates="orders")  # type: ignore  # noqa: F821
-    promo_code: Mapped[PromoCode | None] = relationship(back_populates="orders")  # type: ignore # noqa: F821
+    promocode: Mapped[PromoCode | None] = relationship(back_populates="orders")  # type: ignore # noqa: F821
     borrow_order_books_details: Mapped[list[BorrowOrderBook]] = relationship(
         back_populates="order"
     )

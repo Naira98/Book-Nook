@@ -120,7 +120,7 @@ async def create_order(
             status=OrderStatus.CREATED.value,
             delivery_fees=delivery_fees,
             user_id=user.id,
-            promo_code_id=cart.promocode_id,
+            promocode_id=cart.promocode_id,
         )
         db.add(order)
 
@@ -313,7 +313,6 @@ async def update_borrow_order_book_status(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Borrow order book with id {borrow_order_book_id} not found.",
         )
-
 
     if borrow_order_book.borrow_book_problem != BorrowBookProblem.NORMAL:
         raise HTTPException(

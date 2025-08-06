@@ -44,7 +44,6 @@ def upgrade() -> None:
                existing_type=sa.NUMERIC(precision=5, scale=2),
                type_=sa.Numeric(precision=10, scale=2),
                existing_nullable=False)
-    op.drop_column('borrow_order_books', 'promo_code_discount')
     op.drop_column('borrow_order_books', 'borrowing_days')
     op.create_index('ix_user_id', 'carts', ['user_id'], unique=False)
     op.alter_column('categories', 'name',
@@ -85,7 +84,6 @@ def downgrade() -> None:
                existing_nullable=False)
     op.drop_index('ix_user_id', table_name='carts')
     op.add_column('borrow_order_books', sa.Column('borrowing_days', sa.INTEGER(), autoincrement=False, nullable=False))
-    op.add_column('borrow_order_books', sa.Column('promo_code_discount', sa.NUMERIC(precision=5, scale=2), autoincrement=False, nullable=True))
     op.alter_column('borrow_order_books', 'delay_fees_per_day',
                existing_type=sa.Numeric(precision=10, scale=2),
                type_=sa.NUMERIC(precision=5, scale=2),
