@@ -1,10 +1,16 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, insert
-from sqlalchemy.orm import selectinload, contains_eager
+from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 from models.book import Book, BookDetails, BookStatus
-from schemas.book import CreateBookRequest, EditBookRequest, UpdateStockRequest
-from fastapi import status, HTTPException
+from schemas.book import (
+    BookTableSchema,
+    CreateBookRequest,
+    EditBookRequest,
+    PaginatedBookTableResponse,
+    UpdateStockRequest,
+)
+from sqlalchemy import insert, select, update, func
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import contains_eager, joinedload, selectinload
 
 
 # Fetch books by partial match in title (case-insensitive)
@@ -182,3 +188,56 @@ async def update_book_stock_crud(new_stock_data: UpdateStockRequest, db: AsyncSe
         )
 
     await db.commit()
+
+
+""" Employee-only endpoints for book management """
+
+
+async def get_books_table_crud(db, offset: int, limit: int):
+    # Get total count of books for pagination
+    total_count_result = await db.execute(select(func.count(Book.id)))
+    total_count = total_count_result.scalar_one()
+
+    result = await db.execute(
+        select(Book)
+        .options(
+            joinedload(Book.author),
+            joinedload(Book.category),
+            selectinload(Book.book_details),
+        )
+        .offset(offset)
+        .limit(limit)
+    )
+    books = result.scalars().all()
+
+    # Manually map to BookTableSchema and aggregate stock
+    book_table_data = []
+    for book in books:
+        purchase_stock = next(
+            (
+                book_details.available_stock
+                for book_details in book.book_details
+                if book_details.status == BookStatus.PURCHASE
+            ),
+            0,
+        )
+        borrow_stock = next(
+            (
+                bd.available_stock
+                for bd in book.book_details
+                if bd.status == BookStatus.BORROW
+            ),
+            0,
+        )
+        book_table_data.append(
+            BookTableSchema(
+                id=book.id,
+                title=book.title,
+                price=book.price,
+                author_name=book.author.name,
+                category_name=book.category.name,
+                available_stock_purchase=purchase_stock,
+                available_stock_borrow=borrow_stock,
+            )
+        )
+    return PaginatedBookTableResponse(total_count=total_count, books=book_table_data)
