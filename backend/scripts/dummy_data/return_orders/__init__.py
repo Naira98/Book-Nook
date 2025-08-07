@@ -1,1 +1,1 @@
-from .return_orders import add_dummy_return_orders
+from .return_orders import add_dummy_return_orders  # noqa: F401

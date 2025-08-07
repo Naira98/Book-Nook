@@ -1,1 +1,1 @@
-from .authors import add_dummy_categories
+from .authors import add_dummy_categories  # noqa: F401

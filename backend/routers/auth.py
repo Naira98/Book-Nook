@@ -180,24 +180,6 @@ async def verify_email(
 async def login(
     user_login: LoginRequest, response: Response, db: AsyncSession = Depends(get_db)
 ):
-    # """ GENERATE DUMMY USER DATA FOR TESTING PURPOSE """
-    # dummy_user = User(
-    #     **{
-    #         "first_name": "test",
-    #         "last_name": "test",
-    #         "email": "test@test.com",
-    #         "password": get_password_hash("test"),
-    #         "status": UserStatus.ACTIVATED.value,
-    #         "role": UserRole.CLIENT.value,
-    #         "national_id": "12345678901234",
-    #         "phone_number": "12345678901",
-    #     }
-    # )
-    # db.add(dummy_user)
-    # await db.commit()
-    # await db.refresh(dummy_user)
-    # print("ADDED DUMMY USER 🤡🤡🤡🤡🤡", dummy_user.id)
-
     user = await get_user_by_email(user_login.email, db)
 
     if not user or not verify_password(user_login.password, user.password):
