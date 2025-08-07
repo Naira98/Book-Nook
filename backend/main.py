@@ -9,6 +9,7 @@ from routers.order import order_router
 from settings import settings
 from routers.book import book_router
 from core.cloudinary import init_cloudinary
+from routers.websocket import websocket_router
 
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__))))
 
@@ -33,5 +34,8 @@ api_router = APIRouter(prefix="/api")
 api_router.include_router(auth_router)
 api_router.include_router(book_router)
 api_router.include_router(order_router)
+
+api_router.include_router(websocket_router)
+
 
 app.include_router(api_router)
