@@ -16,7 +16,7 @@ from scripts.dummy_data import (
     add_dummy_books,
     add_dummy_book_details,
     add_dummy_cart_items,
-    add_dummy_promocodes,
+    add_dummy_promo_codes,
     add_dummy_orders,
     add_dummy_return_orders,
     add_dummy_purchase_orders,
@@ -45,7 +45,7 @@ async def seed_data():
         await add_dummy_books(db)
         await add_dummy_book_details(db)
         await add_dummy_cart_items(db)
-        await add_dummy_promocodes(db)
+        await add_dummy_promo_codes(db)
         await add_dummy_orders(db)
         await add_dummy_return_orders(db)
         await add_dummy_purchase_orders(db)

@@ -21,7 +21,7 @@ class Settings(Base):
 
 
 class PromoCode(Base):
-    __tablename__ = "promocodes"
+    __tablename__ = "promo_codes"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     code: Mapped[str]
@@ -29,4 +29,4 @@ class PromoCode(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
 
     # Relationships
-    orders: Mapped[list[Order]] = relationship(back_populates="promocode")  # type: ignore # noqa: F821
+    orders: Mapped[list[Order]] = relationship(back_populates="promo_code")  # type: ignore # noqa: F821

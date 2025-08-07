@@ -31,7 +31,7 @@ def upgrade() -> None:
                type_=sa.Numeric(precision=10, scale=2),
                existing_nullable=False)
     op.add_column('borrow_order_books', sa.Column('borrowing_weeks', sa.Integer(), nullable=False))
-    op.add_column('borrow_order_books', sa.Column('promocode_discount', sa.Numeric(precision=10, scale=2), nullable=True))
+    op.add_column('borrow_order_books', sa.Column('promo_code_discount', sa.Numeric(precision=10, scale=2), nullable=True))
     op.alter_column('borrow_order_books', 'deposit_fees',
                existing_type=sa.NUMERIC(precision=5, scale=2),
                type_=sa.Numeric(precision=10, scale=2),
@@ -52,7 +52,7 @@ def upgrade() -> None:
                existing_nullable=False)
     op.add_column('orders', sa.Column('delivery_fees', sa.Numeric(precision=10, scale=2), nullable=True))
     op.add_column('purchase_order_books', sa.Column('paid_price_per_book', sa.Numeric(precision=10, scale=2), nullable=False))
-    op.add_column('purchase_order_books', sa.Column('promocode_discount_per_book', sa.Numeric(precision=10, scale=2), nullable=True))
+    op.add_column('purchase_order_books', sa.Column('promo_code_discount_per_book', sa.Numeric(precision=10, scale=2), nullable=True))
     op.drop_column('purchase_order_books', 'price')
     op.add_column('return_orders', sa.Column('delivery_fees', sa.Numeric(precision=10, scale=2), nullable=True))
     op.add_column('settings', sa.Column('min_borrow_fee', sa.Numeric(precision=6, scale=2), nullable=False))
@@ -75,7 +75,7 @@ def downgrade() -> None:
     op.drop_column('settings', 'min_borrow_fee')
     op.drop_column('return_orders', 'delivery_fees')
     op.add_column('purchase_order_books', sa.Column('price', sa.NUMERIC(precision=4, scale=2), autoincrement=False, nullable=False))
-    op.drop_column('purchase_order_books', 'promocode_discount_per_book')
+    op.drop_column('purchase_order_books', 'promo_code_discount_per_book')
     op.drop_column('purchase_order_books', 'paid_price_per_book')
     op.drop_column('orders', 'delivery_fees')
     op.alter_column('categories', 'name',
@@ -96,7 +96,7 @@ def downgrade() -> None:
                existing_type=sa.Numeric(precision=10, scale=2),
                type_=sa.NUMERIC(precision=5, scale=2),
                existing_nullable=False)
-    op.drop_column('borrow_order_books', 'promocode_discount')
+    op.drop_column('borrow_order_books', 'promo_code_discount')
     op.drop_column('borrow_order_books', 'borrowing_weeks')
     op.alter_column('books', 'price',
                existing_type=sa.Numeric(precision=10, scale=2),

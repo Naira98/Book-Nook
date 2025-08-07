@@ -28,7 +28,7 @@ from utils.order import (
     calculate_borrow_order_book_fees,
     calculate_purchase_order_book_fees,
     get_delivery_fees,
-    get_promocode_discount_perc,
+    get_promo_code_discount_perc,
     validate_borrow_book_and_borrowing_weeks_and_available_stock,
     validate_borrowing_limit,
     validate_purchase_book_and_available_stock,
@@ -94,7 +94,7 @@ async def create_order(
         # Check borrowing limit
         validate_borrowing_limit(cart, user, settings.max_num_of_borrow_books)
 
-        promocode_discount_perc = await get_promocode_discount_perc(cart, db)
+        promo_code_discount_perc = await get_promo_code_discount_perc(cart, db)
 
         # Fetch all BookDetails and their related Book objects
         book_details_ids = [item.book_details_id for item in cart.borrow_books] + [
@@ -129,7 +129,7 @@ async def create_order(
             status=OrderStatus.CREATED.value,
             delivery_fees=delivery_fees,
             user_id=user.id,
-            promocode_id=cart.promocode_id,
+            promo_code_id=cart.promo_code_id,
         )
         db.add(order)
 
@@ -154,13 +154,13 @@ async def create_order(
                 deposit_perc=settings.deposit_perc,
                 delay_perc=settings.delay_perc,
                 min_borrow_fee=settings.min_borrow_fee,
-                promocode_perc=promocode_discount_perc,
+                promo_code_perc=promo_code_discount_perc,
             )
 
             borrow_fees = fees_data["borrow_fees"]
             deposit_fees = fees_data["deposit_fees"]
             delay_fees_per_day = fees_data["delay_fees_per_day"]
-            promocode_discount = fees_data["promocode_discount"]
+            promo_code_discount = fees_data["promo_code_discount"]
 
             total_order_value = total_order_value + borrow_fees + deposit_fees
 
@@ -171,7 +171,7 @@ async def create_order(
                 deposit_fees=deposit_fees,
                 borrow_fees=borrow_fees,
                 delay_fees_per_day=delay_fees_per_day,
-                promocode_discount=promocode_discount,
+                promo_code_discount=promo_code_discount,
                 original_book_price=book_details.book.price,
                 book_details_id=book_details.id,
                 order=order,
@@ -198,12 +198,12 @@ async def create_order(
             # Use the new function to calculate fees for purchased books
             purchase_fees_data = calculate_purchase_order_book_fees(
                 book_price=book_details.book.price,
-                promocode_perc=promocode_discount_perc,
+                promo_code_perc=promo_code_discount_perc,
             )
 
             paid_price_per_book = purchase_fees_data["paid_price_per_book"]
-            promocode_discount_per_book = purchase_fees_data[
-                "promocode_discount_per_book"
+            promo_code_discount_per_book = purchase_fees_data[
+                "promo_code_discount_per_book"
             ]
 
             # Add the total price (after discount) to the overall order value
@@ -213,7 +213,7 @@ async def create_order(
             purchase_book = PurchaseOrderBook(
                 quantity=item.quantity,
                 paid_price_per_book=paid_price_per_book,
-                promocode_discount_per_book=promocode_discount_per_book,
+                promo_code_discount_per_book=promo_code_discount_per_book,
                 order=order,
                 book_details_id=book_details.id,
                 user_id=user.id,

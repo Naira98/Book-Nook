@@ -8,32 +8,29 @@ from models.book import BookStatus
 from models.order import PickUpType
 
 
-async def get_promocode_discount_perc(cart, db):
-    promocode_discount_perc = None
+async def get_promo_code_discount_perc(cart, db):
+    promo_code_discount_perc = None
 
     # Check for and validate promo code if an ID is provided
-    if cart.promocode_id:
-        promocode_result = await db.execute(
-            select(PromoCode).where(PromoCode.id == cart.promocode_id)
+    if cart.promo_code_id:
+        promo_code_result = await db.execute(
+            select(PromoCode).where(PromoCode.id == cart.promo_code_id)
         )
-        promocode = promocode_result.scalar_one_or_none()
+        promo_code = promo_code_result.scalar_one_or_none()
 
-        if not promocode or not promocode.is_active:
+        if not promo_code or not promo_code.is_active:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid or inactive promo code.",
             )
 
-        promocode_discount_perc = promocode.discount_perc
-    return promocode_discount_perc
+        promo_code_discount_perc = promo_code.discount_perc
+    return promo_code_discount_perc
 
 
 def validate_borrowing_limit(cart, user, max_num_of_borrow_books):
     borrowing_book_count = len(cart.borrow_books)
-    if (
-        borrowing_book_count + user.current_borrowed_books
-        > max_num_of_borrow_books
-    ):
+    if borrowing_book_count + user.current_borrowed_books > max_num_of_borrow_books:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Cannot borrow more than {max_num_of_borrow_books} books at once.",
@@ -47,7 +44,7 @@ def calculate_borrow_order_book_fees(
     deposit_perc: Decimal,
     delay_perc: Decimal,  # Percentage to add ON TOP of the daily borrow cost
     min_borrow_fee: Decimal,  # Minimum weekly borrow fee
-    promocode_perc: Optional[Decimal] = None,
+    promo_code_perc: Optional[Decimal] = None,
 ):
     # Calculate a base borrowing fee per week (either percentage-based or minimum flat fee)
     fee_from_percentage = book_price * (borrow_perc / 100)
@@ -62,11 +59,11 @@ def calculate_borrow_order_book_fees(
     delay_fees_per_day = daily_equivalent_borrow_fee + daily_delay_amount
 
     borrow_fees = original_borrowing_fees
-    promocode_discount = Decimal(0)
+    promo_code_discount = Decimal(0)
 
-    if promocode_perc is not None:
-        promocode_discount = original_borrowing_fees * (promocode_perc / 100)
-        borrow_fees = original_borrowing_fees - promocode_discount
+    if promo_code_perc is not None:
+        promo_code_discount = original_borrowing_fees * (promo_code_perc / 100)
+        borrow_fees = original_borrowing_fees - promo_code_discount
 
     return {
         "borrow_fees": borrow_fees.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
@@ -74,27 +71,27 @@ def calculate_borrow_order_book_fees(
         "delay_fees_per_day": delay_fees_per_day.quantize(
             Decimal("0.01"), rounding=ROUND_HALF_UP
         ),
-        "promocode_discount": promocode_discount.quantize(
+        "promo_code_discount": promo_code_discount.quantize(
             Decimal("0.01"), rounding=ROUND_HALF_UP
         ),
     }
 
 
 def calculate_purchase_order_book_fees(
-    book_price: Decimal, promocode_perc: Optional[Decimal] = None
+    book_price: Decimal, promo_code_perc: Optional[Decimal] = None
 ):
-    promocode_discount_per_book = Decimal(0)
+    promo_code_discount_per_book = Decimal(0)
     paid_price_per_book = book_price
 
-    if promocode_perc is not None:
-        promocode_discount_per_book = book_price * (promocode_perc / 100)
-        paid_price_per_book = book_price - promocode_discount_per_book
+    if promo_code_perc is not None:
+        promo_code_discount_per_book = book_price * (promo_code_perc / 100)
+        paid_price_per_book = book_price - promo_code_discount_per_book
 
     return {
         "paid_price_per_book": paid_price_per_book.quantize(
             Decimal("0.01"), rounding=ROUND_HALF_UP
         ),
-        "promocode_discount_per_book": promocode_discount_per_book.quantize(
+        "promo_code_discount_per_book": promo_code_discount_per_book.quantize(
             Decimal("0.01"), rounding=ROUND_HALF_UP
         ),
     }

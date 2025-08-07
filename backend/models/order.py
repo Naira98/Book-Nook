@@ -58,7 +58,7 @@ class BorrowOrderBook(Base):
     delay_fees_per_day: Mapped[Decimal] = mapped_column(
         Numeric(10, 2)
     )  # The daily late fee.
-    promocode_discount: Mapped[Decimal | None] = (
+    promo_code_discount: Mapped[Decimal | None] = (
         mapped_column(  # The monetary value of the discount.
             Numeric(10, 2), nullable=True
         )
@@ -92,7 +92,7 @@ class PurchaseOrderBook(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     quantity: Mapped[int] = mapped_column(default=1)
     paid_price_per_book: Mapped[Decimal] = mapped_column(Numeric(10, 2))
-    promocode_discount_per_book: Mapped[Optional[Decimal]] = mapped_column(
+    promo_code_discount_per_book: Mapped[Optional[Decimal]] = mapped_column(
         Numeric(10, 2), nullable=True
     )
 
@@ -112,7 +112,7 @@ class PurchaseOrderBook(Base):
 class Order(Base):
     __tablename__ = "orders"
     __table_args__ = (
-        Index("ix_user_promocode", "user_id", "promocode_id"),
+        Index("ix_user_promo_code", "user_id", "promo_code_id"),
         Index("ix_order_id_user_id", "id", "user_id"),
     )
 
@@ -129,13 +129,13 @@ class Order(Base):
 
     # Foreign Keys
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    promocode_id: Mapped[int | None] = mapped_column(
-        ForeignKey("promocodes.id"), nullable=True
+    promo_code_id: Mapped[int | None] = mapped_column(
+        ForeignKey("promo_codes.id"), nullable=True
     )
 
     # Relationships
     user: Mapped[User] = relationship(back_populates="orders")  # type: ignore  # noqa: F821
-    promocode: Mapped[PromoCode | None] = relationship(back_populates="orders")  # type: ignore # noqa: F821
+    promo_code: Mapped[PromoCode | None] = relationship(back_populates="orders")  # type: ignore # noqa: F821
     borrow_order_books_details: Mapped[list[BorrowOrderBook]] = relationship(
         back_populates="order"
     )

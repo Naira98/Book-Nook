@@ -4,7 +4,7 @@ from .categories import add_dummy_categories  # noqa: F401
 from .books import add_dummy_books  # noqa: F401
 from .book_details import add_dummy_book_details  # noqa: F401
 from .cart import add_dummy_cart_items  # noqa: F401
-from .promocodes import add_dummy_promocodes  # noqa: F401
+from .promo_codes import add_dummy_promo_codes  # noqa: F401
 from .orders import add_dummy_orders  # noqa: F401
 from .return_orders import add_dummy_return_orders  # noqa: F401
 from .purchase_orders import add_dummy_purchase_orders  # noqa: F401

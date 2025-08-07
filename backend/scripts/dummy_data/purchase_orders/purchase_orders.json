@@ -3,7 +3,7 @@
     "id": 1001,
     "quantity": 3,
     "paid_price_per_book": 33.25,
-    "promocode_discount_per_book": 1.75,
+    "promo_code_discount_per_book": 1.75,
     "order_id": 1016,
     "book_details_id": 1054,
     "user_id": 1004
@@ -12,7 +12,7 @@
     "id": 1002,
     "quantity": 3,
     "paid_price_per_book": 14.24,
-    "promocode_discount_per_book": 2.51,
+    "promo_code_discount_per_book": 2.51,
     "order_id": 1012,
     "book_details_id": 1047,
     "user_id": 1002
@@ -21,7 +21,7 @@
     "id": 1003,
     "quantity": 2,
     "paid_price_per_book": 19.99,
-    "promocode_discount_per_book": 5.0,
+    "promo_code_discount_per_book": 5.0,
     "order_id": 1010,
     "book_details_id": 1002,
     "user_id": 1004
@@ -30,7 +30,7 @@
     "id": 1004,
     "quantity": 3,
     "paid_price_per_book": 28.99,
-    "promocode_discount_per_book": 0.0,
+    "promo_code_discount_per_book": 0.0,
     "order_id": 1011,
     "book_details_id": 1033,
     "user_id": 1004
@@ -39,7 +39,7 @@
     "id": 1005,
     "quantity": 1,
     "paid_price_per_book": 12.49,
-    "promocode_discount_per_book": 0.0,
+    "promo_code_discount_per_book": 0.0,
     "order_id": 1004,
     "book_details_id": 1009,
     "user_id": 1003
@@ -48,7 +48,7 @@
     "id": 1006,
     "quantity": 2,
     "paid_price_per_book": 24.64,
-    "promocode_discount_per_book": 4.35,
+    "promo_code_discount_per_book": 4.35,
     "order_id": 1003,
     "book_details_id": 1033,
     "user_id": 1003
@@ -57,7 +57,7 @@
     "id": 1007,
     "quantity": 1,
     "paid_price_per_book": 26.2,
-    "promocode_discount_per_book": 6.55,
+    "promo_code_discount_per_book": 6.55,
     "order_id": 1019,
     "book_details_id": 1004,
     "user_id": 1004
@@ -66,7 +66,7 @@
     "id": 1008,
     "quantity": 3,
     "paid_price_per_book": 9.99,
-    "promocode_discount_per_book": 2.5,
+    "promo_code_discount_per_book": 2.5,
     "order_id": 1010,
     "book_details_id": 1009,
     "user_id": 1002
@@ -75,7 +75,7 @@
     "id": 1009,
     "quantity": 1,
     "paid_price_per_book": 24.5,
-    "promocode_discount_per_book": 10.5,
+    "promo_code_discount_per_book": 10.5,
     "order_id": 1005,
     "book_details_id": 1054,
     "user_id": 1003
@@ -84,7 +84,7 @@
     "id": 1010,
     "quantity": 2,
     "paid_price_per_book": 21.0,
-    "promocode_discount_per_book": 0.0,
+    "promo_code_discount_per_book": 0.0,
     "order_id": 1015,
     "book_details_id": 1045,
     "user_id": 1004
@@ -93,7 +93,7 @@
     "id": 1011,
     "quantity": 2,
     "paid_price_per_book": 19.5,
-    "promocode_discount_per_book": 0.0,
+    "promo_code_discount_per_book": 0.0,
     "order_id": 1009,
     "book_details_id": 1035,
     "user_id": 1003
@@ -102,7 +102,7 @@
     "id": 1012,
     "quantity": 2,
     "paid_price_per_book": 14.88,
-    "promocode_discount_per_book": 2.62,
+    "promo_code_discount_per_book": 2.62,
     "order_id": 1003,
     "book_details_id": 1065,
     "user_id": 1004
@@ -111,7 +111,7 @@
     "id": 1013,
     "quantity": 2,
     "paid_price_per_book": 21.0,
-    "promocode_discount_per_book": 0.0,
+    "promo_code_discount_per_book": 0.0,
     "order_id": 1001,
     "book_details_id": 1045,
     "user_id": 1004
@@ -120,7 +120,7 @@
     "id": 1014,
     "quantity": 3,
     "paid_price_per_book": 21.68,
-    "promocode_discount_per_book": 3.82,
+    "promo_code_discount_per_book": 3.82,
     "order_id": 1020,
     "book_details_id": 1020,
     "user_id": 1003
@@ -129,7 +129,7 @@
     "id": 1015,
     "quantity": 3,
     "paid_price_per_book": 28.9,
-    "promocode_discount_per_book": 5.1,
+    "promo_code_discount_per_book": 5.1,
     "order_id": 1020,
     "book_details_id": 1069,
     "user_id": 1004
@@ -138,7 +138,7 @@
     "id": 1016,
     "quantity": 1,
     "paid_price_per_book": 12.49,
-    "promocode_discount_per_book": 0.0,
+    "promo_code_discount_per_book": 0.0,
     "order_id": 1008,
     "book_details_id": 1009,
     "user_id": 1004
@@ -147,7 +147,7 @@
     "id": 1018,
     "quantity": 1,
     "paid_price_per_book": 35.0,
-    "promocode_discount_per_book": 0.0,
+    "promo_code_discount_per_book": 0.0,
     "order_id": 1006,
     "book_details_id": 1054,
     "user_id": 1003
@@ -156,7 +156,7 @@
     "id": 1019,
     "quantity": 1,
     "paid_price_per_book": 22.99,
-    "promocode_discount_per_book": 0.0,
+    "promo_code_discount_per_book": 0.0,
     "order_id": 1015,
     "book_details_id": 1030,
     "user_id": 1004
@@ -165,7 +165,7 @@
     "id": 1020,
     "quantity": 1,
     "paid_price_per_book": 28.0,
-    "promocode_discount_per_book": 0.0,
+    "promo_code_discount_per_book": 0.0,
     "order_id": 1008,
     "book_details_id": 1007,
     "user_id": 1004

@@ -40,7 +40,7 @@ class BorrowOrderBookSchema(BaseModel):
     borrowing_weeks: int
     borrow_book_problem: BorrowBookProblem
     borrow_fees: float
-    promocode_discount: Optional[float]
+    promo_code_discount: Optional[float]
     return_date: Optional[datetime]
     deposit_fees: float
     delay_fees_per_day: float
@@ -55,7 +55,7 @@ class PurchaseOrderBookSchema(BaseModel):
     id: int
     quantity: int
     paid_price_per_book: float
-    promocode_discount_per_book: Optional[float]
+    promo_code_discount_per_book: Optional[float]
     book_details: BookDetailsSchema
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
@@ -68,7 +68,7 @@ class OrderResponseSchema(BaseModel):
     pick_up_date: Optional[datetime]
     pick_up_type: PickUpType
     delivery_fees: Optional[float]
-    promocode_id: Optional[int]
+    promo_code_id: Optional[int]
     phone_number: str
     status: OrderStatus
     user_id: int
@@ -94,7 +94,7 @@ class CreateOrderRequest(BaseModel):
     pick_up_type: PickUpType
     address: str
     phone_number: str
-    promocode_id: Optional[int] = None
+    promo_code_id: Optional[int] = None
 
 
 class OrderCeatedUpdateResponseBase(BaseModel):
