@@ -7,8 +7,8 @@ import ForgetPassword from "./pages/auth/ForgetPassword";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
-import BorrowBooks from "./pages/client/BorrowBooks";
-import PurchaseBooks from "./pages/client/PurchaseBooks";
+// import BorrowBooks from "./pages/client/BorrowBooks";
+// import PurchaseBooks from "./pages/client/PurchaseBooks";
 import Navbar from "./components/Navbar";
 import OrderPage from "./pages/auth/OrdersPage";
 
@@ -19,15 +19,27 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools initialIsOpen={false} />
         <Routes>
-          <Route path="/" element={<> <Navbar /><Home /> </>} />
+          <Route
+            path="/"
+            element={
+              <>
+                {" "}
+                <Navbar />
+                <Home />{" "}
+              </>
+            }
+          />
           {/* <Route path="/" element={< Home/>} /> */}
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
-          <Route path="/reset-password/:reset_token" element={<ResetPassword />} />
-          <Route path="/borrow-books" element={<><Navbar/><BorrowBooks /></>} />
-          <Route path="/purchase-books" element={<><Navbar/><PurchaseBooks /></>} />
-          <Route path="/order" element={<OrderPage/>} />
+          <Route
+            path="/reset-password/:reset_token"
+            element={<ResetPassword />}
+          />
+          {/* <Route path="/borrow-books" element={<><Navbar/><BorrowBooks /></>} /> */}
+          {/* <Route path="/purchase-books" element={<><Navbar/><PurchaseBooks /></>} /> */}
+          <Route path="/order" element={<OrderPage />} />
         </Routes>
 
         <ToastContainer
