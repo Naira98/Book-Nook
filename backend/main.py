@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI
 from routers.auth import auth_router
 from routers.cart import cart_router
+from routers.prom_code import promo_code_router
 from settings import settings
 from routers.book import book_router
 from core.cloudinary import init_cloudinary
@@ -32,5 +33,6 @@ api_router = APIRouter(prefix="/api")
 
 api_router.include_router(auth_router)
 api_router.include_router(book_router)
-api_router.include_router(cart_router)  
+api_router.include_router(cart_router) 
+api_router.include_router(promo_code_router)
 app.include_router(api_router)

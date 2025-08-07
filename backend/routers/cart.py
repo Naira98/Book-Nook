@@ -5,7 +5,7 @@ from models.user import User
 import crud.cart as cart_crud
 from db.database import get_db
 from utils.auth import get_user_id
-from schemas.cart import CartResponse
+from schemas.cart import CartResponse , CartCreate
 
 
 cart_router = APIRouter (
@@ -22,7 +22,7 @@ async def read_user_cart(
     cart_items = await cart_crud.display_cart(db, user_id)    
     return cart_items
 
-@cart_router.post("/addcart")
+@cart_router.post("/addcart" , response_model=CartCreate, status_code=201 )
 async def add_to_cart (
     book_details_id: int, 
     quantity: int, 
