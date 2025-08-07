@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from db.base import Base
-from sqlalchemy import ForeignKey, Integer
+from sqlalchemy import ForeignKey, Integer, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class Cart(Base):
     __tablename__ = "carts"
+    __table_args__ = (Index("ix_user_id", "user_id"),)
 
     quantity: Mapped[int] = mapped_column(Integer, default=1)
 

@@ -1,1 +1,1 @@
-from .settings import add_dummy_settings
+from .settings import add_dummy_settings  # noqa: F401
