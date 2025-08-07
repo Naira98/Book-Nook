@@ -10,6 +10,7 @@ from routers.prom_code import promo_code_router
 from settings import settings
 from routers.book import book_router
 from core.cloudinary import init_cloudinary
+from routers.websocket import websocket_router
 
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__))))
 
@@ -35,4 +36,6 @@ api_router.include_router(auth_router)
 api_router.include_router(book_router)
 api_router.include_router(cart_router) 
 api_router.include_router(promo_code_router)
+api_router.include_router(websocket_router)
+
 app.include_router(api_router)
