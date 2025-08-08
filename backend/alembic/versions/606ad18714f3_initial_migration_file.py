@@ -303,6 +303,7 @@ def upgrade() -> None:
     )
     op.create_table(
         "carts",
+        sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column("book_details_id", sa.Integer(), nullable=False),
         sa.Column("quantity", sa.Integer(), nullable=False),
@@ -314,7 +315,7 @@ def upgrade() -> None:
             ["user_id"],
             ["users.id"],
         ),
-        sa.PrimaryKeyConstraint("user_id", "book_details_id"),
+        sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
         "purchase_order_books",

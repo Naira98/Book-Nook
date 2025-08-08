@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Annotated, List
 
 from db.database import get_db
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Body
 from models.book import BookDetails
 from models.cart import Cart
 from models.order import (
@@ -269,8 +269,8 @@ async def create_order(
     status_code=status.HTTP_200_OK,
 )
 async def update_order_status(
-    order_id: int,
-    new_status: OrderStatus,
+    order_id: Annotated[int, Body()],
+    new_status: Annotated[OrderStatus, Body()],
     db: AsyncSession = Depends(get_db),
 ):
     try:
@@ -318,8 +318,8 @@ async def update_order_status(
     status_code=status.HTTP_200_OK,
 )
 async def update_borrow_order_book_status(
-    borrow_order_book_id: int,
-    new_status: BorrowBookProblem,
+    borrow_order_book_id: Annotated[int, Body()],
+    new_status: Annotated[BorrowBookProblem, Body()],
     db: AsyncSession = Depends(get_db),
 ):
     try:
@@ -352,7 +352,7 @@ async def update_borrow_order_book_status(
             # TODO: what if book is damaged should all its fees be charged?
             # TODO: What should happen if user has insufficient funds in wallet?
             # TODO: if promocode applied, should it be considered in the fees?
-            
+
             plenty_fees = borrow_order_book.original_book_price - (
                 borrow_order_book.deposit_fees + borrow_order_book.borrow_fees
             )

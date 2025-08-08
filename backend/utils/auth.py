@@ -1,5 +1,6 @@
 from models.user import User
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Cookie, HTTPException, status, Depends
 from models.session import Session
@@ -45,10 +46,27 @@ async def get_user_id(
 
 
 async def get_user(
-    user_id: int = Depends(get_user_id),
+    session_token: str = Depends(get_user_session),
     db: AsyncSession = Depends(get_db),
-):
-    stmt = select(User).where(User.id == user_id)
+) -> User:
+    stmt = (
+        select(Session)
+        .where(Session.session == session_token)
+        .options(joinedload(Session.user))
+    )
     result = await db.execute(stmt)
-    user_data = result.scalars().first()
-    return user_data
+    session = result.scalars().first()
+
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid session token.",
+        )
+
+    if not session.user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found for this session.",
+        )
+
+    return session.user
