@@ -66,6 +66,7 @@ def calculate_borrow_order_book_fees(
         borrow_fees = original_borrowing_fees - promo_code_discount
 
     return {
+        "boorow_fees_per_week": base_borrow_fee_per_week,
         "borrow_fees": borrow_fees.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
         "deposit_fees": deposit_fees.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
         "delay_fees_per_day": delay_fees_per_day.quantize(
