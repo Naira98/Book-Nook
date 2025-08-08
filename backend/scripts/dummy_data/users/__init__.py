@@ -1,1 +1,1 @@
-from .users import add_dummy_users
+from .users import add_dummy_users  # noqa: F401
