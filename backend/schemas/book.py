@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Optional, List
+from typing import Optional
 
 from models.book import BookStatus
 from pydantic import BaseModel, ConfigDict, Field
@@ -67,8 +67,6 @@ class UpdateStockRequest(BaseModel):
 
 
 """ Employee-only schema for book management """
-
-
 class BookTableSchema(BaseModel):
     id: int
     title: str
@@ -84,7 +82,3 @@ class BookTableSchema(BaseModel):
             Decimal: lambda v: str(v)  # Ensure Decimal is serialized as string
         }
 
-
-class PaginatedBookTableResponse(BaseModel):
-    total_count: int
-    books: List[BookTableSchema]

@@ -5,10 +5,9 @@ from schemas.book import (
     BookTableSchema,
     CreateBookRequest,
     EditBookRequest,
-    PaginatedBookTableResponse,
     UpdateStockRequest,
 )
-from sqlalchemy import insert, select, update, func
+from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import contains_eager, joinedload, selectinload
 
@@ -193,10 +192,7 @@ async def update_book_stock_crud(new_stock_data: UpdateStockRequest, db: AsyncSe
 """ Employee-only endpoints for book management """
 
 
-async def get_books_table_crud(db, offset: int, limit: int):
-    # Get total count of books for pagination
-    total_count_result = await db.execute(select(func.count(Book.id)))
-    total_count = total_count_result.scalar_one()
+async def get_books_table_crud(db):
 
     result = await db.execute(
         select(Book)
@@ -205,8 +201,6 @@ async def get_books_table_crud(db, offset: int, limit: int):
             joinedload(Book.category),
             selectinload(Book.book_details),
         )
-        .offset(offset)
-        .limit(limit)
     )
     books = result.scalars().all()
 
@@ -240,4 +234,4 @@ async def get_books_table_crud(db, offset: int, limit: int):
                 available_stock_borrow=borrow_stock,
             )
         )
-    return PaginatedBookTableResponse(total_count=total_count, books=book_table_data)
+    return book_table_data
