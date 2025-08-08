@@ -1,6 +1,8 @@
 from decimal import Decimal
-from pydantic import BaseModel, ConfigDict
+from typing import Optional
+
 from models.book import BookStatus
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class IdSchema(BaseModel):
@@ -62,3 +64,21 @@ class UpdateStockRequest(BaseModel):
     book_id: int
     stock_type: BookStatus
     new_stock: int
+
+
+""" Employee-only schema for book management """
+class BookTableSchema(BaseModel):
+    id: int
+    title: str
+    price: Decimal
+    author_name: str = Field(..., alias="author_name")  # Alias to match the joined data
+    category_name: str = Field(..., alias="category_name")
+    available_stock_purchase: Optional[int] = None
+    available_stock_borrow: Optional[int] = None
+
+    class Config:
+        from_attributes = True
+        json_encoders = {
+            Decimal: lambda v: str(v)  # Ensure Decimal is serialized as string
+        }
+
