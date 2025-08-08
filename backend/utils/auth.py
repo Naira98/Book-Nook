@@ -1,4 +1,4 @@
-from models.user import User
+from models.user import User, UserRole
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -70,3 +70,16 @@ async def get_user(
         )
 
     return session.user
+
+
+async def is_staff(user: User = Depends(get_user)):
+    if (
+        user.role != UserRole.EMPLOYEE
+        and user.role != UserRole.MANAGER
+        and user.role != UserRole.COURIER
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to perform this action.",
+        )
+    return user
