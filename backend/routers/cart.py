@@ -1,18 +1,32 @@
-from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status, Body, Path
+from typing import Annotated, Optional
+from fastapi import APIRouter, Depends, Body, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.user import User
-from crud.cart import display_cart, add_to_cart_crud, delete_cart_item_crud
+from models.book import BookStatus
+from crud.cart import (
+    display_cart,
+    add_to_cart_crud,
+    delete_cart_item_crud,
+    get_cart_item,
+    update_cart_item_crud,
+)
 from db.database import get_db
-from utils.auth import get_user_id
+from utils.auth import get_user_id, get_user
 from schemas.cart import (
-    CartItemsResponse,
-    CrateCartItem,
+    GetCartItemsResponse,
+    CrateCartItemResponse,
     PurchaseItemResponse,
     BorrowItemResponse,
+    CreateCartItemRequest,
 )
 from utils.settings import get_settings
 from utils.order import calculate_borrow_order_book_fees
+from utils.cart import (
+    validate_book_details,
+    validate_create_purchase_cart_item,
+    validate_create_borrow_cart_item,
+    validate_update_cart_item,
+)
 
 
 cart_router = APIRouter(
@@ -23,7 +37,7 @@ cart_router = APIRouter(
 
 @cart_router.get(
     "/usercart",
-    response_model=CartItemsResponse,
+    response_model=GetCartItemsResponse,
 )
 async def read_user_cart(
     user_id: User = Depends(get_user_id),
@@ -35,7 +49,10 @@ async def read_user_cart(
     purchase_items = []
 
     for cart_item in cart_items:
-        if cart_item.book_details.status.value == "BORROW":
+        if (
+            cart_item.book_details.status.value == "BORROW"
+            and cart_item.borrowing_weeks
+        ):
             book_price = cart_item.book_details.book.price
 
             fees_data = calculate_borrow_order_book_fees(
@@ -48,8 +65,9 @@ async def read_user_cart(
             )
 
             borrow_object = BorrowItemResponse(
+                id=cart_item.id,
                 book_details_id=cart_item.book_details_id,
-                borrow_weeks=1,
+                borrowing_weeks=cart_item.borrowing_weeks,
                 borrow_fees_per_week=fees_data["boorow_fees_per_week"],
                 deposit_fees=fees_data["deposit_fees"],
                 delay_fees_per_day=fees_data["delay_fees_per_day"],
@@ -61,6 +79,7 @@ async def read_user_cart(
 
         elif cart_item.book_details.status.value == "PURCHASE":
             purchase_object = PurchaseItemResponse(
+                id=cart_item.id,
                 book_details_id=cart_item.book_details_id,
                 quantity=cart_item.quantity,
                 book=cart_item.book_details.book,
@@ -78,27 +97,45 @@ async def read_user_cart(
     }
 
 
-@cart_router.post("/addcart", response_model=CrateCartItem, status_code=201)
+@cart_router.post("/addcart", response_model=CrateCartItemResponse, status_code=201)
 async def add_to_cart(
-    book_details_id: Annotated[int, Body()],
-    quantity: Annotated[int, Body()],
-    user_id: User = Depends(get_user_id),
+    cart_data: Annotated[CreateCartItemRequest, Body()],
+    user: User = Depends(get_user),
     db: AsyncSession = Depends(get_db),
 ):
-    cart_item = await add_to_cart_crud(db, user_id, book_details_id, quantity)
+    book_details = await validate_book_details(db, cart_data)
+    if book_details.status.value == "BORROW":
+        validate_create_borrow_cart_item(db, book_details, cart_data)
+    elif book_details.status.value == "PURCHASE":
+        validate_create_purchase_cart_item(book_details, cart_data)
+
+    cart_item = await add_to_cart_crud(db, user, cart_data, book_details)
     return cart_item
 
 
-@cart_router.delete("/{book_details_id}")
-async def delete_cart_item(
-    book_details_id: Annotated[int, Path()],
+@cart_router.patch("/updatecart", response_model=BookStatus)
+async def update_cart_item(
+    cart_item_id: Annotated[int, Body()],
+    quantity: Annotated[Optional[int], Body()] = None,
+    borrowing_weeks: Annotated[Optional[int], Body()] = None,
     user_id: User = Depends(get_user_id),
     db: AsyncSession = Depends(get_db),
 ):
-    was_deleted = await delete_cart_item_crud(db, user_id, book_details_id)
-    if not was_deleted:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Cart item for book details ID {book_details_id} not found.",
-        )
-    return {"message": "Cart item deleted successfully."}
+    cart_item_data = await get_cart_item(db, user_id, cart_item_id)
+    validate_update_cart_item(db, cart_item_data, quantity, borrowing_weeks)
+
+    updated_cart_item = await update_cart_item_crud(
+        db, cart_item_data, quantity, borrowing_weeks
+    )
+    return updated_cart_item.book_details.status
+
+
+@cart_router.delete("/{cart_item_id}", response_model=BookStatus)
+async def delete_cart_item(
+    cart_item_id: Annotated[int, Path()],
+    user_id: User = Depends(get_user_id),
+    db: AsyncSession = Depends(get_db),
+):
+    deleted_cart_item = await delete_cart_item_crud(db, user_id, cart_item_id)
+
+    return deleted_cart_item.book_details.status
