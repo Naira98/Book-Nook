@@ -5,7 +5,6 @@ import logo from "../../assets/dark-bg-logo.svg";
 
 export default function AuthLayout({
   children,
-
   cardClassName,
   title = "Welcome to Book Nook",
 }: {

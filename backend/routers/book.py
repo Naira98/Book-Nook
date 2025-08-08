@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Annotated
+from typing import Annotated, List
 
 from core.cloudinary import upload_image
 from crud.book import (
@@ -25,10 +25,10 @@ from fastapi.responses import JSONResponse
 from schemas.book import (
     BookResponse,
     BookStatus,
+    BookTableSchema,
     CreateBookRequest,
     CreateBookResponse,
     EditBookRequest,
-    PaginatedBookTableResponse,
     UpdateStockRequest,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -130,11 +130,8 @@ async def update_book_stock(
 
 # TODO: check courier or manager access
 
-
-@book_router.get("/table", response_model=PaginatedBookTableResponse)
+@book_router.get("/table", response_model=List[BookTableSchema])
 async def get_books_table(
     db: AsyncSession = Depends(get_db),
-    offset: int = Query(0, ge=0, description="Offset for pagination"),
-    limit: int = Query(10, ge=1, le=100, description="Number of items per page"),
 ):
-    return await get_books_table_crud(db, offset, limit)
+    return await get_books_table_crud(db)

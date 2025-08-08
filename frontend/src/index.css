@@ -7,6 +7,22 @@
   --color-secondary: #f9a806;
 }
 
+.btn-cyan {
+  @apply inline-flex cursor-pointer items-center gap-2 rounded border border-cyan-400 p-2 text-sm text-cyan-600 shadow hover:bg-cyan-50 md:px-4 md:py-2 md:text-base;
+}
+
+.btn-filter {
+  @apply cursor-pointer rounded-lg border-2 px-3 py-1.5 text-xs whitespace-nowrap shadow-sm transition-all duration-200;
+}
+
+.btn-filter-active {
+  @apply border-cyan-400 bg-cyan-50 font-medium text-cyan-600;
+}
+
+.btn-filter-inactive {
+  @apply border-gray-200 bg-white text-gray-700 hover:border-cyan-200 hover:bg-cyan-50;
+}
+
 /* Keyframe animations for page elements */
 @keyframes fade-in-up {
   from {
