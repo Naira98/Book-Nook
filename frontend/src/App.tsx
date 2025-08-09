@@ -5,7 +5,8 @@ import Login from "./pages/auth/Login";
 import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import EmailVerification from "./pages/auth/EmailVerification";
 import EmailPage from "./pages/auth/EmailPage";
-import OrderPage from "./pages/auth/OrdersPage";
+import OrdersListPage from "./pages/auth/OrdersListPage";
+import OrderDetailsPage from "./pages/auth/OrderDetailsPage";
 
 const App = () => {
   return (
@@ -17,7 +18,8 @@ const App = () => {
         <Route path="/email_verification" element={<EmailVerification />} />
         <Route path="/reset-password-request" element={<EmailPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/order" element={<OrderPage/>} />
+        <Route path="/orders" element={<OrdersListPage />} />
+        <Route path="/orders/:id" element={<OrderDetailsPage />} />
       </Routes>
     </BrowserRouter>
   );
