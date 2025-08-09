@@ -1,17 +1,19 @@
-import type { MainButtonTypes } from "../../../types/shared/buttons";
-import classNames from "classnames";
+import clsx from "clsx";
+
 export default function MainButton({
   disabled,
   loading,
   label,
   className,
+  onClick,
 }: MainButtonTypes) {
   return (
     <button
+      onClick={onClick}
       type="submit"
       disabled={disabled || loading}
-      className={classNames(
-        "bg-primary hover:bg-hover disabled:hover:bg-primary relative flex h-10 w-full items-center justify-center rounded-md border border-transparent text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70",
+      className={clsx(
+        "bg-primary hover:bg-hover disabled:hover:bg-primary relative flex h-10 w-full cursor-pointer items-center justify-center rounded-md border border-transparent text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70",
         className,
       )}
     >
@@ -41,4 +43,12 @@ export default function MainButton({
       )}
     </button>
   );
+}
+
+interface MainButtonTypes {
+  disabled?: boolean;
+  loading?: boolean;
+  label?: string;
+  className?: string;
+  onClick?: () => void;
 }

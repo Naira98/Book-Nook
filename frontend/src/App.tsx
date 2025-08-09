@@ -1,26 +1,62 @@
-import { Routes, Route, BrowserRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import Home from "./pages/Home";
-import Register from "./pages/auth/Register";
+import ForgetPassword from "./pages/auth/ForgetPassword";
 import Login from "./pages/auth/Login";
-import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
-import EmailVerification from "./pages/auth/EmailVerification";
-import EmailPage from "./pages/auth/EmailPage";
+import Register from "./pages/auth/Register";
+import ResetPassword from "./pages/auth/ResetPassword";
+// import BorrowBooks from "./pages/client/BorrowBooks";
+// import PurchaseBooks from "./pages/client/PurchaseBooks";
+import Navbar from "./components/Navbar";
 import OrdersListPage from "./pages/auth/OrdersListPage";
 import OrderDetailsPage from "./pages/auth/OrderDetailsPage";
-
 const App = () => {
+  const queryClient = new QueryClient();
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/email_verification" element={<EmailVerification />} />
-        <Route path="/reset-password-request" element={<EmailPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/orders" element={<OrdersListPage />} />
-        <Route path="/orders/:id" element={<OrderDetailsPage />} />
-      </Routes>
+      <QueryClientProvider client={queryClient}>
+        <ReactQueryDevtools initialIsOpen={false} />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                {" "}
+                <Navbar />
+                <Home />{" "}
+              </>
+            }
+          />
+          {/* <Route path="/" element={< Home/>} /> */}
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/forget-password" element={<ForgetPassword />} />
+          <Route path="/orders" element={<OrdersListPage />} />
+          <Route path="/orders/:id" element={<OrderDetailsPage />} />
+          <Route
+            path="/reset-password/:reset_token"
+            element={<ResetPassword />}
+          />
+          {/* <Route path="/borrow-books" element={<><Navbar/><BorrowBooks /></>} /> */}
+          {/* <Route path="/purchase-books" element={<><Navbar/><PurchaseBooks /></>} /> */}
+          
+        </Routes>
+
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={true}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
+      </QueryClientProvider>
     </BrowserRouter>
   );
 };

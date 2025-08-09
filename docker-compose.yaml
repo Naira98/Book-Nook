@@ -15,6 +15,7 @@ services:
     volumes:
       - ./backend:/app
     ports:
+      # Not removed after integration with ngnix to enable Swagger documnetation on :8000/docs
       - 8000:8000
     env_file:
       - ./backend/.env.docker
@@ -23,8 +24,18 @@ services:
     build: ./frontend
     volumes:
       - ./frontend:/app
+    env_file:
+      - ./frontend/.env.docker
+
+  nginx:
+    image: nginx:alpine
     ports:
-      - 5173:5173
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
 
 volumes:
   postgres-data:

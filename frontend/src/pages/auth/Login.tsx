@@ -1,15 +1,17 @@
-import { Form, Field } from "react-final-form";
-import TextInput from "../../components/shared/formInputs/TextInput";
-import type { LoginFormData } from "../../types/auth";
-import MainButton from "../../components/shared/buttons/MainButton";
+import { Field, Form } from "react-final-form";
 import { Link } from "react-router-dom";
+import image from "../../assets/login.svg";
 import AuthLayout from "../../components/auth/AuthLayout";
+import MainButton from "../../components/shared/buttons/MainButton";
+import TextInput from "../../components/shared/formInputs/TextInput";
+import { useLogin } from "../../hooks/auth/useLogin";
+import type { LoginFormData } from "../../types/auth";
 
 const LoginPage = () => {
+  const { login, isPending } = useLogin();
+
   const onSubmit = async (values: LoginFormData) => {
-    console.log("Login form submitted:", values);
-    // fake await to handle loading state
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    login(values);
   };
 
   // recives the current values
@@ -24,9 +26,6 @@ const LoginPage = () => {
 
     if (!values.password) {
       errors.password = "Password is required";
-      //  dummy check
-    } else if (values.password.length < 6) {
-      errors.password = "Password must be at least 6 characters";
     }
 
     return errors;
@@ -37,9 +36,9 @@ const LoginPage = () => {
       <div className="flex flex-1 flex-col overflow-auto md:flex-row">
         <div className="hidden w-1/2 items-center justify-center md:flex">
           <img
-            src="src/assets/login.svg"
+            src={image}
             className="max-w-[80%] object-contain"
-            alt="Books"
+            alt="Library"
           />
         </div>
         <div className="flex w-full flex-col justify-center p-8 md:w-1/2">
@@ -59,7 +58,6 @@ const LoginPage = () => {
                     name={item.name}
                     type={item.type}
                     placeholder={item.placeholder}
-                    inputLabel={item.inputLabel}
                   />
                 ))}
                 <div className="flex items-center justify-between">
@@ -78,18 +76,18 @@ const LoginPage = () => {
                     </Field>
                   </div>
                   <div className="text-sm">
-                    <a
-                      href="#"
+                    <Link
+                      to="/forget-password"
                       className="text-primary font-medium transition-colors"
                     >
                       Forgot your password?
-                    </a>
+                    </Link>
                   </div>
                 </div>
                 <div className="mt-12">
                   <MainButton
                     disabled={submitting || pristine || hasValidationErrors}
-                    loading={submitting}
+                    loading={isPending}
                     label="Login"
                   />
                 </div>
@@ -120,12 +118,10 @@ const formData = [
     name: "email",
     type: "email",
     placeholder: "Enter your email",
-    inputLabel: "Email Address",
   },
   {
     name: "password",
     type: "password",
     placeholder: "*********",
-    inputLabel: "Password",
   },
 ];

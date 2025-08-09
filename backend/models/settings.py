@@ -15,7 +15,8 @@ class Settings(Base):
     deposit_perc: Mapped[Decimal] = mapped_column(Numeric(4, 2))
     borrow_perc: Mapped[Decimal] = mapped_column(Numeric(4, 2))
     delay_perc: Mapped[Decimal] = mapped_column(Numeric(4, 2))
-    delivery_fees: Mapped[Decimal] = mapped_column(Numeric(4, 2))
+    delivery_fees: Mapped[Decimal] = mapped_column(Numeric(6, 2))
+    min_borrow_fee: Mapped[Decimal] = mapped_column(Numeric(6, 2))
     max_num_of_borrow_books: Mapped[int]
 
 

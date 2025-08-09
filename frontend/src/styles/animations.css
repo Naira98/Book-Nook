@@ -1,0 +1,27 @@
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Custom colors */
+:root {
+  --color-primary: #4F46E5;
+  --color-primary-hover: #4338CA;
+}
+
+/* Dark mode */
+.dark {
+  --color-dark-bg: #111827;
+  --color-dark-card: #1F2937;
+  --color-dark-border: #374151;
+}

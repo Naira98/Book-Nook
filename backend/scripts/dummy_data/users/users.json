@@ -1,0 +1,79 @@
+[
+  {
+    "id": 1001,
+    "first_name": "Admin",
+    "last_name": "User",
+    "email": "admin@test.com",
+    "password": "admin",
+    "status": "ACTIVATED",
+    "role": "MANAGER",
+    "national_id": "11111111111111",
+    "phone_number": "01000000001"
+  },
+  {
+    "id": 1002,
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "client@test.com",
+    "password": "client",
+    "status": "ACTIVATED",
+    "role": "CLIENT",
+    "national_id": "22222222222222",
+    "phone_number": "01000000002"
+  },
+  {
+    "id": 1003,
+    "first_name": "client1",
+    "last_name": "xD",
+    "email": "client1@test.com",
+    "password": "client1",
+    "status": "ACTIVATED",
+    "role": "CLIENT",
+    "national_id": "33333333333333",
+    "phone_number": "01000000003"
+  },
+  {
+    "id": 1004,
+    "first_name": "client2",
+    "last_name": "xD",
+    "email": "client2@test.com",
+    "password": "client2",
+    "status": "ACTIVATED",
+    "role": "CLIENT",
+    "national_id": "44444444444444",
+    "phone_number": "01000000004"
+  },
+  {
+    "id": 1005,
+    "first_name": "Manager",
+    "last_name": "Smith",
+    "email": "employee@test.com",
+    "password": "employee",
+    "status": "ACTIVATED",
+    "role": "EMPLOYEE",
+    "national_id": "55555555555555",
+    "phone_number": "01000000005"
+  },
+  {
+    "id": 1006,
+    "first_name": "Courier",
+    "last_name": "Jones",
+    "email": "courier@test.com",
+    "password": "courier",
+    "status": "ACTIVATED",
+    "role": "COURIER",
+    "national_id": "66666666666666",
+    "phone_number": "01000000006"
+  },
+  {
+    "id": 1007,
+    "first_name": "Courier1",
+    "last_name": "Jones",
+    "email": "courier1@test.com",
+    "password": "courier1",
+    "status": "ACTIVATED",
+    "role": "COURIER",
+    "national_id": "77777777777777",
+    "phone_number": "01000000007"
+  }
+]

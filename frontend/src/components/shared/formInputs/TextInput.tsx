@@ -1,7 +1,9 @@
 import { useState } from "react";
-import classnames from "classnames";
+import clsx from "clsx";
 import type { TextInputTypes } from "../../../types/shared/formInputs";
 import { Field } from "react-final-form";
+import eye_icon from "../../../assets/eye.svg";
+import eye_off_icon from "../../../assets/eye-off.svg";
 
 export default function TextInput({
   type = "text",
@@ -14,20 +16,14 @@ export default function TextInput({
   return (
     <Field name={name}>
       {({ input, meta }) => (
-        <div className={classnames("mb-9 w-full", containerClassName)}>
-          {/* <label
-            htmlFor={name}
-            className={classnames("mb-2 block text-[14px]")}
-          >
-            {inputLabel ? inputLabel : placeholder}
-          </label> */}
+        <div className={clsx("mb-9 w-full", containerClassName)}>
           <div className="relative">
             <input
               onClick={(e) => e.stopPropagation()}
               type={!isPassword ? "text" : type}
               id={name}
               placeholder={placeholder ? placeholder : ""}
-              className={classnames(
+              className={clsx(
                 `focus:ring-none w-full border-b border-gray-300 p-2 placeholder-gray-400 transition-colors focus:outline-none`,
                 {
                   "border-red-300": meta.error && meta.touched,
@@ -43,14 +39,14 @@ export default function TextInput({
                 {!isPassword ? (
                   <img
                     onClick={() => changeIsPassword(!isPassword)}
-                    src="src/assets/eye.svg"
+                    src={eye_icon}
                     alt="eye icon"
                     className="w-4"
                   />
                 ) : (
                   <img
                     onClick={() => changeIsPassword(!isPassword)}
-                    src="src/assets/eye-off.svg"
+                    src={eye_off_icon}
                     alt="invisible eye icon"
                     className="w-4"
                   />

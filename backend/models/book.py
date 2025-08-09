@@ -15,7 +15,7 @@ class Author(Base):
     __tablename__ = "authors"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(50))
+    name: Mapped[str] = mapped_column(String(100))
     books: Mapped[list[Book]] = relationship(back_populates="author")
 
 
@@ -23,7 +23,7 @@ class Category(Base):
     __tablename__ = "categories"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(25))
+    name: Mapped[str] = mapped_column(String(100))
     books: Mapped[list[Book]] = relationship(back_populates="category")
 
 
@@ -32,9 +32,10 @@ class Book(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(255))
-    price: Mapped[Decimal] = mapped_column(Numeric(6, 2))
+    price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     description: Mapped[str] = mapped_column(String(1000), nullable=True)
     cover_img: Mapped[str] = mapped_column(String, nullable=True)
+    publish_year: Mapped[int]
 
     # Foreign Keys
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))

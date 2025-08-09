@@ -1,41 +1,34 @@
-# from typing import List, Optional
-from datetime import datetime
 from decimal import Decimal
+from typing import Literal
 
-from models.user import UserRole, UserStatus
+from models.user import UserRole
 from pydantic import BaseModel, ConfigDict, EmailStr
+
 
 class UserBase(BaseModel):
     email: EmailStr
-   
 
 
 class LoginRequest(UserBase):
     password: str
 
 
-class UserResponse(UserBase):
+class LoginResponse(UserBase):
     id: int
     first_name: str
     last_name: str
-    national_id: str
     phone_number: str
     wallet: Decimal
-    status: UserStatus
     role: UserRole
     interests: str | None
-    created_date: datetime
-    reset_token: str | None = None
-    reset_token_expires_at: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
 
-
 # JWT token response
 class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
+    token: str
+    token_type: Literal["bearer"] = "bearer"
 
 
 # JWT token data (payload inside JWT)
@@ -44,27 +37,58 @@ class TokenData(BaseModel):
     role: str
 
 
-class LoginResponse(Token):
-    user: UserResponse
-
-
 class ForgetPasswordRequest(UserBase):
     pass
+
 
 class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
 
+
 class MessageResponse(BaseModel):
     message: str
+
 
 class ResetForegetPassword(BaseModel):
     reset_token: str
     new_password: str
     confirm_password: str
 
-    
+
 class SuccessMessage(BaseModel):
     success: bool
     status_code: int
     message: str
+
+
+class RegisterRequest(BaseModel):
+    first_name: str
+    last_name: str
+    email: EmailStr
+    password: str
+    phone_number: str | None = None
+    national_id: str | None = None
+
+
+class RegisterResponse(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    email: EmailStr
+    phone_number: str | None = None
+    national_id: str | None = None
+
+    model_config = ConfigDict(from_attributes=True, use_enum_values=True)
+
+
+class EmailVerificationResponse(BaseModel):
+    message: str
+    email: EmailStr
+    model_config = ConfigDict(from_attributes=True, use_enum_values=True)
+
+
+class EmailVerificationRequest(BaseModel):
+    token: str
+
+    model_config = ConfigDict(from_attributes=True, use_enum_values=True)

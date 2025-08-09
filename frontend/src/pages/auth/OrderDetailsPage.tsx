@@ -5,7 +5,7 @@ const OrderDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   
-  // في التطبيق الحقيقي، ستأتي هذه البيانات من API أو Context
+  
   const orders = [
     {
       order: {

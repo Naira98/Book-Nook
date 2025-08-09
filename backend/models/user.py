@@ -1,15 +1,18 @@
 from __future__ import annotations
-from .order import Order
-from .cart import Cart
+
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from .notification import Notification
 
 from db.base import Base
 from sqlalchemy import DateTime, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
+
+from .cart import Cart
+from .notification import Notification
+from .order import Order
+from .transaction import Transaction
 
 
 class UserStatus(Enum):
@@ -39,15 +42,16 @@ class User(Base):
     status: Mapped[UserStatus] = mapped_column(default=UserStatus.DEACTIVATED.value)
     role: Mapped[UserRole] = mapped_column(default=UserRole.CLIENT.value)
     interests: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    current_borrowed_books: Mapped[int] = mapped_column(default=0)
     created_date: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
-    reset_token: Mapped[str | None] = mapped_column(String, unique=True, nullable=True)
-    reset_token_expires_at: Mapped[datetime | None] = mapped_column(
-        DateTime, nullable=True
+    forget_password_token: Mapped[str | None] = mapped_column(
+        String, unique=True, nullable=True
     )
+    email_verification_token: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    # Relationships
+    # Foreign Keys
     cart: Mapped[list[Cart]] = relationship(  # type: ignore  # noqa: F821
         back_populates="user", foreign_keys="[Cart.user_id]"
     )
@@ -66,12 +70,15 @@ class User(Base):
         back_populates="user"
     )
 
+    # Relationships
     borrow_order_books: Mapped[list[BorrowOrderBook]] = relationship(  # type: ignore # noqa: F821
         back_populates="user"
     )
     purchase_order_books: Mapped[list[PurchaseOrderBook]] = relationship(  # type: ignore # noqa: F821
         back_populates="user"
     )
+    sessions: Mapped[list[Session]] = relationship(back_populates="user")  # type: ignore # noqa: F821
+    transactions: Mapped[list[Transaction]] = relationship(back_populates="user")  # type: ignore  # noqa: F821
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email={self.email}, role={self.role.value})>"
