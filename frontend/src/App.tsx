@@ -10,8 +10,8 @@ import ResetPassword from "./pages/auth/ResetPassword";
 // import BorrowBooks from "./pages/client/BorrowBooks";
 // import PurchaseBooks from "./pages/client/PurchaseBooks";
 import Navbar from "./components/Navbar";
-import OrderPage from "./pages/auth/OrdersPage";
-
+import OrdersListPage from "./pages/auth/OrdersListPage";
+import OrderDetailsPage from "./pages/auth/OrderDetailsPage";
 const App = () => {
   const queryClient = new QueryClient();
   return (
@@ -33,13 +33,15 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
+          <Route path="/orders" element={<OrdersListPage />} />
+          <Route path="/orders/:id" element={<OrderDetailsPage />} />
           <Route
             path="/reset-password/:reset_token"
             element={<ResetPassword />}
           />
           {/* <Route path="/borrow-books" element={<><Navbar/><BorrowBooks /></>} /> */}
           {/* <Route path="/purchase-books" element={<><Navbar/><PurchaseBooks /></>} /> */}
-          <Route path="/order" element={<OrderPage />} />
+          
         </Routes>
 
         <ToastContainer
