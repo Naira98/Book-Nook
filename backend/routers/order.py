@@ -15,7 +15,7 @@ from models.order import (
     PickUpType,
     ReturnOrder,
 )
-from models.user import User
+from models.user import User, UserRole
 from schemas.order import (
     BorrowOrderBookUpdateProblemResponse,
     CreateOrderRequest,
@@ -89,8 +89,8 @@ async def get_orders(
 async def get_all_orders(
     user: Annotated[User, Depends(get_staff_user)],
     order_status: PickUpType,
-    courier_id: Optional[int | None] = None,
     db: AsyncSession = Depends(get_db),
+    courier_id: Optional[int | None] = None,
 ):
     try:
         conditions = [Order.pick_up_type == order_status]
@@ -340,6 +340,7 @@ async def update_order_status(
     order_id: Annotated[int, Body()],
     new_status: Annotated[OrderStatus, Body()],
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_staff_user),
 ):
     try:
         query = select(Order).where(Order.id == order_id)
@@ -351,8 +352,22 @@ async def update_order_status(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Order with id {order_id} not found.",
             )
+        if new_status == OrderStatus.ON_THE_WAY:
+            if user.role != UserRole.COURIER:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Only couriers can set order status to ON_THE_WAY",
+                )
+
+            order.courier_id = user.id
 
         if new_status == OrderStatus.PICKED_UP:
+            if user.role == UserRole.COURIER and order.courier_id != user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You are not authorized to update this order's status.",
+                )
+
             order.pick_up_date = datetime.now()
         elif new_status == OrderStatus.PROBLEM:
             # TODO: send notification to user about the problem
