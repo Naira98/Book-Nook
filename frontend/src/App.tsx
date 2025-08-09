@@ -19,6 +19,7 @@ import BorrowBooks from "./pages/client/BorrowBooks";
 import PurchaseBooks from "./pages/client/PurchaseBooks";
 import { UserRole } from "./types/User";
 import AddBookPage from "./pages/employee/AddBookPage";
+import CourierLayout from "./components/courier/CourierLayout";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -74,7 +75,9 @@ const App = () => {
 
           {/* COURIER-only routes */}
           <Route element={<RoleBasedRoute allowedRoles={[UserRole.COURIER]} />}>
-            <Route path="/courier/orders" element={<OrderPage />} />
+            <Route element={<CourierLayout />}>
+              <Route path="/courier/orders" element={<OrderPage />} />
+            </Route>
           </Route>
 
           {/* MANAGER-only routes */}

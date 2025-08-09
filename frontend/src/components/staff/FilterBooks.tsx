@@ -1,5 +1,5 @@
-import type { AvailabilityOption } from "../types/BookTable";
-import { FilterAvailability } from "../types/BookTable";
+import type { AvailabilityOption } from "../../types/BookTable";
+import { FilterAvailability } from "../../types/BookTable";
 
 interface filterBooksProps {
   purchaseOptions: AvailabilityOption[];
