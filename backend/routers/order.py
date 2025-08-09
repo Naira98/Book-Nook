@@ -23,6 +23,7 @@ from schemas.order import (
     OrderResponseSchema,
     GetAllOrdersResponse,
     UpdateOrderStatusRequest,
+    OrderDetailsResponseSchema,
 )
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -329,6 +330,62 @@ async def create_order(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An unexpected error occurred while creating the order: {str(e)}",
         )
+
+
+@order_router.get(
+    "/{order_id}",
+    response_model=OrderDetailsResponseSchema,
+    status_code=status.HTTP_200_OK,
+)
+async def get_order_details(
+    order_id: int,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_staff_user),
+):
+    conditions = [Order.id == order_id]
+
+    if user.role == UserRole.CLIENT:
+        conditions.append(Order.user_id == user.id)
+    elif user.role == UserRole.COURIER:
+        conditions.append(Order.courier_id == user.id)
+
+    try:
+        query = (
+            select(Order)
+            .where(*conditions)
+            .options(
+                joinedload(Order.user),
+                selectinload(Order.borrow_order_books_details).options(
+                    joinedload(BorrowOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    ),
+                    joinedload(BorrowOrderBook.return_order),
+                ),
+                selectinload(Order.purchase_order_books_details).options(
+                    joinedload(PurchaseOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    )
+                ),
+            )
+            .order_by(Order.created_at.desc())
+        )
+
+        result = await db.execute(query)
+        order = result.scalars().first()
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Order with id {order_id} not found.",
+            )
+
+        order.number_of_books = len(order.borrow_order_books_details) + len(
+            order.purchase_order_books_details
+        )
+        return order
+
+    except Exception as e:
+        # For any unexpected error, raise a generic 500 error with the exception details
+        raise e
 
 
 # TODO: ensure employee or courier who update order status

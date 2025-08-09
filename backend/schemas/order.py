@@ -78,6 +78,21 @@ class OrderResponseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
 
+class GetAllOrdersUserResponse(BaseModel):
+    first_name: str
+    last_name: str
+    pass
+
+
+class OrderDetailsResponseUser(GetAllOrdersUserResponse):
+    email: str
+
+
+class OrderDetailsResponseSchema(OrderResponseSchema):
+    user: OrderDetailsResponseUser
+    number_of_books: int
+
+
 class BorrowBookItem(BaseModel):
     book_details_id: int
     borrowing_weeks: int
@@ -113,12 +128,6 @@ class BorrowOrderBookUpdateProblemResponse(OrderCeatedUpdateResponseBase):
     borrow_order_book_id: int
 
     model_config = ConfigDict(from_attributes=True)
-
-
-class GetAllOrdersUserResponse(BaseModel):
-    first_name: str
-    last_name: str
-    pass
 
 
 class AllOrdersResponseBase(BaseModel):
