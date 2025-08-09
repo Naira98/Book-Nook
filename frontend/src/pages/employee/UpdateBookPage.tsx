@@ -1,13 +1,14 @@
-import { useCallback, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useState, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 import GoBackButton from "../../components/shared/buttons/GoBackButton";
 import MainButton from "../../components/shared/buttons/MainButton";
 import Dropzone from "../../components/shared/formInputs/Dropzone";
 import SelectInput from "../../components/shared/formInputs/SelectInput";
 import TextInput from "../../components/shared/formInputs/TextInput";
-import { useAddBook } from "../../hooks/books/useAddBook";
 import { useGetAuthors } from "../../hooks/books/useGetAuthors";
 import { useGetCategories } from "../../hooks/books/useGetCategories";
+import { useGetBookDetailsForUpdate } from "../../hooks/books/useGetBookDetalsForUpdate";
+import { useUpdateBook } from "../../hooks/books/useUpdateBook";
 
 const initialFormState = {
   title: "",
@@ -21,21 +22,40 @@ const initialFormState = {
   borrow_available_stock: "",
 };
 
-const AddBookPage = () => {
+const UpdateBookPage = () => {
+  const { book_id } = useParams();
+  const id = book_id!;
+
+  const { bookDetailsForUpdate, isPending: isBookPending } =
+    useGetBookDetailsForUpdate(id);
   const { categories, isPending: isCategoriesPending } = useGetCategories();
   const { authors, isPending: isAuthorsPending } = useGetAuthors();
+  const { updateBook, isPending: isUpdatingPending } = useUpdateBook();
 
   const [formValues, setFormValues] = useState(initialFormState);
   const [errors, setErrors] = useState<{
     [key in keyof typeof initialFormState]?: string;
   }>({});
 
-  const { createBook, isPending: isCreatingPending } = useAddBook();
-
-  const resetForm = useCallback(() => {
-    setFormValues(initialFormState);
-    setErrors({});
-  }, []);
+  useEffect(() => {
+    if (bookDetailsForUpdate) {
+      setFormValues({
+        title: bookDetailsForUpdate.title,
+        price: String(bookDetailsForUpdate.price),
+        description: bookDetailsForUpdate.description || "",
+        publish_year: String(bookDetailsForUpdate.publish_year),
+        img_file: null, // The image URL is used for preview, but the file is not pre-filled.
+        category_id: String(bookDetailsForUpdate.category_id),
+        author_id: String(bookDetailsForUpdate.author_id),
+        purchase_available_stock: String(
+          bookDetailsForUpdate.purchase_available_stock || "",
+        ),
+        borrow_available_stock: String(
+          bookDetailsForUpdate.borrow_available_stock || "",
+        ),
+      });
+    }
+  }, [bookDetailsForUpdate]);
 
   const isValidPositiveNumber = (
     value: string | number | null | undefined,
@@ -57,7 +77,6 @@ const AddBookPage = () => {
       price,
       description,
       publish_year,
-      img_file,
       category_id,
       author_id,
       purchase_available_stock,
@@ -65,12 +84,7 @@ const AddBookPage = () => {
     } = formValues;
 
     const areRequiredFieldsFilled =
-      title &&
-      description &&
-      publish_year &&
-      category_id &&
-      author_id &&
-      img_file;
+      title && description && publish_year && category_id && author_id;
 
     const areNumbersValid =
       isValidPositiveNumber(price) &&
@@ -92,7 +106,6 @@ const AddBookPage = () => {
     if (!values.description) newErrors.description = "Description is required";
     if (!values.category_id) newErrors.category_id = "Category is required";
     if (!values.author_id) newErrors.author_id = "Author is required";
-    if (!values.img_file) newErrors.img_file = "Cover image is required";
 
     if (!isValidPositiveNumber(values.price)) {
       newErrors.price = "Price must be a positive number";
@@ -108,21 +121,35 @@ const AddBookPage = () => {
       }
     }
 
-    if (!isNonNegativeNumber(values.purchase_available_stock)) {
+    const purchaseStock = Number(values.purchase_available_stock);
+    const borrowStock = Number(values.borrow_available_stock);
+
+    if (
+      (!values.purchase_available_stock && !values.borrow_available_stock) ||
+      ((isNaN(purchaseStock) || purchaseStock <= 0) &&
+        (isNaN(borrowStock) || borrowStock <= 0))
+    ) {
+      newErrors.purchase_available_stock =
+        "At least one of the stock fields must be greater than 0";
+      newErrors.borrow_available_stock =
+        "At least one of the stock fields must be greater than 0";
+    }
+
+    if (
+      values.purchase_available_stock &&
+      (isNaN(purchaseStock) || purchaseStock < 0)
+    ) {
       newErrors.purchase_available_stock =
         "Purchase stock must be a non-negative number";
     }
 
-    if (!isNonNegativeNumber(values.borrow_available_stock)) {
+    if (
+      values.borrow_available_stock &&
+      (isNaN(borrowStock) || borrowStock < 0)
+    ) {
       newErrors.borrow_available_stock =
         "Borrow stock must be a non-negative number";
     }
-
-    // You can keep this check if you want to ensure at least one stock is greater than 0
-    // if (Number(values.purchase_available_stock) <= 0 && Number(values.borrow_available_stock) <= 0) {
-    //   newErrors.purchase_available_stock = "At least one stock field must be greater than 0";
-    //   newErrors.borrow_available_stock = "At least one stock field must be greater than 0";
-    // }
 
     return newErrors;
   }, []);
@@ -135,20 +162,21 @@ const AddBookPage = () => {
     if (Object.keys(validationErrors).length === 0) {
       const bookData = {
         ...formValues,
+        id: Number(book_id),
         price: Number(formValues.price),
         category_id: Number(formValues.category_id),
         author_id: Number(formValues.author_id),
         publish_year: Number(formValues.publish_year),
-        purchase_available_stock: Number(formValues.purchase_available_stock),
-        borrow_available_stock: Number(formValues.borrow_available_stock),
+        purchase_available_stock: formValues.purchase_available_stock
+          ? Number(formValues.purchase_available_stock)
+          : 0,
+        borrow_available_stock: formValues.borrow_available_stock
+          ? Number(formValues.borrow_available_stock)
+          : 0,
         img_file: formValues.img_file || undefined,
       };
 
-      createBook(bookData, {
-        onSuccess: () => {
-          resetForm();
-        },
-      });
+      updateBook(bookData);
     }
   };
 
@@ -171,7 +199,8 @@ const AddBookPage = () => {
     setErrors({});
   };
 
-  const isFormPending = isCategoriesPending || isAuthorsPending;
+  const isFormPending =
+    isCategoriesPending || isAuthorsPending || isBookPending;
   const hasValidationErrors = Object.keys(errors).length > 0;
 
   const formData = [
@@ -208,85 +237,85 @@ const AddBookPage = () => {
     },
   ];
 
+  if (isFormPending) {
+    return <p>Loading book details...</p>;
+  }
+
   return (
     <div className="relative flex flex-1 flex-col overflow-auto p-4 md:p-12">
       <GoBackButton />
-
       <h2 className="text-primary mt-12 text-center text-2xl font-bold md:mt-6">
-        Create a New Book
+        Update Book Details
       </h2>
       <form onSubmit={handleSubmit} className="mt-8">
-        {isFormPending ? (
-          <p>Loading categories and authors...</p>
-        ) : (
-          formData.map((item, index) => {
-            switch (item.type) {
-              case "select":
-                return (
-                  <div key={index} className="mb-9 flex items-center gap-8">
-                    <SelectInput
-                      name={item.name}
-                      placeholder={item.placeholder}
-                      options={item.options}
-                      containerClassName="flex-1"
-                      value={
-                        formValues[item.name as keyof typeof formValues] as
-                          | string
-                          | number
-                      }
-                      onChange={handleChange}
-                      error={errors[item.name as keyof typeof errors]}
-                    />
-                    {item.link && (
-                      <Link
-                        to={item.link}
-                        className="text-primary hover:text-hover flex w-36 items-center gap-2 text-center text-sm font-semibold whitespace-nowrap transition-colors focus:outline-none"
-                      >
-                        + {item.linkText}
-                      </Link>
-                    )}
-                  </div>
-                );
-              case "dropzone":
-                return (
-                  <Dropzone
+        {formData.map((item, index) => {
+          switch (item.type) {
+            case "select":
+              return (
+                <div key={index} className="mb-9 flex items-center gap-8">
+                  <SelectInput
                     name={item.name}
-                    key={index}
-                    onChange={handleFileChange}
-                    value={formValues.img_file}
-                  />
-                );
-              case "text":
-              case "number":
-                return (
-                  <TextInput
-                    key={index}
-                    name={item.name}
-                    type={item.type}
                     placeholder={item.placeholder}
+                    options={item.options}
+                    containerClassName="flex-1"
                     value={
                       formValues[item.name as keyof typeof formValues] as
                         | string
                         | number
-                        | null
-                        | undefined
                     }
                     onChange={handleChange}
                     error={errors[item.name as keyof typeof errors]}
                   />
-                );
-              default:
-                return null;
-            }
-          })
-        )}
+                  {item.link && (
+                    <Link
+                      to={item.link}
+                      className="text-primary hover:text-hover flex w-36 items-center gap-2 text-center text-sm font-semibold whitespace-nowrap transition-colors focus:outline-none"
+                    >
+                      + {item.linkText}
+                    </Link>
+                  )}
+                </div>
+              );
+            case "dropzone":
+              return (
+                <Dropzone
+                  name={item.name}
+                  key={index}
+                  onChange={handleFileChange}
+                  value={formValues.img_file}
+                  existingImage={bookDetailsForUpdate?.cover_img || undefined}
+                />
+              );
+            case "text":
+            case "number":
+              return (
+                <TextInput
+                  key={index}
+                  name={item.name}
+                  type={item.type}
+                  placeholder={item.placeholder}
+                  value={
+                    formValues[item.name as keyof typeof formValues] as
+                      | string
+                      | number
+                      | null
+                      | undefined
+                  }
+                  onChange={handleChange}
+                  error={errors[item.name as keyof typeof errors]}
+                />
+              );
+            default:
+              return null;
+          }
+        })}
         <div className="mt-6">
           <MainButton
             disabled={
-              !isFormValid() || hasValidationErrors || isCreatingPending
+              !isFormValid() || hasValidationErrors || isUpdatingPending
             }
-            loading={isCreatingPending}
-            label="Create Book"
+            loading={isUpdatingPending}
+            label="Update Book"
           />
         </div>
       </form>
@@ -294,4 +323,4 @@ const AddBookPage = () => {
   );
 };
 
-export default AddBookPage;
+export default UpdateBookPage;

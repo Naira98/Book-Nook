@@ -17,24 +17,14 @@ export const createBook = async (
     formData.append("img_file", bookData.img_file);
   }
 
-  if (
-    bookData.purchase_available_stock !== undefined &&
-    bookData.purchase_available_stock !== null
-  ) {
-    formData.append(
-      "purchase_available_stock",
-      String(bookData.purchase_available_stock),
-    );
-  }
-  if (
-    bookData.borrow_available_stock !== undefined &&
-    bookData.borrow_available_stock !== null
-  ) {
-    formData.append(
-      "borrow_available_stock",
-      String(bookData.borrow_available_stock),
-    );
-  }
+  formData.append(
+    "purchase_available_stock",
+    String(bookData.purchase_available_stock),
+  );
+  formData.append(
+    "borrow_available_stock",
+    String(bookData.borrow_available_stock),
+  );
 
   const response = await apiReq("POST", "/books/create", formData);
   return response as IBookTable;

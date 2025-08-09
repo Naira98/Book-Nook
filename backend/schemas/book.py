@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import Optional
 
-from models.book import BookStatus
+from models.book import Book, BookStatus
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -71,6 +71,44 @@ class BookTableSchema(BaseModel):
 
     class Config:
         from_attributes = True
-        json_encoders = {
-            Decimal: lambda v: str(v)  # Ensure Decimal is serialized as string
-        }
+        json_encoders = {Decimal: lambda v: str(v)}
+
+
+class BookDetailsForUpdateResponse(BaseModel):
+    id: int
+    title: str
+    price: Decimal
+    description: Optional[str]
+    cover_img: Optional[str]
+    publish_year: int
+    category_id: int
+    author_id: int
+    purchase_available_stock: int = 0
+    borrow_available_stock: int = 0
+
+    @classmethod
+    def from_orm(cls, obj: "Book"):
+        purchase_stock = 0
+        borrow_stock = 0
+        for details in obj.book_details:
+            if details.status == BookStatus.PURCHASE:
+                purchase_stock = details.available_stock
+            elif details.status == BookStatus.BORROW:
+                borrow_stock = details.available_stock
+
+        return cls(
+            id=obj.id,
+            title=obj.title,
+            price=obj.price,
+            description=obj.description,
+            cover_img=obj.cover_img,
+            publish_year=obj.publish_year,
+            category_id=obj.category_id,
+            author_id=obj.author_id,
+            purchase_available_stock=purchase_stock,
+            borrow_available_stock=borrow_stock,
+        )
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True

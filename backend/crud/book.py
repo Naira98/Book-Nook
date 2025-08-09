@@ -2,6 +2,7 @@ from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 from models.book import Author, Book, BookDetails, BookStatus, Category
 from schemas.book import (
+    BookDetailsForUpdateResponse,
     BookTableSchema,
     CreateAuthorCategoryRequest,
     CreateBookRequest,
@@ -80,7 +81,6 @@ async def get_category_by_id(db, category_id: int):
 async def create_category_crud(
     db: AsyncSession, category_data: CreateAuthorCategoryRequest
 ):
-    # Check if a category with the same name already exists
     stmt = select(Category).where(Category.name == category_data.name)
     result = await db.execute(stmt)
     existing_category = result.scalar_one_or_none()
@@ -104,7 +104,6 @@ async def create_category_crud(
         )
 
 
-# Fetch books by partial match in title (case-insensitive)
 async def search_books_by_title(db: AsyncSession, title: str):
     stmt = (
         select(Book)
@@ -116,7 +115,7 @@ async def search_books_by_title(db: AsyncSession, title: str):
         )
     )
     result = await db.execute(stmt)
-    books = result.scalars().all()  # to avoid redundant columns data
+    books = result.scalars().all()
     return books
 
 
@@ -129,7 +128,7 @@ async def get_books_by_status(db: AsyncSession, status: BookStatus):
         .options(
             selectinload(Book.author),
             selectinload(Book.category),
-            contains_eager(Book.book_details),  # Only load the filtered book_details
+            contains_eager(Book.book_details),
         )
     )
     result = await db.execute(stmt)
@@ -145,6 +144,18 @@ async def is_book_exists(db: AsyncSession, title: str, author_id: int):
     existing_book = await db.execute(stmt)
     existing_book = existing_book.scalars().first()
     return existing_book is not None
+
+
+async def get_book_details_for_update_crud(db: AsyncSession, book_id: int):
+    result = await db.execute(
+        select(Book).options(selectinload(Book.book_details)).filter(Book.id == book_id)
+    )
+    book = result.scalars().first()
+
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    return BookDetailsForUpdateResponse.from_orm(book)
 
 
 async def create_book(book_data: CreateBookRequest, db: AsyncSession):
@@ -217,12 +228,13 @@ async def update_book_image(book_id: int, img_file: str, db: AsyncSession):
 
 async def create_book_details(
     book_id: int,
-    purchase_available_stock: int | None,
-    borrow_available_stock: int | None,
+    purchase_available_stock: int,
+    borrow_available_stock: int,
     db: AsyncSession,
 ):
     rows_to_insert = []
-    if purchase_available_stock:
+
+    if purchase_available_stock >= 0:
         rows_to_insert.append(
             {
                 "book_id": book_id,
@@ -230,7 +242,8 @@ async def create_book_details(
                 "available_stock": purchase_available_stock,
             }
         )
-    if borrow_available_stock:
+
+    if borrow_available_stock >= 0:
         rows_to_insert.append(
             {
                 "book_id": book_id,
@@ -238,16 +251,18 @@ async def create_book_details(
                 "available_stock": borrow_available_stock,
             }
         )
+
     try:
-        stmt = insert(BookDetails).values(rows_to_insert)
-        await db.execute(stmt)
-        await db.commit()
-    except Exception:
+        if rows_to_insert:
+            stmt = insert(BookDetails).values(rows_to_insert)
+            await db.execute(stmt)
+            await db.commit()
+    except Exception as e:
         await db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
-                "message": "Failed to create book details",
+                "message": f"Failed to create book details due to an error: {e}",
                 "rows_to_insert": rows_to_insert,
             },
         )

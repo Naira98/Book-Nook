@@ -15,6 +15,7 @@ from crud.book import (
     is_book_exists,
     search_books_by_title,
     update_book_stock_crud,
+    get_book_details_for_update_crud,
 )
 from crud.book import (
     get_books_by_status as get_books,
@@ -37,6 +38,7 @@ from schemas.book import (
     CreateBookRequest,
     EditBookRequest,
     UpdateStockRequest,
+    BookDetailsForUpdateResponse,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -51,6 +53,24 @@ async def get_authors(db: AsyncSession = Depends(get_db)):
 @book_router.get("/categories", response_model=List[AuthorCategorySchema])
 async def get_categories(db: AsyncSession = Depends(get_db)):
     return await get_categories_crud(db)
+
+
+@book_router.get("/search/", response_model=list[BookResponse])
+async def search_books(
+    title: str = Query(..., min_length=1),
+    db: AsyncSession = Depends(get_db),
+):
+    return await search_books_by_title(db, title)
+
+
+@book_router.get("/status/{status}", response_model=list[BookResponse])
+async def get_books_by_status(status: BookStatus, db: AsyncSession = Depends(get_db)):
+    return await get_books(db, status)
+
+
+""" Employee-only endpoints for book management """
+
+# TODO: check courier or manager access
 
 
 @book_router.post(
@@ -75,17 +95,16 @@ async def create_category(
     return await create_category_crud(db, category)
 
 
-@book_router.get("/search/", response_model=list[BookResponse])
-async def search_books(
-    title: str = Query(..., min_length=1),
+@book_router.get("/table", response_model=List[BookTableSchema])
+async def get_books_table(
     db: AsyncSession = Depends(get_db),
 ):
-    return await search_books_by_title(db, title)
+    return await get_books_table_crud(db)
 
 
-@book_router.get("/status/{status}", response_model=list[BookResponse])
-async def get_books_by_status(status: BookStatus, db: AsyncSession = Depends(get_db)):
-    return await get_books(db, status)
+@book_router.get("/{book_id}/details", response_model=BookDetailsForUpdateResponse)
+async def get_book_details(book_id: int, db: AsyncSession = Depends(get_db)):
+    return await get_book_details_for_update_crud(db, book_id=book_id)
 
 
 @book_router.post(
@@ -98,9 +117,9 @@ async def create_book_endpoint(
     category_id: Annotated[int, Form()],
     author_id: Annotated[int, Form()],
     publish_year: Annotated[int, Form()],
+    purchase_available_stock: Annotated[int, Form()],
+    borrow_available_stock: Annotated[int, Form()],
     img_file: Annotated[UploadFile | None, File()] = None,
-    purchase_available_stock: Annotated[int | None, Form()] = None,
-    borrow_available_stock: Annotated[int | None, Form()] = None,
     db: AsyncSession = Depends(get_db),
 ):
     if await is_book_exists(db, title, author_id):
@@ -150,7 +169,7 @@ async def create_book_endpoint(
     )
 
 
-@book_router.patch("/update/{book_id}", response_model=BookResponse, status_code=200)
+@book_router.patch("/{book_id}", response_model=BookResponse, status_code=200)
 async def update_book(
     book_id: int, book_data: EditBookRequest, db: AsyncSession = Depends(get_db)
 ):
@@ -159,9 +178,7 @@ async def update_book(
     return book_after_update
 
 
-@book_router.patch(
-    "/update/{book_id}/image", response_model=BookResponse, status_code=200
-)
+@book_router.patch("/{book_id}/image", response_model=BookResponse, status_code=200)
 async def update_book_image(
     book_id: int,
     img_file: Annotated[UploadFile, File()],
@@ -180,15 +197,3 @@ async def update_book_stock(
     return JSONResponse(
         content={"message": "Book stock updated successfully."},
     )
-
-
-""" Employee-only endpoints for book management """
-
-# TODO: check courier or manager access
-
-
-@book_router.get("/table", response_model=List[BookTableSchema])
-async def get_books_table(
-    db: AsyncSession = Depends(get_db),
-):
-    return await get_books_table_crud(db)

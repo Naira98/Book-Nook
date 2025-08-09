@@ -1,13 +1,18 @@
 import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const GoBackButton = ({ to, label }: { to: string; label: string }) => {
+const GoBackButton = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="absolute top-0 left-0 p-4">
-      <Link to={to} className="btn-cyan flex items-center gap-3">
+      <button
+        onClick={() => navigate(-1)}
+        className="btn-cyan flex items-center gap-3"
+      >
         <ArrowLeft size={16} className="md:h-6 md:w-6" />
-        <span className="hidden md:inline">{label}</span>
-      </Link>
+        <span className="hidden md:inline">Go Back</span>
+      </button>
     </div>
   );
 };

@@ -7,14 +7,14 @@ interface DropzoneProps {
   name: string;
   onChange: (file: File) => void;
   value?: File | null;
+  existingImage?: string;
 }
 
-const Dropzone = ({ name, onChange, value }: DropzoneProps) => {
+const Dropzone = ({ name, onChange, value, existingImage }: DropzoneProps) => {
   const [preview, setPreview] = useState<string | null>(null);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      // Pass the selected file to the parent's onChange handler
       onChange(acceptedFiles[0]);
     },
     [onChange],
@@ -36,9 +36,12 @@ const Dropzone = ({ name, onChange, value }: DropzoneProps) => {
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
       return () => URL.revokeObjectURL(objectUrl);
+    } else if (existingImage) {
+      setPreview(existingImage);
+    } else {
+      setPreview(null);
     }
-    setPreview(null);
-  }, [file]);
+  }, [file, existingImage]);
 
   return (
     <div

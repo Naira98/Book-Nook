@@ -52,7 +52,7 @@ const AddAuthorPage = () => {
 
   return (
     <div className="relative flex flex-1 flex-col overflow-auto p-4 md:p-12">
-      <GoBackButton to="/staff/books/create-book" label="Return to add book" />
+      <GoBackButton />
 
       <h2 className="text-primary mt-16 text-center text-2xl font-bold md:mt-6">
         Add a New Author

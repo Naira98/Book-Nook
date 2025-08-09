@@ -21,6 +21,7 @@ import AddAuthorPage from "./pages/employee/AddAuthorPage";
 import AddBookPage from "./pages/employee/AddBookPage";
 import AddCategoryPage from "./pages/employee/AddCategoryPage";
 import { UserRole } from "./types/User";
+import UpdateBookPage from "./pages/employee/UpdateBookPage";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -81,6 +82,10 @@ const App = () => {
               <Route
                 path="/staff/books/create-category"
                 element={<AddCategoryPage />}
+              />
+              <Route
+                path="/staff/books/update-book/:book_id"
+                element={<UpdateBookPage />}
               />
             </Route>
           </Route>

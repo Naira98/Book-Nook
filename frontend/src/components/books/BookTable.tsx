@@ -1,6 +1,13 @@
 import type { IBookTable } from "../../types/BookTable";
+import { useNavigate } from "react-router-dom";
 
 const BookTable = ({ books }: { books: IBookTable[] }) => {
+  const navigate = useNavigate();
+
+  const handleRowClick = (bookId: number) => {
+    navigate(`/staff/books/update-book/${bookId}`);
+  };
+
   return (
     <div className="overflow-x-auto rounded-lg shadow-md">
       <table className="min-w-full table-fixed divide-y divide-gray-200">
@@ -30,7 +37,8 @@ const BookTable = ({ books }: { books: IBookTable[] }) => {
           {books.map((book) => (
             <tr
               key={book.id}
-              className="transition-colors duration-150 hover:bg-gray-50"
+              className="cursor-pointer transition-colors duration-150 hover:bg-gray-50"
+              onClick={() => handleRowClick(book.id)}
             >
               <td
                 className="truncate px-4 py-4 text-center text-sm text-gray-900"
