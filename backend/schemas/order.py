@@ -144,3 +144,11 @@ class AllReturnOrdersResponse(AllOrdersResponseBase):
 class GetAllOrdersResponse(BaseModel):
     orders: list[AllOrdersResponse]
     return_orders: list[AllReturnOrdersResponse]
+
+
+class UpdateOrderStatusRequest(AllOrdersResponse):
+    pass
+
+
+class UpdateOrderStatusResponse(AllOrdersResponse):
+    model_config = ConfigDict(from_attributes=True)

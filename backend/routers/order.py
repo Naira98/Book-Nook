@@ -22,6 +22,7 @@ from schemas.order import (
     OrderCreatedUpdateResponse,
     OrderResponseSchema,
     GetAllOrdersResponse,
+    UpdateOrderStatusRequest,
 )
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -333,26 +334,33 @@ async def create_order(
 # TODO: ensure employee or courier who update order status
 @order_router.patch(
     "/order_status",
-    response_model=OrderCreatedUpdateResponse,
+    response_model=UpdateOrderStatusRequest,
     status_code=status.HTTP_200_OK,
 )
 async def update_order_status(
-    order_id: Annotated[int, Body()],
-    new_status: Annotated[OrderStatus, Body()],
+    order_Data: Annotated[UpdateOrderStatusRequest, Body()],
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_staff_user),
 ):
     try:
-        query = select(Order).where(Order.id == order_id)
+        query = (
+            select(Order)
+            .where(Order.id == order_Data.id)
+            .options(joinedload(Order.user))
+            .options(
+                selectinload(Order.borrow_order_books_details),
+                selectinload(Order.purchase_order_books_details),
+            )
+        )
         result = await db.execute(query)
         order = result.scalar_one_or_none()
 
         if not order:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Order with id {order_id} not found.",
+                detail=f"Order with id {order_Data.id} not found.",
             )
-        if new_status == OrderStatus.ON_THE_WAY:
+        if order_Data.status == OrderStatus.ON_THE_WAY:
             if user.role != UserRole.COURIER:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
@@ -361,7 +369,7 @@ async def update_order_status(
 
             order.courier_id = user.id
 
-        if new_status == OrderStatus.PICKED_UP:
+        if order_Data.status == OrderStatus.PICKED_UP:
             if user.role == UserRole.COURIER and order.courier_id != user.id:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
@@ -369,18 +377,17 @@ async def update_order_status(
                 )
 
             order.pick_up_date = datetime.now()
-        elif new_status == OrderStatus.PROBLEM:
+        elif order_Data.status == OrderStatus.PROBLEM:
             # TODO: send notification to user about the problem
             pass
 
-        order.status = new_status
+        order.status = order_Data.status
         await db.commit()
         await db.refresh(order)
-
-        return {
-            "message": f"Order status updated successfully to {new_status.value}",
-            "order_id": order.id,
-        }
+        order.number_of_books = len(order.borrow_order_books_details) + len(
+            order.purchase_order_books_details
+        )
+        return order
 
     except HTTPException as e:
         # If an HTTPException is raised, rollback and re-raise it
