@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, UploadFile, Form, File, status
+from fastapi import APIRouter, Depends, Query, UploadFile, Form, File, status ,HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_db
@@ -11,7 +11,9 @@ from crud.book import (
     update_book_image as update_book_image_crud,
     create_book_details,
     update_book_stock_crud,
+    get_book_details
 )
+
 from schemas.book import (
     BookResponse,
     BookStatus,
@@ -115,3 +117,15 @@ async def update_book_stock(
     return JSONResponse(
         content={"message": "Book stock updated successfully."},
     )
+
+
+
+@book_router.get("/{book_id}", response_model=BookResponse)
+async def read_book_details(book_id: int, db: AsyncSession = Depends(get_db)):
+    book = await get_book_details(book_id=book_id, db=db)
+    if book is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Book with id {book_id} not found",
+        )
+    return book
