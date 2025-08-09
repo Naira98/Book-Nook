@@ -58,7 +58,7 @@ export default function BooksTablePage() {
     <>
       <div className="mb-6 flex justify-between">
         <h2 className="text-primary text-3xl font-semibold">Books</h2>
-        <Link to="/employee/add-book">
+        <Link to="/employee/create-book">
           <div className="btn-cyan">
             <CirclePlus className="w-5" />
             Create Book

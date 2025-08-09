@@ -1,4 +1,5 @@
 import { Form } from "react-final-form";
+import { Link } from "react-router-dom";
 import MainButton from "../../components/shared/buttons/MainButton";
 import Dropzone from "../../components/shared/formInputs/Dropzone";
 import SelectInput from "../../components/shared/formInputs/SelectInput";
@@ -22,7 +23,6 @@ const CreateBookPage = () => {
       price: Number(values.price),
       category_id: Number(values.category_id),
       author_id: Number(values.author_id),
-      // Ensure publish_year is a number
       publish_year: Number(values.publish_year),
       purchase_available_stock: values.purchase_available_stock
         ? Number(values.purchase_available_stock)
@@ -53,7 +53,6 @@ const CreateBookPage = () => {
       errors.description = "Description is required";
     }
 
-    // New validation for publish_year
     if (!values.publish_year) {
       errors.publish_year = "Publish year is required";
     } else {
@@ -113,19 +112,23 @@ const CreateBookPage = () => {
     { name: "title", type: "text", placeholder: "Book Title" },
     { name: "price", type: "text", placeholder: "Price" },
     { name: "description", type: "text", placeholder: "Description" },
-    { name: "publish_year", type: "number", placeholder: "Publish Year" }, // Added new field
+    { name: "publish_year", type: "number", placeholder: "Publish Year" },
     { name: "img_file", type: "dropzone", placeholder: "Cover Image" },
     {
       name: "category_id",
       type: "select",
       placeholder: "Select Category",
       options: categories || [],
+      link: "/employee/add-category",
+      linkText: "Add New Category",
     },
     {
       name: "author_id",
       type: "select",
       placeholder: "Select Author",
       options: authors || [],
+      link: "/employee/add-author",
+      linkText: "Add New Author",
     },
     {
       name: "purchase_available_stock",
@@ -142,7 +145,7 @@ const CreateBookPage = () => {
   return (
     <div className="flex flex-1 flex-col overflow-auto p-8">
       <h2 className="mb-6 text-center text-2xl font-bold text-gray-800">
-        Add a New Book
+        Create a New Book
       </h2>
       <Form
         onSubmit={onSubmit}
@@ -160,12 +163,22 @@ const CreateBookPage = () => {
               formData.map((item, index) => {
                 if (item.type === "select") {
                   return (
-                    <SelectInput
-                      key={index}
-                      name={item.name}
-                      placeholder={item.placeholder}
-                      options={item.options}
-                    />
+                    <div key={index} className="flex items-center gap-5">
+                      <SelectInput
+                        name={item.name}
+                        placeholder={item.placeholder}
+                        options={item.options}
+                        containerClassName="flex-1"
+                      />
+                      {item.link && (
+                        <Link
+                          to={item.link}
+                          className="text-primary hover:text-primary-dark text-sm font-semibold whitespace-nowrap transition-colors focus:outline-none"
+                        >
+                          + {item.linkText}
+                        </Link>
+                      )}
+                    </div>
                   );
                 } else if (item.type === "dropzone") {
                   return <Dropzone name={item.name} key={index} />;

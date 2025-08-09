@@ -69,7 +69,7 @@ const App = () => {
             <Route element={<EmployeeLayout />}>
               <Route path="/employee/books" element={<BooksTablePage />} />
               <Route
-                path="/employee/add-book"
+                path="/employee/create-book"
                 element={<CreateBookPage />}
               />
             </Route>
