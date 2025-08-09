@@ -3,18 +3,23 @@ import { createBook as createBookApi } from "../../services/createBook";
 import { toast } from "react-toastify";
 import type { IBookTable } from "../../types/BookTable";
 
-export const useCreateBook = () => {
+export const useAddBook = () => {
   const queryClient = useQueryClient();
 
   const { mutate: createBook, isPending } = useMutation({
     mutationFn: createBookApi,
     onSuccess: (newBook: IBookTable) => {
-      queryClient.setQueryData(
-        ["allBooksTable"],
-        (oldData: IBookTable[] | undefined) => {
-          return oldData ? [...oldData, newBook] : [newBook];
-        },
-      );
+      const oldData = queryClient.getQueryData(["allBooksTable"]);
+
+      if (oldData) {
+        queryClient.setQueryData(
+          ["allBooksTable"],
+          (oldData: IBookTable[] | undefined) => {
+            return oldData ? [...oldData, newBook] : [newBook];
+          },
+        );
+      }
+
       toast(`Book ${newBook.title} created successfully!`, {
         type: "success",
       });

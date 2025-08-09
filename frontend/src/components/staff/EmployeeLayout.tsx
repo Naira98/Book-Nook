@@ -3,7 +3,7 @@ import Sidebar from "./Sidebar";
 import { LibraryBig, Package } from "lucide-react";
 
 const navItems = [
-  { to: "/employee/books", label: "Books", icon: <LibraryBig /> },
+  { to: "/staff/books", label: "Books", icon: <LibraryBig /> },
   { to: "/employee/orders", label: "Orders", icon: <Package /> },
 ];
 

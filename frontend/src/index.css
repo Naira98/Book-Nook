@@ -8,7 +8,7 @@
 }
 
 .btn-cyan {
-  @apply inline-flex cursor-pointer items-center gap-2 rounded border border-cyan-400 p-2 text-sm text-cyan-600 shadow hover:bg-cyan-50 md:px-4 md:py-2 md:text-base;
+  @apply inline-flex cursor-pointer items-center gap-2 rounded border border-cyan-600 p-2 text-sm text-cyan-800 shadow hover:bg-slate-50 md:px-4 md:py-2 md:text-base;
 }
 
 .btn-filter {
@@ -16,11 +16,11 @@
 }
 
 .btn-filter-active {
-  @apply border-cyan-400 bg-cyan-50 font-medium text-cyan-600;
+  @apply border-cyan-600 bg-slate-50 font-medium text-cyan-800;
 }
 
 .btn-filter-inactive {
-  @apply border-gray-200 bg-white text-gray-700 hover:border-cyan-200 hover:bg-cyan-50;
+  @apply border-gray-200 bg-white text-gray-700 hover:border-cyan-600 hover:bg-slate-50;
 }
 
 /* Keyframe animations for page elements */

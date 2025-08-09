@@ -3,8 +3,10 @@ from typing import Annotated, List
 
 from core.cloudinary import upload_image
 from crud.book import (
+    create_author_crud,
     create_book,
     create_book_details,
+    create_category_crud,
     get_author_by_id,
     get_authors_crud,
     get_books_table_crud,
@@ -27,11 +29,11 @@ from db.database import get_db
 from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
 from fastapi.responses import JSONResponse
 from schemas.book import (
-    AuthorSchema,
+    AuthorCategorySchema,
     BookResponse,
     BookStatus,
     BookTableSchema,
-    CategorySchema,
+    CreateAuthorCategoryRequest,
     CreateBookRequest,
     EditBookRequest,
     UpdateStockRequest,
@@ -41,14 +43,36 @@ from sqlalchemy.ext.asyncio import AsyncSession
 book_router = APIRouter(prefix="/books", tags=["Books"])
 
 
-@book_router.get("/authors", response_model=List[AuthorSchema])
+@book_router.get("/authors", response_model=List[AuthorCategorySchema])
 async def get_authors(db: AsyncSession = Depends(get_db)):
     return await get_authors_crud(db)
 
 
-@book_router.get("/categories", response_model=List[CategorySchema])
+@book_router.get("/categories", response_model=List[AuthorCategorySchema])
 async def get_categories(db: AsyncSession = Depends(get_db)):
     return await get_categories_crud(db)
+
+
+@book_router.post(
+    "/authors",
+    status_code=status.HTTP_201_CREATED,
+    response_model=AuthorCategorySchema,
+)
+async def create_author(
+    author: CreateAuthorCategoryRequest, db: AsyncSession = Depends(get_db)
+):
+    return await create_author_crud(db, author)
+
+
+@book_router.post(
+    "/categories",
+    status_code=status.HTTP_201_CREATED,
+    response_model=AuthorCategorySchema,
+)
+async def create_category(
+    category: CreateAuthorCategoryRequest, db: AsyncSession = Depends(get_db)
+):
+    return await create_category_crud(db, category)
 
 
 @book_router.get("/search/", response_model=list[BookResponse])
@@ -73,8 +97,8 @@ async def create_book_endpoint(
     description: Annotated[str, Form()],
     category_id: Annotated[int, Form()],
     author_id: Annotated[int, Form()],
-    img_file: Annotated[UploadFile, File()],
     publish_year: Annotated[int, Form()],
+    img_file: Annotated[UploadFile | None, File()] = None,
     purchase_available_stock: Annotated[int | None, Form()] = None,
     borrow_available_stock: Annotated[int | None, Form()] = None,
     db: AsyncSession = Depends(get_db),
@@ -91,7 +115,9 @@ async def create_book_endpoint(
             content={"message": "At least one stock type must be provided."},
         )
 
-    secure_url = await upload_image(img_file)
+    secure_url = None
+    if img_file:
+        secure_url = await upload_image(img_file)
 
     book_data = CreateBookRequest(
         title=title,
@@ -159,6 +185,7 @@ async def update_book_stock(
 """ Employee-only endpoints for book management """
 
 # TODO: check courier or manager access
+
 
 @book_router.get("/table", response_model=List[BookTableSchema])
 async def get_books_table(

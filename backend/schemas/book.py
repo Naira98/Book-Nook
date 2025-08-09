@@ -16,17 +16,11 @@ class BookBase(BaseModel):
     cover_img: str | None = None
 
 
-class AuthorSchema(BaseModel):
-    id: int
+class CreateAuthorCategoryRequest(BaseModel):
     name: str
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class CategorySchema(BaseModel):
-    id: int
-    name: str
-
+class AuthorCategorySchema(CreateAuthorCategoryRequest, IdSchema):
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -38,8 +32,8 @@ class BookDetailsSchema(BaseModel):
 
 
 class BookResponse(BookBase, IdSchema):
-    author: AuthorSchema
-    category: CategorySchema
+    author: AuthorCategorySchema
+    category: AuthorCategorySchema
     book_details: list[BookDetailsSchema]
 
     model_config = ConfigDict(from_attributes=True)
@@ -64,6 +58,8 @@ class UpdateStockRequest(BaseModel):
 
 
 """ Employee-only schema for book management """
+
+
 class BookTableSchema(BaseModel):
     id: int
     title: str
@@ -78,4 +74,3 @@ class BookTableSchema(BaseModel):
         json_encoders = {
             Decimal: lambda v: str(v)  # Ensure Decimal is serialized as string
         }
-

@@ -5,7 +5,7 @@ export interface ICreateBookData {
   publish_year: number;
   author_id: number;
   category_id: number;
-  img_file: File;
+  img_file?: File;
   purchase_available_stock?: number;
   borrow_available_stock?: number;
 }

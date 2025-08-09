@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import List
 from pydantic import BaseModel, ConfigDict
-from .book import AuthorSchema
+from .book import AuthorCategorySchema
 
 
 class CrateCartItem(BaseModel):
@@ -14,7 +14,7 @@ class BookInfoForCart(BaseModel):
     id: int
     title: str
     cover_img: str | None = None
-    author: AuthorSchema
+    author: AuthorCategorySchema
     model_config = ConfigDict(from_attributes=True)
 
 

@@ -9,6 +9,7 @@ export const useGetCategories = () => {
   } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => await apiReq("GET", "/books/categories"),
+    staleTime: 1000 * 60 * 60, // 60 minutes
   });
 
   return { categories, isPending, error };

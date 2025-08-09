@@ -58,7 +58,7 @@ export default function BooksTablePage() {
     <>
       <div className="mb-6 flex justify-between">
         <h2 className="text-primary text-3xl font-semibold">Books</h2>
-        <Link to="/employee/create-book">
+        <Link to="/staff/books/create-book">
           <div className="btn-cyan">
             <CirclePlus className="w-5" />
             Create Book
@@ -66,7 +66,7 @@ export default function BooksTablePage() {
         </Link>
       </div>
 
-      <div className="mb-6 rounded-xl border-2 border-dashed border-cyan-200 bg-white p-6 shadow">
+      <div className="mb-6 rounded-xl border-2 border-dashed border-cyan-100 bg-white p-6 shadow">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
           <SearchBar
             placeholder="Search books, authors or categories..."

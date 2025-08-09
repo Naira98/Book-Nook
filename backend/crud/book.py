@@ -1,13 +1,15 @@
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
-from models.book import Book, BookDetails, BookStatus, Author, Category
+from models.book import Author, Book, BookDetails, BookStatus, Category
 from schemas.book import (
     BookTableSchema,
+    CreateAuthorCategoryRequest,
     CreateBookRequest,
     EditBookRequest,
     UpdateStockRequest,
 )
 from sqlalchemy import insert, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import contains_eager, joinedload, selectinload
 
@@ -30,6 +32,33 @@ async def get_author_by_id(db, author_id: int):
     return author
 
 
+async def create_author_crud(
+    db: AsyncSession, author_data: CreateAuthorCategoryRequest
+):
+    stmt = select(Author).where(Author.name == author_data.name)
+    result = await db.execute(stmt)
+    existing_author = result.scalar_one_or_none()
+
+    if existing_author:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="An author with this name already exists.",
+        )
+
+    try:
+        new_author = Author(name=author_data.name)
+        db.add(new_author)
+        await db.commit()
+        await db.refresh(new_author)
+        return new_author
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to create author due to a database integrity error.",
+        )
+
+
 async def get_categories_crud(db):
     result = await db.execute(select(Category))
     categories = result.scalars().all()
@@ -46,6 +75,33 @@ async def get_category_by_id(db, category_id: int):
             detail={"message": "Category not found"},
         )
     return category
+
+
+async def create_category_crud(
+    db: AsyncSession, category_data: CreateAuthorCategoryRequest
+):
+    # Check if a category with the same name already exists
+    stmt = select(Category).where(Category.name == category_data.name)
+    result = await db.execute(stmt)
+    existing_category = result.scalar_one_or_none()
+    if existing_category:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A category with this name already exists.",
+        )
+
+    try:
+        new_category = Category(name=category_data.name)
+        db.add(new_category)
+        await db.commit()
+        await db.refresh(new_category)
+        return new_category
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to create category due to a database integrity error.",
+        )
 
 
 # Fetch books by partial match in title (case-insensitive)

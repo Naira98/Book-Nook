@@ -2,20 +2,19 @@ import { FileInput, Label } from "flowbite-react";
 import { UploadCloud } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import type { FieldRenderProps } from "react-final-form";
-import { Field } from "react-final-form";
 
 interface DropzoneProps {
   name: string;
+  onChange: (file: File) => void;
+  value?: File | null;
 }
 
-const DropzoneInner = ({
-  input: { onChange, ...restInput },
-}: FieldRenderProps<File, HTMLInputElement>) => {
+const Dropzone = ({ name, onChange, value }: DropzoneProps) => {
   const [preview, setPreview] = useState<string | null>(null);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
+      // Pass the selected file to the parent's onChange handler
       onChange(acceptedFiles[0]);
     },
     [onChange],
@@ -30,7 +29,7 @@ const DropzoneInner = ({
     },
   });
 
-  const file = restInput.value;
+  const file = value;
 
   useEffect(() => {
     if (file && file instanceof File) {
@@ -89,18 +88,10 @@ const DropzoneInner = ({
         </div>
         <FileInput
           id="dropzone-file"
-          {...getInputProps({ name: restInput.name })}
+          {...getInputProps({ name: name })}
           className="hidden"
         />
       </Label>
-    </div>
-  );
-};
-
-const Dropzone = ({ name }: DropzoneProps) => {
-  return (
-    <div className="mb-4">
-      <Field<File> name={name}>{(props) => <DropzoneInner {...props} />}</Field>
     </div>
   );
 };
