@@ -113,3 +113,34 @@ class BorrowOrderBookUpdateProblemResponse(OrderCeatedUpdateResponseBase):
     borrow_order_book_id: int
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class GetAllOrdersUserResponse(BaseModel):
+    first_name: str
+    last_name: str
+    pass
+
+
+class AllOrdersResponseBase(BaseModel):
+    id: int
+    created_at: datetime
+    address: str
+    pick_up_type: PickUpType
+    phone_number: str
+    user: GetAllOrdersUserResponse
+    number_of_books: int
+    courier_id: Optional[int]
+
+
+class AllOrdersResponse(AllOrdersResponseBase):
+    pick_up_date: Optional[datetime]
+    status: OrderStatus
+
+
+class AllReturnOrdersResponse(AllOrdersResponseBase):
+    status: ReturnOrderStatus
+
+
+class GetAllOrdersResponse(BaseModel):
+    orders: list[AllOrdersResponse]
+    return_orders: list[AllReturnOrdersResponse]

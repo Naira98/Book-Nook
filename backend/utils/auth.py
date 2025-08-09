@@ -72,7 +72,7 @@ async def get_user(
     return session.user
 
 
-async def is_staff(user: User = Depends(get_user)):
+async def get_staff_user(user: User = Depends(get_user)):
     if (
         user.role != UserRole.EMPLOYEE
         and user.role != UserRole.MANAGER

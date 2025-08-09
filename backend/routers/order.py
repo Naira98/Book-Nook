@@ -1,6 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 
 from db.database import get_db
 from fastapi import APIRouter, Depends, HTTPException, status, Body
@@ -12,6 +12,8 @@ from models.order import (
     Order,
     OrderStatus,
     PurchaseOrderBook,
+    PickUpType,
+    ReturnOrder,
 )
 from models.user import User
 from schemas.order import (
@@ -19,11 +21,12 @@ from schemas.order import (
     CreateOrderRequest,
     OrderCreatedUpdateResponse,
     OrderResponseSchema,
+    GetAllOrdersResponse,
 )
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
-from utils.auth import get_user
+from utils.auth import get_user, get_staff_user
 from utils.order import (
     calculate_borrow_order_book_fees,
     calculate_purchase_order_book_fees,
@@ -71,6 +74,71 @@ async def get_orders(
         result = await db.execute(query)
         orders = result.scalars().unique().all()
         return orders
+
+    except Exception as e:
+        # For any unexpected error, raise a generic 500 error with the exception details
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred while fetching orders: {str(e)}",
+        )
+
+
+@order_router.get(
+    "/all", response_model=GetAllOrdersResponse, status_code=status.HTTP_200_OK
+)
+async def get_all_orders(
+    user: Annotated[User, Depends(get_staff_user)],
+    order_status: PickUpType,
+    courier_id: Optional[int | None] = None,
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        conditions = [Order.pick_up_type == order_status]
+
+        if courier_id is not None:
+            conditions.append(Order.courier_id == courier_id)
+
+        get_orders_query = (
+            select(Order)
+            .options(joinedload(Order.user))
+            .options(
+                selectinload(Order.borrow_order_books_details),
+                selectinload(Order.purchase_order_books_details),
+            )
+        )
+
+        get_return_orders_query = (
+            select(ReturnOrder)
+            .options(joinedload(ReturnOrder.user))
+            .options(selectinload(ReturnOrder.borrow_order_books_details))
+        )
+
+        get_orders_query = get_orders_query.where(*conditions).order_by(
+            Order.created_at.desc()
+        )
+        get_return_orders_query = get_return_orders_query.where(*conditions).order_by(
+            ReturnOrder.created_at.desc()
+        )
+
+        # .order_by(Order.created_at.desc())
+        orders_result = await db.execute(get_orders_query)
+        return_orders_result = await db.execute(get_return_orders_query)
+
+        orders = orders_result.scalars().unique().all()
+        return_orders = return_orders_result.scalars().unique().all()
+
+        for order in orders:
+            order.number_of_books = len(order.borrow_order_books_details) + len(
+                order.purchase_order_books_details
+            )
+
+        for return_order in return_orders:
+            return_order.number_of_books = len(return_order.borrow_order_books_details)
+
+        return {
+            "orders": orders,
+            "return_orders": return_orders,
+        }
 
     except Exception as e:
         # For any unexpected error, raise a generic 500 error with the exception details
