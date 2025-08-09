@@ -3,9 +3,36 @@ export interface AllOrdersResponse {
   return_orders: ReturnOrder[];
 }
 
+interface Book {
+  id: number;
+  title: string;
+  price: string;
+}
+
+interface BookDetails {
+  id: number;
+  book: Book;
+}
+
+interface BorrowOrderBookDetail {
+  id: number;
+  borrowing_weeks: number;
+  deposit_fees: string;
+  borrow_fees: string;
+  book_details: BookDetails;
+}
+
+interface PurchaseOrderBookDetail {
+  id: number;
+  quantity: number;
+  paid_price_per_book: string;
+  book_details: BookDetails;
+}
+
 export interface User {
   first_name: string;
   last_name: string;
+  email: string;
 }
 
 export enum OrderStatus {
@@ -35,6 +62,8 @@ export interface Order {
   pick_up_date?: string;
   status: OrderStatus;
   courier_id: number | null;
+  borrow_order_books_details: BorrowOrderBookDetail[];
+  purchase_order_books_details: PurchaseOrderBookDetail[];
 }
 
 export interface ReturnOrder {
@@ -52,4 +81,5 @@ export interface ReturnOrder {
 export type changeOrderStatusRequest = {
   order_id: number;
   status: OrderStatus;
+  courier_id: number | null;
 };

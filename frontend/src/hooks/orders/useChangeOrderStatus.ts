@@ -15,9 +15,11 @@ export function useChangeOrderStatus() {
     },
     onSuccess: (resp: Order) => {
       toast("Order status changed successfully", { type: "success" });
+
       queryClient.setQueryData(
         ["allStaffOrders"],
         (oldData: AllOrdersResponse) => {
+          if (!oldData) return oldData;
           const newData = { ...oldData };
           newData.orders = newData.orders.map((order) =>
             order.id === resp.id ? { ...order, status: resp.status } : order,

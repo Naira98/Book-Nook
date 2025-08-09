@@ -22,7 +22,7 @@ import AddBookPage from "./pages/employee/AddBookPage";
 import CourierLayout from "./components/courier/CourierLayout";
 
 import OrdersListPage from "./pages/auth/OrdersListPage";
-import OrderDetailsPage from "./pages/auth/OrderDetailsPage";
+import OrderDetailsPage from "./pages/courier/OrderDetailsPage";
 const App = () => {
   const queryClient = new QueryClient();
 
@@ -79,7 +79,7 @@ const App = () => {
           <Route element={<RoleBasedRoute allowedRoles={[UserRole.COURIER]} />}>
             <Route element={<CourierLayout />}>
               <Route path="/courier/orders" element={<OrderPage />} />
-              <Route path="/orders/:id" element={<OrderDetailsPage />} />
+              <Route path="/order/:id" element={<OrderDetailsPage />} />
               <Route path="/orders" element={<OrdersListPage />} />
             </Route>
           </Route>
