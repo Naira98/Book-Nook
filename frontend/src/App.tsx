@@ -21,6 +21,8 @@ import { UserRole } from "./types/User";
 import AddBookPage from "./pages/employee/AddBookPage";
 import CourierLayout from "./components/courier/CourierLayout";
 
+import OrdersListPage from "./pages/auth/OrdersListPage";
+import OrderDetailsPage from "./pages/auth/OrderDetailsPage";
 const App = () => {
   const queryClient = new QueryClient();
 
@@ -77,6 +79,8 @@ const App = () => {
           <Route element={<RoleBasedRoute allowedRoles={[UserRole.COURIER]} />}>
             <Route element={<CourierLayout />}>
               <Route path="/courier/orders" element={<OrderPage />} />
+              <Route path="/orders/:id" element={<OrderDetailsPage />} />
+              <Route path="/orders" element={<OrdersListPage />} />
             </Route>
           </Route>
 
@@ -90,6 +94,8 @@ const App = () => {
 
           {/* Notfound route */}
           <Route path="*" element={<NotFoundPage />} />
+          {/* <Route path="/borrow-books" element={<><Navbar/><BorrowBooks /></>} /> */}
+          {/* <Route path="/purchase-books" element={<><Navbar/><PurchaseBooks /></>} /> */}
         </Routes>
 
         <ToastContainer
