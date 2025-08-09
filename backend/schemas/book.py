@@ -48,10 +48,7 @@ class BookResponse(BookBase, IdSchema):
 class CreateBookRequest(BookBase):
     category_id: int
     author_id: int
-
-
-class CreateBookResponse(CreateBookRequest, IdSchema):
-    model_config = ConfigDict(from_attributes=True)
+    publish_year: int
 
 
 class EditBookRequest(BaseModel):
@@ -70,7 +67,7 @@ class UpdateStockRequest(BaseModel):
 class BookTableSchema(BaseModel):
     id: int
     title: str
-    price: Decimal
+    price: str
     author_name: str = Field(..., alias="author_name")  # Alias to match the joined data
     category_name: str = Field(..., alias="category_name")
     available_stock_purchase: Optional[int] = None

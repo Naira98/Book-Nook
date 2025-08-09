@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
-from models.book import Book, BookDetails, BookStatus
+from models.book import Book, BookDetails, BookStatus, Author, Category
 from schemas.book import (
     BookTableSchema,
     CreateBookRequest,
@@ -10,6 +10,42 @@ from schemas.book import (
 from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import contains_eager, joinedload, selectinload
+
+
+async def get_authors_crud(db):
+    result = await db.execute(select(Author))
+    authors = result.scalars().all()
+    return authors
+
+
+async def get_author_by_id(db, author_id: int):
+    stmt = select(Author).where(Author.id == author_id)
+    result = await db.execute(stmt)
+    author = result.scalars().first()
+    if not author:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"message": "Author not found"},
+        )
+    return author
+
+
+async def get_categories_crud(db):
+    result = await db.execute(select(Category))
+    categories = result.scalars().all()
+    return categories
+
+
+async def get_category_by_id(db, category_id: int):
+    stmt = select(Category).where(Category.id == category_id)
+    result = await db.execute(stmt)
+    category = result.scalars().first()
+    if not category:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"message": "Category not found"},
+        )
+    return category
 
 
 # Fetch books by partial match in title (case-insensitive)
@@ -62,11 +98,11 @@ async def create_book(book_data: CreateBookRequest, db: AsyncSession):
         )
         db.add(book_to_create)
         await db.flush()
-    except Exception:
+    except Exception as e:
         await db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"message": "Failed to create book"},
+            detail={"message": f"Failed to create book: {str(e)}"},
         )
     return book_to_create
 
@@ -193,10 +229,8 @@ async def update_book_stock_crud(new_stock_data: UpdateStockRequest, db: AsyncSe
 
 
 async def get_books_table_crud(db):
-
     result = await db.execute(
-        select(Book)
-        .options(
+        select(Book).options(
             joinedload(Book.author),
             joinedload(Book.category),
             selectinload(Book.book_details),
@@ -227,7 +261,7 @@ async def get_books_table_crud(db):
             BookTableSchema(
                 id=book.id,
                 title=book.title,
-                price=book.price,
+                price=f"{book.price:.2f}",
                 author_name=book.author.name,
                 category_name=book.category.name,
                 available_stock_purchase=purchase_stock,

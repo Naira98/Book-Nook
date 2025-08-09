@@ -34,7 +34,11 @@ const apiReq = async (method: string, endpoint: string, body?: unknown) => {
         throw new Error(data.message);
       } else if (data?.detail) {
         // Standard FastAPI HTTPException
-        throw new Error(data.detail);
+        if (typeof data.detail === "string") {
+          throw new Error(data.detail);
+        }
+        // If detail is an object, stringify it
+        throw new Error(JSON.stringify(data.detail));
       } else {
         // Fallback for unknown error formats
         throw new Error(`An error occurred with status code ${res.status}`);

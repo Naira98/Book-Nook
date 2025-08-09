@@ -61,7 +61,7 @@ export default function BooksTablePage() {
         <Link to="/employee/add-book">
           <div className="btn-cyan">
             <CirclePlus className="w-5" />
-            Add Book
+            Create Book
           </div>
         </Link>
       </div>

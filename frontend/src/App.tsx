@@ -17,8 +17,8 @@ import NotFoundPage from "./pages/NotFoundPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import BorrowBooks from "./pages/client/BorrowBooks";
 import PurchaseBooks from "./pages/client/PurchaseBooks";
+import CreateBookPage from "./pages/employee/CreateBookPage";
 import { UserRole } from "./types/User";
-import AddBookPage from "./pages/employee/AddBookPage";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -68,7 +68,10 @@ const App = () => {
           >
             <Route element={<EmployeeLayout />}>
               <Route path="/employee/books" element={<BooksTablePage />} />
-              <Route path="/employee/add-book" element={<AddBookPage />} />
+              <Route
+                path="/employee/add-book"
+                element={<CreateBookPage />}
+              />
             </Route>
           </Route>
 
