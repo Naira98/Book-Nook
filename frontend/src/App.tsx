@@ -12,17 +12,19 @@ import ResetPassword from "./pages/auth/ResetPassword";
 import OrderPage from "./pages/courier/OrdersPage";
 import BooksTablePage from "./pages/employee/BooksTablePage";
 // import GuestOnlyRoute from "./components/authorization/GuestOnlyRoute";
+import BorrowBooks from "./pages/client/BorrowBooks";
+import PurchaseBooks from "./pages/client/PurchaseBooks";
 import Navbar from "./components/Navbar";
 import NotFoundPage from "./pages/NotFoundPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
-import BorrowBooks from "./pages/client/BorrowBooks";
-import PurchaseBooks from "./pages/client/PurchaseBooks";
 import { UserRole } from "./types/User";
 import AddBookPage from "./pages/employee/AddBookPage";
 import CourierLayout from "./components/courier/CourierLayout";
 
 import OrdersListPage from "./pages/auth/OrdersListPage";
 import OrderDetailsPage from "./pages/courier/OrderDetailsPage";
+import Footer from "./pages/client/Footer";
+
 const App = () => {
   const queryClient = new QueryClient();
 
@@ -96,6 +98,26 @@ const App = () => {
           <Route path="*" element={<NotFoundPage />} />
           {/* <Route path="/borrow-books" element={<><Navbar/><BorrowBooks /></>} /> */}
           {/* <Route path="/purchase-books" element={<><Navbar/><PurchaseBooks /></>} /> */}
+          <Route
+            path="/borrow-books"
+            element={
+              <>
+                <Navbar />
+                <BorrowBooks />
+                <Footer />
+              </>
+            }
+          />
+          <Route
+            path="/purchase-books"
+            element={
+              <>
+                <Navbar />
+                <PurchaseBooks />
+                <Footer />
+              </>
+            }
+          />
         </Routes>
 
         <ToastContainer
