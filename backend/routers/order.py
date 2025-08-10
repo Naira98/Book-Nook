@@ -15,6 +15,7 @@ from models.order import (
     PickUpType,
     ReturnOrder,
 )
+from core.websocket import webSocket_connection_manager
 from models.user import User, UserRole
 from schemas.order import (
     BorrowOrderBookUpdateProblemResponse,
@@ -305,17 +306,19 @@ async def create_order(
             order_id=order.id,
         )
 
-        # TODO: send notification to user
-
         # Add all new order books to the session
         db.add_all(borrow_order_books)
         db.add_all(purchase_order_books)
-
         # Delete cart items after order creation
         await db.execute(delete(Cart).where(Cart.user_id == user.id))
 
         # Commit the transaction
         await db.commit()
+
+        if order.pick_up_type == PickUpType.COURIER:
+            await webSocket_connection_manager.broadcast_to_role(
+                {"message": "order_created", "order_id": order.id}, UserRole.COURIER
+            )
 
         return {"message": "Order created successfully", "order_id": order.id}
 
