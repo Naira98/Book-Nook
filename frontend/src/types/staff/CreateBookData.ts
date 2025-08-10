@@ -12,13 +12,27 @@ export interface ICreateBookData {
 
 export interface IBookDetailsForUpdate {
   id: number;
-  title: string;
-  price: number;
+  title?: string;
+  price?: number;
   description?: string;
+  publish_year?: number;
+  category_id?: number;
+  author_id?: number;
   cover_img?: string;
-  publish_year: number;
-  category_id: number;
-  author_id: number;
-  purchase_available_stock: number;
-  borrow_available_stock: number;
+  purchase_available_stock?: number;
+  borrow_available_stock?: number;
 }
+
+// Define the type for an image update, which contains a FormData object
+export type UpdateBookImageInput = {
+  id: number;
+  formData: FormData;
+};
+
+// Define the type for a regular book details update
+export type UpdateBookDetailsInput = {
+  id: number;
+} & Partial<Omit<IBookDetailsForUpdate, 'cover_img'>>;
+
+// Combine both into a single union type
+export type UpdateBookInput = UpdateBookImageInput | UpdateBookDetailsInput;

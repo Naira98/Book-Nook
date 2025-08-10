@@ -6,8 +6,8 @@ from schemas.book import (
     BookTableSchema,
     CreateAuthorCategoryRequest,
     CreateBookRequest,
-    EditBookRequest,
-    UpdateStockRequest,
+    UpdateBookData,
+    BookResponse,
 )
 from sqlalchemy import insert, select, update
 from sqlalchemy.exc import IntegrityError
@@ -174,32 +174,6 @@ async def create_book(book_data: CreateBookRequest, db: AsyncSession):
     return book_to_create
 
 
-async def update_book(book_id: int, book_data: EditBookRequest, db: AsyncSession):
-    stmt = (
-        update(Book)
-        .where(Book.id == book_id)
-        .values(**book_data.model_dump())
-        .returning(Book)
-        .options(
-            selectinload(Book.author),
-            selectinload(Book.category),
-            selectinload(Book.book_details),
-        )
-    )
-    result = await db.execute(stmt)
-    book_afterUpdate = result.scalars().first()
-
-    if not book_afterUpdate:
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content={"message": "Book not found"},
-        )
-
-    await db.commit()
-
-    return book_afterUpdate
-
-
 async def update_book_image(book_id: int, img_file: str, db: AsyncSession):
     stmt = (
         update(Book)
@@ -268,33 +242,6 @@ async def create_book_details(
         )
 
 
-async def update_book_stock_crud(new_stock_data: UpdateStockRequest, db: AsyncSession):
-    stmt = (
-        update(BookDetails)
-        .where(
-            BookDetails.book_id == new_stock_data.book_id,
-            BookDetails.status == new_stock_data.stock_type,
-        )
-        .values(available_stock=new_stock_data.new_stock)
-        .returning(BookDetails)
-    )
-    try:
-        result = await db.execute(stmt)
-        book_details_after_update = result.scalars().first()
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"message": "Failed to update book details"},
-        )
-
-    if not book_details_after_update:
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content={"message": "Book details not found"},
-        )
-
-    await db.commit()
-
 
 """ Employee-only endpoints for book management """
 
@@ -309,7 +256,6 @@ async def get_books_table_crud(db):
     )
     books = result.scalars().all()
 
-    # Manually map to BookTableSchema and aggregate stock
     book_table_data = []
     for book in books:
         purchase_stock = next(
@@ -340,3 +286,58 @@ async def get_books_table_crud(db):
             )
         )
     return book_table_data
+
+
+async def update_book_and_stock(
+    book_id: int, book_data: UpdateBookData, db: AsyncSession
+):
+    update_data = book_data.model_dump(exclude_unset=True)
+
+    purchase_stock_update = update_data.pop("purchase_available_stock", None)
+    borrow_stock_update = update_data.pop("borrow_available_stock", None)
+
+    if update_data:
+        book_update_stmt = update(Book).where(Book.id == book_id).values(**update_data)
+        await db.execute(book_update_stmt)
+
+    if purchase_stock_update is not None:
+        purchase_stock_stmt = (
+            update(BookDetails)
+            .where(BookDetails.book_id == book_id, BookDetails.status == "PURCHASE")
+            .values(available_stock=purchase_stock_update)
+        )
+        await db.execute(purchase_stock_stmt)
+
+    if borrow_stock_update is not None:
+        borrow_stock_stmt = (
+            update(BookDetails)
+            .where(BookDetails.book_id == book_id, BookDetails.status == "BORROW")
+            .values(available_stock=borrow_stock_update)
+        )
+        await db.execute(borrow_stock_stmt)
+
+    # Corrected Indentation: This block should be outside the 'if' statements
+    try:
+        await db.commit()
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail=f"Failed to update book: {e}")
+
+    # Eagerly load the 'author', 'category', and 'book_details' relationships
+    book_query = (
+        select(Book)
+        .where(Book.id == book_id)
+        .options(
+            selectinload(Book.author),
+            selectinload(Book.category),
+            selectinload(Book.book_details),
+        )
+    )
+
+    result = await db.execute(book_query)
+    updated_book = result.scalars().first()
+
+    if not updated_book:
+        raise HTTPException(status_code=404, detail="Book not found after update.")
+
+    return BookResponse.model_validate(updated_book)

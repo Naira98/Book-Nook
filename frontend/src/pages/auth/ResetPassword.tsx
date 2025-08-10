@@ -1,4 +1,4 @@
-import { Form } from "react-final-form";
+import { Field, Form } from "react-final-form";
 import { useParams } from "react-router-dom";
 import image from "../../assets/reset-password.svg";
 import AuthLayout from "../../components/auth/AuthLayout";
@@ -53,12 +53,18 @@ const ResetPassword = () => {
             }) => (
               <form onSubmit={handleSubmit} className="space-y-6">
                 {formData.map((item, index) => (
-                  <TextInput
-                    key={index}
-                    name={item.name}
-                    type={item.type}
-                    placeholder={item.placeholder}
-                  />
+                  <Field name={item.name} key={index}>
+                    {({ input, meta }) => (
+                      <TextInput
+                        {...input}
+                        type={item.type}
+                        placeholder={item.placeholder}
+                        error={
+                          meta.touched && meta.error ? meta.error : undefined
+                        }
+                      />
+                    )}
+                  </Field>
                 ))}
 
                 <div className="mt-6">

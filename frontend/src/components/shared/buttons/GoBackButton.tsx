@@ -8,7 +8,7 @@ const GoBackButton = () => {
     <div className="absolute top-0 left-0 p-4">
       <button
         onClick={() => navigate(-1)}
-        className="btn-cyan flex items-center gap-3"
+        className="btn-sky flex items-center gap-3"
       >
         <ArrowLeft size={16} className="md:h-6 md:w-6" />
         <span className="hidden md:inline">Go Back</span>

@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { useState } from "react";
 
 interface SelectInputProps {
   name: string;
@@ -19,18 +20,24 @@ const SelectInput = ({
   onChange,
   error,
 }: SelectInputProps) => {
+  const [isDefaultValue, setIsDefaultValue] = useState<boolean>(false);
+  const onChangeHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onChange(e);
+    if (e.target.value !== placeholder) setIsDefaultValue(true);
+  };
   return (
     <div className={clsx("w-full", containerClassName)}>
       <div className="relative">
         <select
           name={name}
           value={value}
-          onChange={onChange}
+          onChange={onChangeHandler}
           className={clsx(
-            `focus:ring-none w-full border-b border-gray-300 p-2 text-gray-900 transition-colors focus:outline-none`,
+            `focus:ring-none w-full border-b border-gray-300 p-2 transition-colors focus:outline-none`,
             {
               "border-red-300": error,
-              "text-gray-400": !value,
+              "text-gray-400": !isDefaultValue && !value,
+              "text-gray-900": isDefaultValue
             },
           )}
         >

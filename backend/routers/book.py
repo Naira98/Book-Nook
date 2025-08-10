@@ -9,19 +9,16 @@ from crud.book import (
     create_category_crud,
     get_author_by_id,
     get_authors_crud,
+    get_book_details_for_update_crud,
     get_books_table_crud,
     get_categories_crud,
     get_category_by_id,
     is_book_exists,
     search_books_by_title,
-    update_book_stock_crud,
-    get_book_details_for_update_crud,
+    update_book_and_stock,
 )
 from crud.book import (
     get_books_by_status as get_books,
-)
-from crud.book import (
-    update_book as update_book_crud,
 )
 from crud.book import (
     update_book_image as update_book_image_crud,
@@ -31,14 +28,13 @@ from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
 from fastapi.responses import JSONResponse
 from schemas.book import (
     AuthorCategorySchema,
+    BookDetailsForUpdateResponse,
     BookResponse,
     BookStatus,
     BookTableSchema,
     CreateAuthorCategoryRequest,
     CreateBookRequest,
-    EditBookRequest,
-    UpdateStockRequest,
-    BookDetailsForUpdateResponse,
+    UpdateBookData,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -171,11 +167,9 @@ async def create_book_endpoint(
 
 @book_router.patch("/{book_id}", response_model=BookResponse, status_code=200)
 async def update_book(
-    book_id: int, book_data: EditBookRequest, db: AsyncSession = Depends(get_db)
+    book_id: int, book_data: UpdateBookData, db: AsyncSession = Depends(get_db)
 ):
-    book_after_update = await update_book_crud(book_id, book_data, db)
-
-    return book_after_update
+    return await update_book_and_stock(book_id, book_data, db)
 
 
 @book_router.patch("/{book_id}/image", response_model=BookResponse, status_code=200)
@@ -187,13 +181,3 @@ async def update_book_image(
     secure_url = await upload_image(img_file)
     book_after_update = await update_book_image_crud(book_id, secure_url, db)
     return book_after_update
-
-
-@book_router.patch("/update/{book_id}/stock", status_code=200)
-async def update_book_stock(
-    new_stock_data: UpdateStockRequest, db: AsyncSession = Depends(get_db)
-):
-    await update_book_stock_crud(new_stock_data, db)
-    return JSONResponse(
-        content={"message": "Book stock updated successfully."},
-    )

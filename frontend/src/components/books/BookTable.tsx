@@ -11,7 +11,7 @@ const BookTable = ({ books }: { books: IBookTable[] }) => {
   return (
     <div className="overflow-x-auto rounded-lg shadow-md">
       <table className="min-w-full table-fixed divide-y divide-gray-200">
-        <thead className="bg-primary">
+        <thead className="bg-sky-950">
           <tr>
             <th className="w-1/4 px-4 py-3 text-center text-xs font-medium tracking-wider text-white uppercase">
               Title

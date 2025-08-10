@@ -4,11 +4,11 @@
   --color-background: #dfe8ef;
   --color-primary: #0b3460;
   --color-hover: #0d4a8f;
-  --color-secondary: #f9a806;
+  --color-secondary: #f2b63d;
 }
 
-.btn-cyan {
-  @apply inline-flex cursor-pointer items-center gap-2 rounded border border-cyan-600 p-2 text-sm text-cyan-800 shadow hover:bg-slate-50 md:px-4 md:py-2 md:text-base;
+.btn-sky {
+  @apply inline-flex cursor-pointer items-center gap-2 rounded-lg border border-sky-800 p-2 text-sm text-sky-800 shadow hover:bg-slate-50 md:px-4 md:py-2 md:text-base;
 }
 
 .btn-filter {
@@ -16,11 +16,11 @@
 }
 
 .btn-filter-active {
-  @apply border-cyan-600 bg-slate-50 font-medium text-cyan-800;
+  @apply border-sky-200 bg-slate-50 font-medium text-sky-800;
 }
 
 .btn-filter-inactive {
-  @apply border-gray-200 bg-white text-gray-700 hover:border-cyan-600 hover:bg-slate-50;
+  @apply border-gray-200 bg-white text-gray-700 hover:border-sky-100 hover:bg-slate-50;
 }
 
 /* Keyframe animations for page elements */

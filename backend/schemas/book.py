@@ -45,16 +45,15 @@ class CreateBookRequest(BookBase):
     publish_year: int
 
 
-class EditBookRequest(BaseModel):
-    price: Decimal
-    description: str
-    category_id: int
-
-
-class UpdateStockRequest(BaseModel):
-    book_id: int
-    stock_type: BookStatus
-    new_stock: int
+class UpdateBookData(BaseModel):
+    title: Optional[str] = None
+    price: Optional[float] = None
+    description: Optional[str] = None
+    publish_year: Optional[int] = None
+    category_id: Optional[int] = None
+    author_id: Optional[int] = None
+    purchase_available_stock: Optional[int] = None
+    borrow_available_stock: Optional[int] = None
 
 
 """ Employee-only schema for book management """

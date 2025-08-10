@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import GoBackButton from "../../components/shared/buttons/GoBackButton";
 import MainButton from "../../components/shared/buttons/MainButton";
@@ -6,11 +6,13 @@ import Dropzone from "../../components/shared/formInputs/Dropzone";
 import SelectInput from "../../components/shared/formInputs/SelectInput";
 import TextInput from "../../components/shared/formInputs/TextInput";
 import { useGetAuthors } from "../../hooks/books/useGetAuthors";
-import { useGetCategories } from "../../hooks/books/useGetCategories";
 import { useGetBookDetailsForUpdate } from "../../hooks/books/useGetBookDetalsForUpdate";
+import { useGetCategories } from "../../hooks/books/useGetCategories";
 import { useUpdateBook } from "../../hooks/books/useUpdateBook";
+import type { IBookDetailsForUpdate } from "../../types/staff/CreateBookData";
 
 const initialFormState = {
+  id: "",
   title: "",
   price: "",
   description: "",
@@ -33,6 +35,7 @@ const UpdateBookPage = () => {
   const { updateBook, isPending: isUpdatingPending } = useUpdateBook();
 
   const [formValues, setFormValues] = useState(initialFormState);
+
   const [errors, setErrors] = useState<{
     [key in keyof typeof initialFormState]?: string;
   }>({});
@@ -40,18 +43,19 @@ const UpdateBookPage = () => {
   useEffect(() => {
     if (bookDetailsForUpdate) {
       setFormValues({
-        title: bookDetailsForUpdate.title,
+        id: String(bookDetailsForUpdate.id),
+        title: bookDetailsForUpdate.title || "",
         price: String(bookDetailsForUpdate.price),
         description: bookDetailsForUpdate.description || "",
         publish_year: String(bookDetailsForUpdate.publish_year),
-        img_file: null, // The image URL is used for preview, but the file is not pre-filled.
+        img_file: null,
         category_id: String(bookDetailsForUpdate.category_id),
         author_id: String(bookDetailsForUpdate.author_id),
         purchase_available_stock: String(
-          bookDetailsForUpdate.purchase_available_stock || "",
+          bookDetailsForUpdate.purchase_available_stock,
         ),
         borrow_available_stock: String(
-          bookDetailsForUpdate.borrow_available_stock || "",
+          bookDetailsForUpdate.borrow_available_stock,
         ),
       });
     }
@@ -86,17 +90,23 @@ const UpdateBookPage = () => {
     const areRequiredFieldsFilled =
       title && description && publish_year && category_id && author_id;
 
-    const areNumbersValid =
-      isValidPositiveNumber(price) &&
-      (isValidPositiveNumber(purchase_available_stock) ||
-        isValidPositiveNumber(borrow_available_stock)) &&
+    const isPriceValid = isValidPositiveNumber(price);
+
+    const areStocksValid =
       isNonNegativeNumber(purchase_available_stock) &&
-      isNonNegativeNumber(borrow_available_stock);
+      isNonNegativeNumber(borrow_available_stock) &&
+      (isValidPositiveNumber(purchase_available_stock) ||
+        isValidPositiveNumber(borrow_available_stock));
 
     const isPublishYearValid =
       publish_year && Number(publish_year) <= new Date().getFullYear();
 
-    return areRequiredFieldsFilled && areNumbersValid && isPublishYearValid;
+    return (
+      areRequiredFieldsFilled &&
+      isPriceValid &&
+      areStocksValid &&
+      isPublishYearValid
+    );
   }, [formValues]);
 
   const validate = useCallback((values: typeof initialFormState) => {
@@ -125,30 +135,28 @@ const UpdateBookPage = () => {
     const borrowStock = Number(values.borrow_available_stock);
 
     if (
-      (!values.purchase_available_stock && !values.borrow_available_stock) ||
-      ((isNaN(purchaseStock) || purchaseStock <= 0) &&
-        (isNaN(borrowStock) || borrowStock <= 0))
+      (values.purchase_available_stock === "" || purchaseStock <= 0) &&
+      (values.borrow_available_stock === "" || borrowStock <= 0)
     ) {
       newErrors.purchase_available_stock =
         "At least one of the stock fields must be greater than 0";
       newErrors.borrow_available_stock =
         "At least one of the stock fields must be greater than 0";
-    }
-
-    if (
-      values.purchase_available_stock &&
-      (isNaN(purchaseStock) || purchaseStock < 0)
-    ) {
-      newErrors.purchase_available_stock =
-        "Purchase stock must be a non-negative number";
-    }
-
-    if (
-      values.borrow_available_stock &&
-      (isNaN(borrowStock) || borrowStock < 0)
-    ) {
-      newErrors.borrow_available_stock =
-        "Borrow stock must be a non-negative number";
+    } else {
+      if (
+        values.purchase_available_stock !== "" &&
+        (isNaN(purchaseStock) || purchaseStock < 0)
+      ) {
+        newErrors.purchase_available_stock =
+          "Purchase stock must be a non-negative number";
+      }
+      if (
+        values.borrow_available_stock !== "" &&
+        (isNaN(borrowStock) || borrowStock < 0)
+      ) {
+        newErrors.borrow_available_stock =
+          "Borrow stock must be a non-negative number";
+      }
     }
 
     return newErrors;
@@ -160,23 +168,49 @@ const UpdateBookPage = () => {
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      const bookData = {
-        ...formValues,
-        id: Number(book_id),
-        price: Number(formValues.price),
-        category_id: Number(formValues.category_id),
-        author_id: Number(formValues.author_id),
-        publish_year: Number(formValues.publish_year),
-        purchase_available_stock: formValues.purchase_available_stock
-          ? Number(formValues.purchase_available_stock)
-          : 0,
-        borrow_available_stock: formValues.borrow_available_stock
-          ? Number(formValues.borrow_available_stock)
-          : 0,
-        img_file: formValues.img_file || undefined,
-      };
+      if (!bookDetailsForUpdate) return;
 
-      updateBook(bookData);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const changedFields: Record<string, any> = {};
+      const numberFields = [
+        "price",
+        "publish_year",
+        "category_id",
+        "author_id",
+        "purchase_available_stock",
+        "borrow_available_stock",
+      ];
+
+      // Check for changed fields other than the image
+      for (const key of Object.keys(formValues) as Array<
+        keyof typeof formValues
+      >) {
+        // Skip the image file for this loop as it is now handled separately
+        if (key === "img_file") continue;
+
+        const currentValue = formValues[key];
+        const originalValue =
+          bookDetailsForUpdate[key as keyof IBookDetailsForUpdate];
+
+        if (numberFields.includes(key) && typeof originalValue === "number") {
+          if (Number(currentValue) !== originalValue) {
+            changedFields[key] = Number(currentValue);
+          }
+        } else if (typeof originalValue === "string") {
+          if (currentValue !== originalValue) {
+            changedFields[key] = currentValue;
+          }
+        }
+      }
+
+      // Only make the API call if there are other changes to the book details
+      if (Object.keys(changedFields).length > 0) {
+        const updateDataWithId = {
+          id: Number(id),
+          ...changedFields,
+        };
+        updateBook(updateDataWithId);
+      }
     }
   };
 
@@ -192,10 +226,21 @@ const UpdateBookPage = () => {
   };
 
   const handleFileChange = (file: File) => {
+    // Create a FormData object with the new file.
+    const formData = new FormData();
+    formData.append("img_file", file);
+
+    // Call the mutation to update the image immediately.
+    // The 'id' is required by your mutationFn.
+    updateBook({ id: Number(id), formData });
+
+    // Update the local state to show the new image preview.
     setFormValues((prevValues) => ({
       ...prevValues,
       img_file: file,
     }));
+
+    // Clear any related validation errors.
     setErrors({});
   };
 

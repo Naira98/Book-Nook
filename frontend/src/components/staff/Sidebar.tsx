@@ -30,14 +30,14 @@ const Sidebar = ({ navItems }: SidebarProps) => {
                 className={clsx(
                   "flex items-center justify-center rounded-lg p-1.5 text-base transition-all md:justify-start md:px-2 md:py-1.5 lg:px-3 lg:py-2",
                   isActive
-                    ? "border-l-2 border-cyan-200 text-white md:border-l-3"
+                    ? "border-l-2 border-sky-200 text-white md:border-l-3"
                     : "text-white/80 hover:text-white",
                 )}
               >
                 <span
                   className={clsx(
                     "text-lg md:text-xl",
-                    isActive && "text-cyan-200",
+                    isActive && "text-sky-200",
                   )}
                 >
                   {item.icon}
@@ -57,7 +57,7 @@ const Sidebar = ({ navItems }: SidebarProps) => {
             <div className="mt-2 hidden w-full cursor-default items-center px-2 md:flex lg:px-3">
               <User className="h-4 w-4 md:h-5 md:w-5" />
               <span className="ml-2 flex flex-col lg:ml-3">
-                <span className="line-clamp-1 text-xs text-cyan-200 md:text-sm">
+                <span className="line-clamp-1 text-xs text-sky-200 md:text-sm">
                   {me?.first_name} {me?.last_name}
                 </span>
                 <span className="line-clamp-1 text-xs md:text-sm">
