@@ -420,7 +420,10 @@ async def update_order_status(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Order with id {order_Data.id} not found.",
             )
-        if order_Data.status == OrderStatus.ON_THE_WAY:
+        if (
+            order_Data.status == OrderStatus.ON_THE_WAY
+            and order_Data.courier_id is None
+        ):
             if user.role != UserRole.COURIER:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
@@ -447,6 +450,12 @@ async def update_order_status(
         order.number_of_books = len(order.borrow_order_books_details) + len(
             order.purchase_order_books_details
         )
+
+        if order_Data.status == OrderStatus.ON_THE_WAY:
+            await webSocket_connection_manager.broadcast_to_role(
+                {"message": "order_status_updated", "courier_id": order.courier_id},
+                UserRole.COURIER,
+            )
         return order
 
     except HTTPException as e:

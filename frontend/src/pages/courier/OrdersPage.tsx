@@ -70,8 +70,16 @@ const CourierDashboard = () => {
     }
 
     return activeTab === "orders"
-      ? { orders: orders.orders, return_orders: [] }
-      : { orders: [], return_orders: orders.return_orders };
+      ? {
+          orders: orders.orders?.filter((o) => o.status === "CREATED"),
+          return_orders: [],
+        }
+      : {
+          orders: [],
+          return_orders: orders.return_orders?.filter(
+            (o) => o.status === "CREATED",
+          ),
+        };
   }, [activeTab, orders, me?.id]);
 
   return (
