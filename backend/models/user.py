@@ -55,7 +55,9 @@ class User(Base):
     cart: Mapped[list[Cart]] = relationship(  # type: ignore  # noqa: F821
         back_populates="user", foreign_keys="[Cart.user_id]"
     )
-    orders: Mapped[list[Order]] = relationship(back_populates="user")  # type: ignore  # noqa: F821
+    orders: Mapped[list[Order]] = relationship(
+        back_populates="user", foreign_keys="[Order.user_id]"
+    )  # type: ignore  # noqa: F821
 
     # Explicitly specify foreign_keys for return_orders relationship
     return_orders: Mapped[list[ReturnOrder]] = relationship(  # type: ignore # noqa: F821
@@ -63,7 +65,12 @@ class User(Base):
     )
 
     # Explicitly specify foreign_keys for courier_orders relationship
-    courier_orders: Mapped[list[ReturnOrder]] = relationship(  # type: ignore # noqa: F821
+    courier_orders: Mapped[list[Order]] = relationship(  # type: ignore # noqa: F821
+        back_populates="courier", foreign_keys="[Order.courier_id]"
+    )
+
+    # Explicitly specify foreign_keys for courier_return_orders relationship
+    courier_return_orders: Mapped[list[ReturnOrder]] = relationship(  # type: ignore # noqa: F821
         back_populates="courier", foreign_keys="[ReturnOrder.courier_id]"
     )
     notifications: Mapped[list[Notification]] = relationship(  # type: ignore # noqa: F821

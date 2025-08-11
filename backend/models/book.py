@@ -14,16 +14,20 @@ class BookStatus(Enum):
 class Author(Base):
     __tablename__ = "authors"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(100))
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), unique=True)
+
+    # Relationships
     books: Mapped[list[Book]] = relationship(back_populates="author")
 
 
 class Category(Base):
     __tablename__ = "categories"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(100))
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), unique=True)
+
+    # Relationships
     books: Mapped[list[Book]] = relationship(back_populates="category")
 
 

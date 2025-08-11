@@ -15,7 +15,15 @@ export function useLogin() {
     },
     onSuccess: (user: IUser) => {
       queryClient.setQueryData(["me"], user);
-      navigate("/", { replace: true });
+      if (user.role == "CLIENT") {
+        navigate("/", { replace: true });
+      } else if (user.role === "MANAGER") {
+        navigate("/manager/dashboard", { replace: true });
+      } else if (user.role === "EMPLOYEE") {
+        navigate("/employee/books", { replace: true });
+      } else if (user.role === "COURIER") {
+        navigate("/courier/orders", { replace: true });
+      }
     },
     onError: (err) => {
       console.log(err);
