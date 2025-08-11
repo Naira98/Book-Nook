@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { Field, Form } from "react-final-form";
 import { Link, useParams } from "react-router-dom";
 import GoBackButton from "../../components/shared/buttons/GoBackButton";
 import MainButton from "../../components/shared/buttons/MainButton";
@@ -9,244 +9,62 @@ import { useGetAuthors } from "../../hooks/books/useGetAuthors";
 import { useGetBookDetailsForUpdate } from "../../hooks/books/useGetBookDetalsForUpdate";
 import { useGetCategories } from "../../hooks/books/useGetCategories";
 import { useUpdateBook } from "../../hooks/books/useUpdateBook";
-import type { IBookDetailsForUpdate } from "../../types/staff/CreateBookData";
-
-const initialFormState = {
-  id: "",
-  title: "",
-  price: "",
-  description: "",
-  publish_year: "",
-  img_file: null as File | null,
-  category_id: "",
-  author_id: "",
-  purchase_available_stock: "",
-  borrow_available_stock: "",
-};
+import type { IUpdateBookData } from "../../types/staff/staffBookTypes";
 
 const UpdateBookPage = () => {
-  const { book_id } = useParams();
+  const { book_id } = useParams<{ book_id: string }>();
   const id = book_id!;
-
-  const { bookDetailsForUpdate, isPending: isBookPending } =
+  const { bookDetailsForUpdate, isPending: isBookDetailsForUpdatePending } =
     useGetBookDetailsForUpdate(id);
   const { categories, isPending: isCategoriesPending } = useGetCategories();
   const { authors, isPending: isAuthorsPending } = useGetAuthors();
-  const { updateBook, isPending: isUpdatingPending } = useUpdateBook();
 
-  const [formValues, setFormValues] = useState(initialFormState);
+  const { updateBook, isPending: isUpdatingBookPending } = useUpdateBook();
 
-  const [errors, setErrors] = useState<{
-    [key in keyof typeof initialFormState]?: string;
-  }>({});
+  if (
+    isBookDetailsForUpdatePending ||
+    isCategoriesPending ||
+    isAuthorsPending
+  ) {
+    return <div>Loading...</div>;
+  }
 
-  useEffect(() => {
-    if (bookDetailsForUpdate) {
-      setFormValues({
-        id: String(bookDetailsForUpdate.id),
-        title: bookDetailsForUpdate.title || "",
-        price: String(bookDetailsForUpdate.price),
-        description: bookDetailsForUpdate.description || "",
-        publish_year: String(bookDetailsForUpdate.publish_year),
-        img_file: null,
-        category_id: String(bookDetailsForUpdate.category_id),
-        author_id: String(bookDetailsForUpdate.author_id),
-        purchase_available_stock: String(
-          bookDetailsForUpdate.purchase_available_stock,
-        ),
-        borrow_available_stock: String(
-          bookDetailsForUpdate.borrow_available_stock,
-        ),
-      });
-    }
-  }, [bookDetailsForUpdate]);
-
-  const isValidPositiveNumber = (
-    value: string | number | null | undefined,
-  ): boolean => {
-    const num = Number(value);
-    return !isNaN(num) && num > 0;
+  const onSubmit = (values: IUpdateBookData) => {
+    updateBook(values);
   };
 
-  const isNonNegativeNumber = (
-    value: string | number | null | undefined,
-  ): boolean => {
-    const num = Number(value);
-    return !isNaN(num) && num >= 0;
-  };
+  const validate = (values: IUpdateBookData) => {
+    const errors: Partial<Record<keyof IUpdateBookData, string>> = {};
 
-  const isFormValid = useCallback(() => {
-    const {
-      title,
-      price,
-      description,
-      publish_year,
-      category_id,
-      author_id,
-      purchase_available_stock,
-      borrow_available_stock,
-    } = formValues;
-
-    const areRequiredFieldsFilled =
-      title && description && publish_year && category_id && author_id;
-
-    const isPriceValid = isValidPositiveNumber(price);
-
-    const areStocksValid =
-      isNonNegativeNumber(purchase_available_stock) &&
-      isNonNegativeNumber(borrow_available_stock) &&
-      (isValidPositiveNumber(purchase_available_stock) ||
-        isValidPositiveNumber(borrow_available_stock));
-
-    const isPublishYearValid =
-      publish_year && Number(publish_year) <= new Date().getFullYear();
-
-    return (
-      areRequiredFieldsFilled &&
-      isPriceValid &&
-      areStocksValid &&
-      isPublishYearValid
-    );
-  }, [formValues]);
-
-  const validate = useCallback((values: typeof initialFormState) => {
-    const newErrors: typeof errors = {};
-
-    if (!values.title) newErrors.title = "Title is required";
-    if (!values.description) newErrors.description = "Description is required";
-    if (!values.category_id) newErrors.category_id = "Category is required";
-    if (!values.author_id) newErrors.author_id = "Author is required";
-
-    if (!isValidPositiveNumber(values.price)) {
-      newErrors.price = "Price must be a positive number";
-    }
-
+    if (!values.title) errors.title = "Title is required";
+    if (!values.description) errors.description = "Description is required";
+    if (!values.category_id) errors.category_id = "Category is required";
+    if (!values.author_id) errors.author_id = "Author is required";
+    if (isNaN(values.price) || Number(values.price) <= 0)
+      errors.price = "Price must be a positive number";
     if (!values.publish_year) {
-      newErrors.publish_year = "Publish year is required";
+      errors.publish_year = "Publish year is required";
     } else {
       const year = Number(values.publish_year);
       const currentYear = new Date().getFullYear();
       if (isNaN(year) || year < 1000 || year > currentYear) {
-        newErrors.publish_year = "Please enter a valid year";
+        errors.publish_year = "Please enter a valid year";
       }
     }
+    if (values.purchase_available_stock == null)
+      errors.purchase_available_stock = "Purchase stock is required";
+    if (Number(values.purchase_available_stock) < 0)
+      errors.purchase_available_stock =
+        "Purchase stock must be a non-negative number";
 
-    const purchaseStock = Number(values.purchase_available_stock);
-    const borrowStock = Number(values.borrow_available_stock);
+    if (values.borrow_available_stock == null)
+      errors.borrow_available_stock = "Borrow stock is required";
+    if (Number(values.borrow_available_stock) < 0)
+      errors.borrow_available_stock =
+        "Borrow stock must be a non-negative number";
 
-    if (
-      (values.purchase_available_stock === "" || purchaseStock <= 0) &&
-      (values.borrow_available_stock === "" || borrowStock <= 0)
-    ) {
-      newErrors.purchase_available_stock =
-        "At least one of the stock fields must be greater than 0";
-      newErrors.borrow_available_stock =
-        "At least one of the stock fields must be greater than 0";
-    } else {
-      if (
-        values.purchase_available_stock !== "" &&
-        (isNaN(purchaseStock) || purchaseStock < 0)
-      ) {
-        newErrors.purchase_available_stock =
-          "Purchase stock must be a non-negative number";
-      }
-      if (
-        values.borrow_available_stock !== "" &&
-        (isNaN(borrowStock) || borrowStock < 0)
-      ) {
-        newErrors.borrow_available_stock =
-          "Borrow stock must be a non-negative number";
-      }
-    }
-
-    return newErrors;
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors = validate(formValues);
-    setErrors(validationErrors);
-
-    if (Object.keys(validationErrors).length === 0) {
-      if (!bookDetailsForUpdate) return;
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const changedFields: Record<string, any> = {};
-      const numberFields = [
-        "price",
-        "publish_year",
-        "category_id",
-        "author_id",
-        "purchase_available_stock",
-        "borrow_available_stock",
-      ];
-
-      // Check for changed fields other than the image
-      for (const key of Object.keys(formValues) as Array<
-        keyof typeof formValues
-      >) {
-        // Skip the image file for this loop as it is now handled separately
-        if (key === "img_file") continue;
-
-        const currentValue = formValues[key];
-        const originalValue =
-          bookDetailsForUpdate[key as keyof IBookDetailsForUpdate];
-
-        if (numberFields.includes(key) && typeof originalValue === "number") {
-          if (Number(currentValue) !== originalValue) {
-            changedFields[key] = Number(currentValue);
-          }
-        } else if (typeof originalValue === "string") {
-          if (currentValue !== originalValue) {
-            changedFields[key] = currentValue;
-          }
-        }
-      }
-
-      // Only make the API call if there are other changes to the book details
-      if (Object.keys(changedFields).length > 0) {
-        const updateDataWithId = {
-          id: Number(id),
-          ...changedFields,
-        };
-        updateBook(updateDataWithId);
-      }
-    }
+    return errors;
   };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
-    setFormValues((prevValues) => ({
-      ...prevValues,
-      [name]: value,
-    }));
-    setErrors({});
-  };
-
-  const handleFileChange = (file: File) => {
-    // Create a FormData object with the new file.
-    const formData = new FormData();
-    formData.append("img_file", file);
-
-    // Call the mutation to update the image immediately.
-    // The 'id' is required by your mutationFn.
-    updateBook({ id: Number(id), formData });
-
-    // Update the local state to show the new image preview.
-    setFormValues((prevValues) => ({
-      ...prevValues,
-      img_file: file,
-    }));
-
-    // Clear any related validation errors.
-    setErrors({});
-  };
-
-  const isFormPending =
-    isCategoriesPending || isAuthorsPending || isBookPending;
-  const hasValidationErrors = Object.keys(errors).length > 0;
 
   const formData = [
     { name: "title", type: "text", placeholder: "Book Title" },
@@ -282,88 +100,95 @@ const UpdateBookPage = () => {
     },
   ];
 
-  if (isFormPending) {
-    return <p>Loading book details...</p>;
-  }
-
   return (
     <div className="relative flex flex-1 flex-col overflow-auto p-4 md:p-12">
       <GoBackButton />
+
       <h2 className="text-primary mt-12 text-center text-2xl font-bold md:mt-6">
-        Update Book Details
+        Update Book
       </h2>
-      <form onSubmit={handleSubmit} className="mt-8">
-        {formData.map((item, index) => {
-          switch (item.type) {
-            case "select":
-              return (
-                <div key={index} className="mb-9 flex items-center gap-8">
-                  <SelectInput
-                    name={item.name}
-                    placeholder={item.placeholder}
-                    options={item.options}
-                    containerClassName="flex-1"
-                    value={
-                      formValues[item.name as keyof typeof formValues] as
-                        | string
-                        | number
-                    }
-                    onChange={handleChange}
-                    error={errors[item.name as keyof typeof errors]}
-                  />
-                  {item.link && (
-                    <Link
-                      to={item.link}
-                      className="text-primary hover:text-hover flex w-36 items-center gap-2 text-center text-sm font-semibold whitespace-nowrap transition-colors focus:outline-none"
-                    >
-                      + {item.linkText}
-                    </Link>
-                  )}
-                </div>
-              );
-            case "dropzone":
-              return (
-                <Dropzone
-                  name={item.name}
-                  key={index}
-                  onChange={handleFileChange}
-                  value={formValues.img_file}
-                  existingImage={bookDetailsForUpdate?.cover_img || undefined}
-                />
-              );
-            case "text":
-            case "number":
-              return (
-                <TextInput
-                  key={index}
-                  name={item.name}
-                  type={item.type}
-                  placeholder={item.placeholder}
-                  value={
-                    formValues[item.name as keyof typeof formValues] as
-                      | string
-                      | number
-                      | null
-                      | undefined
-                  }
-                  onChange={handleChange}
-                  error={errors[item.name as keyof typeof errors]}
-                />
-              );
-            default:
-              return null;
-          }
-        })}
-        <div className="mt-6">
-          <MainButton
-            disabled={
-              !isFormValid() || hasValidationErrors || isUpdatingPending
-            }
-            loading={isUpdatingPending}
-            label="Update Book"
-          />
-        </div>
-      </form>
+      <Form
+        onSubmit={onSubmit}
+        validate={validate}
+        initialValues={bookDetailsForUpdate}
+        render={({
+          handleSubmit,
+          submitting,
+          pristine,
+          hasValidationErrors,
+        }) => (
+          <form onSubmit={handleSubmit}>
+            {formData.map((item, index) => {
+              if (item.type == "select") {
+                return (
+                  <Field name={item.name}>
+                    {({ input, meta }) => (
+                      <div key={index} className="mb-9 flex items-center gap-8">
+                        <SelectInput
+                          name={item.name}
+                          placeholder={item.placeholder}
+                          options={item.options}
+                          value={input.value}
+                          onChange={input.onChange}
+                          error={
+                            meta.touched && meta.error ? meta.error : undefined
+                          }
+                        />
+                        {item.link && (
+                          <Link
+                            to={item.link}
+                            className="text-primary hover:text-hover flex w-36 items-center gap-2 text-center text-sm font-semibold whitespace-nowrap transition-colors focus:outline-none"
+                          >
+                            + {item.linkText}
+                          </Link>
+                        )}
+                      </div>
+                    )}
+                  </Field>
+                );
+              } else if (item.type == "dropzone") {
+                return (
+                  <Field name={item.name} key={index}>
+                    {({ input }) => (
+                      <Dropzone
+                        name={item.name}
+                        key={index}
+                        value={input.value}
+                        onChange={input.onChange}
+                        existingImage={bookDetailsForUpdate?.cover_img}
+                      />
+                    )}
+                  </Field>
+                );
+              } else {
+                return (
+                  <Field name={item.name} key={index}>
+                    {({ input, meta }) => (
+                      <TextInput
+                        name={item.name}
+                        type={item.type}
+                        placeholder={item.placeholder}
+                        value={input.value}
+                        onChange={input.onChange}
+                        error={
+                          meta.touched && meta.error ? meta.error : undefined
+                        }
+                      />
+                    )}
+                  </Field>
+                );
+              }
+            })}
+            <div className="mt-12">
+              <MainButton
+                disabled={submitting || pristine || hasValidationErrors}
+                loading={isUpdatingBookPending}
+                label="Update Book"
+              />
+            </div>
+          </form>
+        )}
+      />
     </div>
   );
 };

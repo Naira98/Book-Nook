@@ -2,12 +2,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import apiReq from "../../services/apiReq";
 import type { Author } from "../../types/client/books";
-import type { ICreateAuthorCategoryData } from "../../types/staff/CreateAuthorCategoryData";
+import type { ICreateAuthorCategoryData } from "../../types/staff/staffBookTypes";
 
-export const useAddAuthor = (onSuccessCallback?: () => void) => {
+export const useAddAuthor = () => {
   const queryClient = useQueryClient();
 
-  const { mutate: createAuthor, isPending } = useMutation({
+  const { mutate: addAuthor, isPending } = useMutation({
     mutationFn: async (authorData: ICreateAuthorCategoryData) => {
       return await apiReq("POST", "/books/authors", authorData);
     },
@@ -26,10 +26,6 @@ export const useAddAuthor = (onSuccessCallback?: () => void) => {
       toast(`Author "${newAuthor.name}" created successfully!`, {
         type: "success",
       });
-
-      if (onSuccessCallback) {
-        onSuccessCallback();
-      }
     },
     onError: (error) => {
       const errorMessage =
@@ -41,5 +37,5 @@ export const useAddAuthor = (onSuccessCallback?: () => void) => {
     },
   });
 
-  return { createAuthor, isPending };
+  return { addAuthor, isPending };
 };

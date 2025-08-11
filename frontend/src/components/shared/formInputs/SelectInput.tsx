@@ -26,7 +26,7 @@ const SelectInput = ({
     if (e.target.value !== placeholder) setIsDefaultValue(true);
   };
   return (
-    <div className={clsx("w-full", containerClassName)}>
+    <div className={clsx("w-full flex-1", containerClassName)}>
       <div className="relative">
         <select
           name={name}

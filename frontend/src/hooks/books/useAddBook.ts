@@ -1,13 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createBook as createBookApi } from "../../services/createBook";
+import { addBook as addBookApi } from "../../services/book";
 import { toast } from "react-toastify";
 import type { IBookTable } from "../../types/BookTable";
 
 export const useAddBook = () => {
   const queryClient = useQueryClient();
 
-  const { mutate: createBook, isPending } = useMutation({
-    mutationFn: createBookApi,
+  const {
+    mutate: addBook,
+    isPending,
+  } = useMutation({
+    mutationFn: addBookApi,
     onSuccess: (newBook: IBookTable) => {
       const oldData = queryClient.getQueryData(["allBooksTable"]);
 
@@ -26,11 +29,11 @@ export const useAddBook = () => {
     },
     onError: (error) => {
       console.error("Error creating book:", error);
-      toast("Failed to create book.", {
+      toast(error.message, {
         type: "error",
       });
     },
   });
 
-  return { createBook, isPending };
+  return { addBook, isPending };
 };

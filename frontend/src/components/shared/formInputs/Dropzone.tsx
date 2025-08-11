@@ -25,7 +25,7 @@ const Dropzone = ({ name, onChange, value, existingImage }: DropzoneProps) => {
     multiple: false,
     noClick: true,
     accept: {
-      "image/*": [".jpeg", ".png", ".jpg", ".gif"],
+      "image/*": [".jpeg", ".png", ".jpg"],
     },
   });
 
@@ -84,9 +84,7 @@ const Dropzone = ({ name, onChange, value, existingImage }: DropzoneProps) => {
           </p>
 
           {!preview && (
-            <p className="text-xs text-gray-400">
-              SVG, PNG, JPG or GIF (MAX. 800x400px)
-            </p>
+            <p className="text-xs text-gray-400">PNG, JPG or JPEG</p>
           )}
         </div>
         <FileInput

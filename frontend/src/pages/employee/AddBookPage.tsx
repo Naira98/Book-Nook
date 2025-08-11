@@ -1,4 +1,5 @@
-import { useCallback, useState } from "react";
+import type { FormApi } from "final-form";
+import { Field, Form } from "react-final-form";
 import { Link } from "react-router-dom";
 import GoBackButton from "../../components/shared/buttons/GoBackButton";
 import MainButton from "../../components/shared/buttons/MainButton";
@@ -8,171 +9,52 @@ import TextInput from "../../components/shared/formInputs/TextInput";
 import { useAddBook } from "../../hooks/books/useAddBook";
 import { useGetAuthors } from "../../hooks/books/useGetAuthors";
 import { useGetCategories } from "../../hooks/books/useGetCategories";
-
-const initialFormState = {
-  title: "",
-  price: "",
-  description: "",
-  publish_year: "",
-  img_file: null as File | null,
-  category_id: "",
-  author_id: "",
-  purchase_available_stock: "",
-  borrow_available_stock: "",
-};
+import type { IAddBookData } from "../../types/staff/staffBookTypes";
 
 const AddBookPage = () => {
-  const { categories, isPending: isCategoriesPending } = useGetCategories();
-  const { authors, isPending: isAuthorsPending } = useGetAuthors();
+  const { categories } = useGetCategories();
+  const { authors } = useGetAuthors();
+  const { addBook, isPending } = useAddBook();
 
-  const [formValues, setFormValues] = useState(initialFormState);
-  const [errors, setErrors] = useState<{
-    [key in keyof typeof initialFormState]?: string;
-  }>({});
-
-  const { createBook, isPending: isCreatingPending } = useAddBook();
-
-  const resetForm = useCallback(() => {
-    setFormValues(initialFormState);
-    setErrors({});
-  }, []);
-
-  const isValidPositiveNumber = (
-    value: string | number | null | undefined,
-  ): boolean => {
-    const num = Number(value);
-    return !isNaN(num) && num > 0;
+  const onSubmit = (values: IAddBookData, form: FormApi<IAddBookData>) => {
+    addBook(values, {
+      onSuccess: () => form.reset(),
+    });
   };
 
-  const isNonNegativeNumber = (
-    value: string | number | null | undefined,
-  ): boolean => {
-    const num = Number(value);
-    return !isNaN(num) && num >= 0;
-  };
+  const validate = (values: IAddBookData) => {
+    const errors: Partial<Record<keyof IAddBookData, string>> = {};
 
-  const isFormValid = useCallback(() => {
-    const {
-      title,
-      price,
-      description,
-      publish_year,
-      img_file,
-      category_id,
-      author_id,
-      purchase_available_stock,
-      borrow_available_stock,
-    } = formValues;
-
-    const areRequiredFieldsFilled =
-      title &&
-      description &&
-      publish_year &&
-      category_id &&
-      author_id &&
-      img_file;
-
-    const areNumbersValid =
-      isValidPositiveNumber(price) &&
-      (isValidPositiveNumber(purchase_available_stock) ||
-        isValidPositiveNumber(borrow_available_stock)) &&
-      isNonNegativeNumber(purchase_available_stock) &&
-      isNonNegativeNumber(borrow_available_stock);
-
-    const isPublishYearValid =
-      publish_year && Number(publish_year) <= new Date().getFullYear();
-
-    return areRequiredFieldsFilled && areNumbersValid && isPublishYearValid;
-  }, [formValues]);
-
-  const validate = useCallback((values: typeof initialFormState) => {
-    const newErrors: typeof errors = {};
-
-    if (!values.title) newErrors.title = "Title is required";
-    if (!values.description) newErrors.description = "Description is required";
-    if (!values.category_id) newErrors.category_id = "Category is required";
-    if (!values.author_id) newErrors.author_id = "Author is required";
-    if (!values.img_file) newErrors.img_file = "Cover image is required";
-
-    if (!isValidPositiveNumber(values.price)) {
-      newErrors.price = "Price must be a positive number";
-    }
-
+    if (!values.title) errors.title = "Title is required";
+    if (!values.description) errors.description = "Description is required";
+    if (!values.category_id) errors.category_id = "Category is required";
+    if (!values.author_id) errors.author_id = "Author is required";
+    if (!values.img_file) errors.img_file = "Cover image is required";
+    if (isNaN(values.price) || Number(values.price) <= 0)
+      errors.price = "Price must be a positive number";
     if (!values.publish_year) {
-      newErrors.publish_year = "Publish year is required";
+      errors.publish_year = "Publish year is required";
     } else {
       const year = Number(values.publish_year);
       const currentYear = new Date().getFullYear();
       if (isNaN(year) || year < 1000 || year > currentYear) {
-        newErrors.publish_year = "Please enter a valid year";
+        errors.publish_year = "Please enter a valid year";
       }
     }
-
-    if (!isNonNegativeNumber(values.purchase_available_stock)) {
-      newErrors.purchase_available_stock =
+    if (values.purchase_available_stock == null)
+      errors.purchase_available_stock = "Purchase stock is required";
+    if (Number(values.purchase_available_stock) < 0)
+      errors.purchase_available_stock =
         "Purchase stock must be a non-negative number";
-    }
 
-    if (!isNonNegativeNumber(values.borrow_available_stock)) {
-      newErrors.borrow_available_stock =
+    if (values.borrow_available_stock == null)
+      errors.borrow_available_stock = "Borrow stock is required";
+    if (Number(values.borrow_available_stock) < 0)
+      errors.borrow_available_stock =
         "Borrow stock must be a non-negative number";
-    }
 
-    // You can keep this check if you want to ensure at least one stock is greater than 0
-    // if (Number(values.purchase_available_stock) <= 0 && Number(values.borrow_available_stock) <= 0) {
-    //   newErrors.purchase_available_stock = "At least one stock field must be greater than 0";
-    //   newErrors.borrow_available_stock = "At least one stock field must be greater than 0";
-    // }
-
-    return newErrors;
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors = validate(formValues);
-    setErrors(validationErrors);
-
-    if (Object.keys(validationErrors).length === 0) {
-      const bookData = {
-        ...formValues,
-        price: Number(formValues.price),
-        category_id: Number(formValues.category_id),
-        author_id: Number(formValues.author_id),
-        publish_year: Number(formValues.publish_year),
-        purchase_available_stock: Number(formValues.purchase_available_stock),
-        borrow_available_stock: Number(formValues.borrow_available_stock),
-        img_file: formValues.img_file || undefined,
-      };
-
-      createBook(bookData, {
-        onSuccess: () => {
-          resetForm();
-        },
-      });
-    }
+    return errors;
   };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
-    setFormValues((prevValues) => ({
-      ...prevValues,
-      [name]: value,
-    }));
-    setErrors({});
-  };
-
-  const handleFileChange = (file: File) => {
-    setFormValues((prevValues) => ({
-      ...prevValues,
-      img_file: file,
-    }));
-    setErrors({});
-  };
-
-  const isFormPending = isCategoriesPending || isAuthorsPending;
-  const hasValidationErrors = Object.keys(errors).length > 0;
 
   const formData = [
     { name: "title", type: "text", placeholder: "Book Title" },
@@ -215,81 +97,86 @@ const AddBookPage = () => {
       <h2 className="text-primary mt-12 text-center text-2xl font-bold md:mt-6">
         Create a New Book
       </h2>
-      <form onSubmit={handleSubmit} className="mt-8">
-        {isFormPending ? (
-          <p>Loading categories and authors...</p>
-        ) : (
-          formData.map((item, index) => {
-            switch (item.type) {
-              case "select":
+      <Form
+        onSubmit={onSubmit}
+        validate={validate}
+        render={({
+          handleSubmit,
+          submitting,
+          pristine,
+          hasValidationErrors,
+        }) => (
+          <form onSubmit={handleSubmit}>
+            {formData.map((item, index) => {
+              if (item.type == "select") {
                 return (
-                  <div key={index} className="mb-9 flex items-center gap-8">
-                    <SelectInput
-                      name={item.name}
-                      placeholder={item.placeholder}
-                      options={item.options}
-                      containerClassName="flex-1"
-                      value={
-                        formValues[item.name as keyof typeof formValues] as
-                          | string
-                          | number
-                      }
-                      onChange={handleChange}
-                      error={errors[item.name as keyof typeof errors]}
-                    />
-                    {item.link && (
-                      <Link
-                        to={item.link}
-                        className="text-primary hover:text-hover flex w-36 items-center gap-2 text-center text-sm font-semibold whitespace-nowrap transition-colors focus:outline-none"
-                      >
-                        + {item.linkText}
-                      </Link>
+                  <Field name={item.name}>
+                    {({ input, meta }) => (
+                      <div key={index} className="mb-9 flex items-center gap-8">
+                        <SelectInput
+                          name={item.name}
+                          placeholder={item.placeholder}
+                          options={item.options}
+                          value={input.value}
+                          onChange={input.onChange}
+                          error={
+                            meta.touched && meta.error ? meta.error : undefined
+                          }
+                        />
+                        {item.link && (
+                          <Link
+                            to={item.link}
+                            className="text-primary hover:text-hover flex w-36 items-center gap-2 text-center text-sm font-semibold whitespace-nowrap transition-colors focus:outline-none"
+                          >
+                            + {item.linkText}
+                          </Link>
+                        )}
+                      </div>
                     )}
-                  </div>
+                  </Field>
                 );
-              case "dropzone":
+              } else if (item.type == "dropzone") {
                 return (
-                  <Dropzone
-                    name={item.name}
-                    key={index}
-                    onChange={handleFileChange}
-                    value={formValues.img_file}
-                  />
+                  <Field name={item.name} key={index}>
+                    {({ input }) => (
+                      <Dropzone
+                        name={item.name}
+                        key={index}
+                        value={input.value}
+                        onChange={input.onChange}
+                      />
+                    )}
+                  </Field>
                 );
-              case "text":
-              case "number":
+              } else {
                 return (
-                  <TextInput
-                    key={index}
-                    name={item.name}
-                    type={item.type}
-                    placeholder={item.placeholder}
-                    value={
-                      formValues[item.name as keyof typeof formValues] as
-                        | string
-                        | number
-                        | null
-                        | undefined
-                    }
-                    onChange={handleChange}
-                    error={errors[item.name as keyof typeof errors]}
-                  />
+                  <Field name={item.name} key={index}>
+                    {({ input, meta }) => (
+                      <TextInput
+                        name={item.name}
+                        type={item.type}
+                        placeholder={item.placeholder}
+                        value={input.value}
+                        onChange={input.onChange}
+                        error={
+                          meta.touched && meta.error ? meta.error : undefined
+                        }
+                      />
+                    )}
+                  </Field>
                 );
-              default:
-                return null;
-            }
-          })
+              }
+            })}
+            <div className="mt-12">
+              <MainButton
+                disabled={submitting || pristine || hasValidationErrors}
+                loading={isPending}
+                label="Add Book"
+              />
+            </div>
+          </form>
         )}
-        <div className="mt-6">
-          <MainButton
-            disabled={
-              !isFormValid() || hasValidationErrors || isCreatingPending
-            }
-            loading={isCreatingPending}
-            label="Create Book"
-          />
-        </div>
-      </form>
+      />
     </div>
   );
 };

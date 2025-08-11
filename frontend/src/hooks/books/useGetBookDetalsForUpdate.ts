@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import apiReq from "../../services/apiReq";
-import type { IBookDetailsForUpdate } from "../../types/staff/CreateBookData";
+import type { IBookDetailsForUpdate } from "../../types/staff/staffBookTypes";
 
 export const useGetBookDetailsForUpdate = (bookId: string) => {
   const {

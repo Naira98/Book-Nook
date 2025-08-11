@@ -1,53 +1,30 @@
-import clsx from "clsx";
-import { useCallback, useState } from "react";
+import type { FormApi } from "final-form";
+import { Field, Form } from "react-final-form";
 import GoBackButton from "../../components/shared/buttons/GoBackButton";
 import MainButton from "../../components/shared/buttons/MainButton";
+import TextInput from "../../components/shared/formInputs/TextInput";
 import { useAddCategory } from "../../hooks/books/useAddCategory";
+import type { ICreateAuthorCategoryData } from "../../types/staff/staffBookTypes";
 
 const AddCategoryPage = () => {
-  const [categoryName, setCategoryName] = useState<string>("");
-  const [errors, setErrors] = useState<{ name?: string }>({});
-  const [touched, setTouched] = useState<boolean>(false);
+  const { addCategory, isPending } = useAddCategory();
 
-  const resetForm = useCallback(() => {
-    setCategoryName("");
-    setErrors({});
-    setTouched(false);
-  }, []);
-
-  const { createCategory, isPending: isCreatingPending } =
-    useAddCategory(resetForm);
-
-  const validate = (nameValue: string) => {
-    const newErrors: { name?: string } = {};
-    if (!nameValue.trim()) {
-      newErrors.name = "Category name is required";
-    }
-    return newErrors;
+  const onSubmit = (
+    values: ICreateAuthorCategoryData,
+    form: FormApi<ICreateAuthorCategoryData>,
+  ) => {
+    addCategory(values, {
+      onSuccess: () => form.reset(),
+    });
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCategoryName(e.target.value);
-    if (touched) {
-      setErrors(validate(e.target.value));
+  const validate = (values: ICreateAuthorCategoryData) => {
+    const errors: Partial<Record<keyof ICreateAuthorCategoryData, string>> = {};
+
+    if (!values.name || !values.name.trim()) {
+      errors.name = "Category name is required";
     }
-  };
-
-  const handleInputBlur = () => {
-    setTouched(true);
-    setErrors(validate(categoryName));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setTouched(true);
-
-    const validationErrors = validate(categoryName);
-    setErrors(validationErrors);
-
-    if (Object.keys(validationErrors).length === 0) {
-      createCategory({ name: categoryName });
-    }
+    return errors;
   };
 
   return (
@@ -58,44 +35,38 @@ const AddCategoryPage = () => {
         Add a New Category
       </h2>
 
-      <form onSubmit={handleSubmit} className="mt-6">
-        <div className="mb-9 w-full">
-          <div className="relative">
-            <input
-              type="text"
-              id="categoryName"
-              name="categoryName"
-              placeholder="Category Name"
-              value={categoryName}
-              onChange={handleInputChange}
-              onBlur={handleInputBlur}
-              className={clsx(
-                `focus:ring-none w-full border-b border-gray-300 p-2 placeholder-gray-400 transition-colors focus:outline-none`,
-                {
-                  "border-red-300": errors.name && touched,
-                },
+      <Form
+        onSubmit={onSubmit}
+        validate={validate}
+        render={({
+          handleSubmit,
+          submitting,
+          pristine,
+          hasValidationErrors,
+        }) => (
+          <form onSubmit={handleSubmit}>
+            <Field name="name" key="categoryName">
+              {({ input, meta }) => (
+                <TextInput
+                  name="name"
+                  type="text"
+                  placeholder="Category Name"
+                  value={input.value}
+                  onChange={input.onChange}
+                  error={meta.touched && meta.error ? meta.error : undefined}
+                />
               )}
-            />
-            {errors.name && touched && (
-              <p className="absolute top-full left-0 inline-block translate-y-2 px-2 text-xs text-red-500">
-                {errors.name}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="mt-6 flex flex-col gap-4">
-          <MainButton
-            disabled={
-              Object.keys(errors).length > 0 ||
-              isCreatingPending ||
-              !categoryName.trim()
-            }
-            loading={isCreatingPending}
-            label="Add Category"
-          />
-        </div>
-      </form>
+            </Field>
+            <div className="mt-6 flex flex-col gap-4">
+              <MainButton
+                disabled={submitting || pristine || hasValidationErrors}
+                loading={isPending}
+                label="Add Category"
+              />
+            </div>
+          </form>
+        )}
+      />
     </div>
   );
 };

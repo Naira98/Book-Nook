@@ -1,5 +1,4 @@
 from fastapi import HTTPException, status
-from fastapi.responses import JSONResponse
 from models.book import Author, Book, BookDetails, BookStatus, Category
 from schemas.book import (
     BookDetailsForUpdateResponse,
@@ -174,32 +173,6 @@ async def create_book(book_data: CreateBookRequest, db: AsyncSession):
     return book_to_create
 
 
-async def update_book_image(book_id: int, img_file: str, db: AsyncSession):
-    stmt = (
-        update(Book)
-        .where(Book.id == book_id)
-        .values(cover_img=img_file)
-        .returning(Book)
-        .options(
-            selectinload(Book.author),
-            selectinload(Book.category),
-            selectinload(Book.book_details),
-        )
-    )
-    result = await db.execute(stmt)
-    book_afterUpdate = result.scalars().first()
-
-    if not book_afterUpdate:
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content={"message": "Book not found"},
-        )
-
-    await db.commit()
-
-    return book_afterUpdate
-
-
 async def create_book_details(
     book_id: int,
     purchase_available_stock: int,
@@ -240,7 +213,6 @@ async def create_book_details(
                 "rows_to_insert": rows_to_insert,
             },
         )
-
 
 
 """ Employee-only endpoints for book management """
@@ -288,9 +260,7 @@ async def get_books_table_crud(db):
     return book_table_data
 
 
-async def update_book_and_stock(
-    book_id: int, book_data: UpdateBookData, db: AsyncSession
-):
+async def update_book_crud(book_id: int, book_data: UpdateBookData, db: AsyncSession):
     update_data = book_data.model_dump(exclude_unset=True)
 
     purchase_stock_update = update_data.pop("purchase_available_stock", None)
@@ -316,14 +286,12 @@ async def update_book_and_stock(
         )
         await db.execute(borrow_stock_stmt)
 
-    # Corrected Indentation: This block should be outside the 'if' statements
     try:
         await db.commit()
     except Exception as e:
         await db.rollback()
         raise HTTPException(status_code=400, detail=f"Failed to update book: {e}")
 
-    # Eagerly load the 'author', 'category', and 'book_details' relationships
     book_query = (
         select(Book)
         .where(Book.id == book_id)

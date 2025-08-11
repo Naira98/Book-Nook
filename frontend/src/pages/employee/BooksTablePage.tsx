@@ -5,9 +5,9 @@ import { useGetBooksTable } from "../../hooks/books/useGetBooksTable";
 
 import { CirclePlus } from "lucide-react";
 import { Link } from "react-router-dom";
-import FilterBooks from "../../components/staff/FilterBooks";
 import SearchBar from "../../components/shared/SearchBar";
-import { useFiltering as useFilteringBooks } from "../../hooks/books/useFiltering";
+import FilterBooks from "../../components/staff/FilterBooks";
+import { useFiltering } from "../../hooks/books/useFiltering";
 import { FilterAvailability, type IBookTable } from "../../types/BookTable";
 
 const BOOKS_PER_PAGE = 8;
@@ -22,7 +22,7 @@ export default function BooksTablePage() {
 
   const booksArray: IBookTable[] = useMemo(() => allBooks || [], [allBooks]);
 
-  const filteredBooks = useFilteringBooks(
+  const filteredBooks = useFiltering(
     booksArray,
     filterAvailability,
     searchTerm,

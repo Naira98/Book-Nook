@@ -37,8 +37,8 @@ class Book(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(255))
     price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
-    description: Mapped[str | None] = mapped_column(String(1000), nullable=True)
-    cover_img: Mapped[str] = mapped_column(String, nullable=True)
+    description: Mapped[str | None] = mapped_column(String(1000))
+    cover_img: Mapped[str] = mapped_column(String)
     publish_year: Mapped[int]
 
     # Foreign Keys
