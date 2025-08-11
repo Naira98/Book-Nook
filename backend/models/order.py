@@ -132,15 +132,21 @@ class Order(Base):
     promo_code_id: Mapped[int | None] = mapped_column(
         ForeignKey("promo_codes.id"), nullable=True
     )
+    courier_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
 
     # Relationships
-    user: Mapped[User] = relationship(back_populates="orders")  # type: ignore  # noqa: F821
-    promo_code: Mapped[PromoCode | None] = relationship(back_populates="orders")  # type: ignore # noqa: F821
+    user: Mapped[User] = relationship(back_populates="orders", foreign_keys=[user_id])  # type: ignore  # noqa: F821
+    promo_code: Mapped[PromoCode | None] = relationship(  # type: ignore # noqa: F821
+        back_populates="orders", foreign_keys=[promo_code_id]
+    )
     borrow_order_books_details: Mapped[list[BorrowOrderBook]] = relationship(
         back_populates="order"
     )
     purchase_order_books_details: Mapped[list[PurchaseOrderBook]] = relationship(
         back_populates="order"
+    )
+    courier: Mapped[User] = relationship(  # noqa: F821 # type: ignore
+        back_populates="courier_orders", foreign_keys=[courier_id]
     )
     transactions: Mapped[list[Transaction]] = relationship(back_populates="order")  # type: ignore  # noqa: F821
 
@@ -162,7 +168,7 @@ class ReturnOrder(Base):
 
     # Foreign Keys
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    courier_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    courier_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
 
     # Relationships
     borrow_order_books_details: Mapped[list[BorrowOrderBook]] = relationship(
@@ -174,5 +180,5 @@ class ReturnOrder(Base):
     )
     # Explicitly specify foreign_keys for the 'courier' relationship
     courier: Mapped[User] = relationship(  # noqa: F821 # type: ignore
-        back_populates="courier_orders", foreign_keys=[courier_id]
+        back_populates="courier_return_orders", foreign_keys=[courier_id]
     )

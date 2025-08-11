@@ -1,6 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 
 from db.database import get_db
 from fastapi import APIRouter, Depends, HTTPException, status, Body
@@ -12,18 +12,24 @@ from models.order import (
     Order,
     OrderStatus,
     PurchaseOrderBook,
+    PickUpType,
+    ReturnOrder,
 )
-from models.user import User
+from core.websocket import webSocket_connection_manager
+from models.user import User, UserRole
 from schemas.order import (
     BorrowOrderBookUpdateProblemResponse,
     CreateOrderRequest,
     OrderCreatedUpdateResponse,
     OrderResponseSchema,
+    GetAllOrdersResponse,
+    UpdateOrderStatusRequest,
+    OrderDetailsResponseSchema,
 )
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
-from utils.auth import get_user
+from utils.auth import get_user, get_staff_user
 from utils.order import (
     calculate_borrow_order_book_fees,
     calculate_purchase_order_book_fees,
@@ -71,6 +77,71 @@ async def get_orders(
         result = await db.execute(query)
         orders = result.scalars().unique().all()
         return orders
+
+    except Exception as e:
+        # For any unexpected error, raise a generic 500 error with the exception details
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred while fetching orders: {str(e)}",
+        )
+
+
+@order_router.get(
+    "/all", response_model=GetAllOrdersResponse, status_code=status.HTTP_200_OK
+)
+async def get_all_orders(
+    user: Annotated[User, Depends(get_staff_user)],
+    order_status: PickUpType,
+    db: AsyncSession = Depends(get_db),
+    courier_id: Optional[int | None] = None,
+):
+    try:
+        conditions = [Order.pick_up_type == order_status]
+
+        if courier_id is not None:
+            conditions.append(Order.courier_id == courier_id)
+
+        get_orders_query = (
+            select(Order)
+            .options(joinedload(Order.user))
+            .options(
+                selectinload(Order.borrow_order_books_details),
+                selectinload(Order.purchase_order_books_details),
+            )
+        )
+
+        get_return_orders_query = (
+            select(ReturnOrder)
+            .options(joinedload(ReturnOrder.user))
+            .options(selectinload(ReturnOrder.borrow_order_books_details))
+        )
+
+        get_orders_query = get_orders_query.where(*conditions).order_by(
+            Order.created_at.desc()
+        )
+        get_return_orders_query = get_return_orders_query.where(*conditions).order_by(
+            ReturnOrder.created_at.desc()
+        )
+
+        # .order_by(Order.created_at.desc())
+        orders_result = await db.execute(get_orders_query)
+        return_orders_result = await db.execute(get_return_orders_query)
+
+        orders = orders_result.scalars().unique().all()
+        return_orders = return_orders_result.scalars().unique().all()
+
+        for order in orders:
+            order.number_of_books = len(order.borrow_order_books_details) + len(
+                order.purchase_order_books_details
+            )
+
+        for return_order in return_orders:
+            return_order.number_of_books = len(return_order.borrow_order_books_details)
+
+        return {
+            "orders": orders,
+            "return_orders": return_orders,
+        }
 
     except Exception as e:
         # For any unexpected error, raise a generic 500 error with the exception details
@@ -235,17 +306,19 @@ async def create_order(
             order_id=order.id,
         )
 
-        # TODO: send notification to user
-
         # Add all new order books to the session
         db.add_all(borrow_order_books)
         db.add_all(purchase_order_books)
-
         # Delete cart items after order creation
         await db.execute(delete(Cart).where(Cart.user_id == user.id))
 
         # Commit the transaction
         await db.commit()
+
+        if order.pick_up_type == PickUpType.COURIER:
+            await webSocket_connection_manager.broadcast_to_role(
+                {"message": "order_created", "order_id": order.id}, UserRole.COURIER
+            )
 
         return {"message": "Order created successfully", "order_id": order.id}
 
@@ -262,42 +335,128 @@ async def create_order(
         )
 
 
-# TODO: ensure employee or courier who update order status
-@order_router.patch(
-    "/order_status",
-    response_model=OrderCreatedUpdateResponse,
+@order_router.get(
+    "/{order_id}",
+    response_model=OrderDetailsResponseSchema,
     status_code=status.HTTP_200_OK,
 )
-async def update_order_status(
-    order_id: Annotated[int, Body()],
-    new_status: Annotated[OrderStatus, Body()],
+async def get_order_details(
+    order_id: int,
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_staff_user),
 ):
-    try:
-        query = select(Order).where(Order.id == order_id)
-        result = await db.execute(query)
-        order = result.scalar_one_or_none()
+    conditions = [Order.id == order_id]
 
+    if user.role == UserRole.CLIENT:
+        conditions.append(Order.user_id == user.id)
+    elif user.role == UserRole.COURIER:
+        conditions.append(Order.courier_id == user.id)
+
+    try:
+        query = (
+            select(Order)
+            .where(*conditions)
+            .options(
+                joinedload(Order.user),
+                selectinload(Order.borrow_order_books_details).options(
+                    joinedload(BorrowOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    ),
+                    joinedload(BorrowOrderBook.return_order),
+                ),
+                selectinload(Order.purchase_order_books_details).options(
+                    joinedload(PurchaseOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    )
+                ),
+            )
+            .order_by(Order.created_at.desc())
+        )
+
+        result = await db.execute(query)
+        order = result.scalars().first()
         if not order:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Order with id {order_id} not found.",
             )
 
-        if new_status == OrderStatus.PICKED_UP:
+        order.number_of_books = len(order.borrow_order_books_details) + len(
+            order.purchase_order_books_details
+        )
+        return order
+
+    except Exception as e:
+        # For any unexpected error, raise a generic 500 error with the exception details
+        raise e
+
+
+# TODO: ensure employee or courier who update order status
+@order_router.patch(
+    "/order_status",
+    response_model=UpdateOrderStatusRequest,
+    status_code=status.HTTP_200_OK,
+)
+async def update_order_status(
+    order_Data: Annotated[UpdateOrderStatusRequest, Body()],
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_staff_user),
+):
+    try:
+        query = (
+            select(Order)
+            .where(Order.id == order_Data.id)
+            .options(joinedload(Order.user))
+            .options(
+                selectinload(Order.borrow_order_books_details),
+                selectinload(Order.purchase_order_books_details),
+            )
+        )
+        result = await db.execute(query)
+        order = result.scalar_one_or_none()
+
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Order with id {order_Data.id} not found.",
+            )
+        if (
+            order_Data.status == OrderStatus.ON_THE_WAY
+            and order_Data.courier_id is None
+        ):
+            if user.role != UserRole.COURIER:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Only couriers can set order status to ON_THE_WAY",
+                )
+
+            order.courier_id = user.id
+
+        if order_Data.status == OrderStatus.PICKED_UP:
+            if user.role == UserRole.COURIER and order.courier_id != user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You are not authorized to update this order's status.",
+                )
+
             order.pick_up_date = datetime.now()
-        elif new_status == OrderStatus.PROBLEM:
+        elif order_Data.status == OrderStatus.PROBLEM:
             # TODO: send notification to user about the problem
             pass
 
-        order.status = new_status
+        order.status = order_Data.status
         await db.commit()
         await db.refresh(order)
+        order.number_of_books = len(order.borrow_order_books_details) + len(
+            order.purchase_order_books_details
+        )
 
-        return {
-            "message": f"Order status updated successfully to {new_status.value}",
-            "order_id": order.id,
-        }
+        if order_Data.status == OrderStatus.ON_THE_WAY:
+            await webSocket_connection_manager.broadcast_to_role(
+                {"message": "order_status_updated", "courier_id": order.courier_id},
+                UserRole.COURIER,
+            )
+        return order
 
     except HTTPException as e:
         # If an HTTPException is raised, rollback and re-raise it

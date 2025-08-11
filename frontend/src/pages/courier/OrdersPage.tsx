@@ -1,178 +1,145 @@
-import React, { useState } from 'react';
+import { useState, useMemo } from "react";
+import { useGetAllOrders } from "../../hooks/orders/useGetAllOrders";
+import type {
+  AllOrdersResponse,
+  OrderStatus,
+  ReturnOrderStatus,
+} from "../../types/Orders";
+import OrderCard from "../../components/courier/OrderPage/OrderCard";
+import ReturnOrderCard from "../../components/courier/OrderPage/ReturnOrderCard";
+import NoOrders from "../../components/courier/OrderPage/NoOrders";
+import { useGetMe } from "../../hooks/auth/useGetMe";
 
-const OrdersPage = () => {
-  const [orders, setOrders] = useState([
-    {
-      order: {
-        id: 1,
-        address: "123 University St, Cairo",
-        phone_num: "01234567890",
-        created_at: "2023-05-15T10:30:00",
-        status: "pending",
-        user_id: {
-          first_name: "Ahmed",
-          last_name: "Mohamed"
-        }
-      },
-      order_type: "order"
-    },
-    {
-      order: {
-        id: 2,
-        address: "456 Victory St, Giza",
-        phone_num: "01112223334",
-        created_at: "2023-05-16T14:45:00",
-        status: "shipped",
-        user_id: {
-          first_name: "Sarah",
-          last_name: "Ali"
-        }
-      },
-      order_type: "order"
-    },
-    {
-      order: {
-        id: 3,
-        address: "789 Freedom St, Alexandria",
-        phone_num: "01098765432",
-        created_at: "2023-05-17T09:15:00",
-        status: "delivered",
-        user_id: {
-          first_name: "Mohamed",
-          last_name: "Khaled"
-        }
-      },
-      order_type: "return_order"
-    },
-  ]);
+const CourierDashboard = () => {
+  const { allOrders, isPending } = useGetAllOrders();
+  const [activeTab, setActiveTab] = useState("orders");
+  const [newOrderAlert] = useState<string[]>([]);
+  const { me } = useGetMe();
+  const orders: AllOrdersResponse | null = useMemo(
+    () => allOrders || null,
+    [allOrders],
+  );
 
-  const [filter, setFilter] = useState("all");
-
-  const filteredOrders = orders.filter(order => {
-    if (filter === "all") return true;
-    return order.order_type === filter;
-  });
-
-  const updateOrderStatus = (orderId, newStatus) => {
-    setOrders(orders.map(order => 
-      order.order.id === orderId 
-        ? { ...order, order: { ...order.order, status: newStatus } } 
-        : order
-    ));
+  const getStatusColor = (status: OrderStatus | ReturnOrderStatus) => {
+    switch (status) {
+      case "CREATED":
+        return "bg-amber-50 text-amber-700";
+      case "ON_THE_WAY":
+        return "bg-blue-50 text-secondary";
+      case "PICKED_UP":
+        return "bg-green-50 text-green-700";
+      case "PROBLEM":
+        return "bg-red-50 text-red-700";
+      default:
+        return "bg-gray-50 text-gray-700";
+    }
   };
 
+  const getStatusIcon = (status: OrderStatus | ReturnOrderStatus) => {
+    switch (status) {
+      case "CREATED":
+        return "🕒";
+      case "ON_THE_WAY":
+        return "🚚";
+      case "PICKED_UP":
+        return "✅";
+      case "PROBLEM":
+        return "⚠️";
+      default:
+        return "ℹ️";
+    }
+  };
+
+  const displayOrders = useMemo(() => {
+    if (!orders) return null;
+
+    if (activeTab === "my return orders") {
+      return {
+        orders: [],
+        return_orders: orders.return_orders?.filter(
+          (o) => o.courier_id === me?.id,
+        ),
+      };
+    }
+
+    if (activeTab === "my orders") {
+      return {
+        orders: orders.orders?.filter((o) => o.courier_id === me?.id),
+        return_orders: [],
+      };
+    }
+
+    return activeTab === "orders"
+      ? {
+          orders: orders.orders?.filter((o) => o.status === "CREATED"),
+          return_orders: [],
+        }
+      : {
+          orders: [],
+          return_orders: orders.return_orders?.filter(
+            (o) => o.status === "CREATED",
+          ),
+        };
+  }, [activeTab, orders, me?.id]);
+
   return (
-    <div className="container mx-auto px-4 py-8" style={{ backgroundColor: 'var(--color-background)' }}>
-      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--color-primary)' }}>Delivery Orders</h1>
-      
-      <div className="flex justify-end mb-6">
-        <div className="flex space-x-2">
-          <button 
-            onClick={() => setFilter("all")}
-            className={`px-4 py-2 rounded-md ${filter === "all" ? 'text-white' : 'bg-gray-200 text-gray-700'}`}
-            style={{ backgroundColor: filter === "all" ? 'var(--color-primary)' : '' }}
+    <main className="mx-auto max-w-6xl px-4 py-6">
+      {/* Tabs */}
+      <div className="mb-6 flex space-x-1 rounded-lg bg-gray-100 p-1">
+        {tabs.map((tab) => (
+          <button
+            key={tab}
+            className={`flex-1 rounded-md px-3 py-2 text-sm font-medium capitalize transition-colors ${activeTab === tab ? "text-secondary bg-white shadow-sm" : "text-gray-600 hover:bg-gray-50"}`}
+            onClick={() => {
+              setActiveTab(tab);
+            }}
           >
-            All
+            {tab}
+            {activeTab !== tab &&
+              newOrderAlert.some((id) => id.includes("delivery")) && (
+                <span className="ml-1 inline-block h-2 w-2 rounded-full bg-red-500"></span>
+              )}
           </button>
-          <button 
-            onClick={() => setFilter("order")}
-            className={`px-4 py-2 rounded-md ${filter === "order" ? 'text-white' : 'bg-gray-200 text-gray-700'}`}
-            style={{ backgroundColor: filter === "order" ? 'var(--color-primary)' : '' }}
-          >
-            Orders
-          </button>
-          <button 
-            onClick={() => setFilter("return_order")}
-            className={`px-4 py-2 rounded-md ${filter === "return_order" ? 'text-white' : 'bg-gray-200 text-gray-700'}`}
-            style={{ backgroundColor: filter === "return_order" ? 'var(--color-primary)' : '' }}
-          >
-            Returns
-          </button>
-        </div>
+        ))}
       </div>
 
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-primary)' }}>Order ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-primary)' }}>Customer</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-primary)' }}>Address</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-primary)' }}>Phone</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-primary)' }}>Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-primary)' }}>Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-primary)' }}>Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-primary)' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredOrders.map((item) => (
-                <tr key={item.order.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: 'var(--color-primary)' }}>{item.order.id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: 'var(--color-primary)' }}>
-                    {item.order.user_id.first_name} {item.order.user_id.last_name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: 'var(--color-primary)' }}>{item.order.address}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: 'var(--color-primary)' }}>{item.order.phone_num}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: 'var(--color-primary)' }}>
-                    {new Date(item.order.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: 'var(--color-primary)' }}>
-                    <span className={`px-2 py-1 rounded-full text-xs ${item.order_type === 'order' ? 'text-green-800' : 'text-purple-800'}`}
-                          style={{ backgroundColor: item.order_type === 'order' ? 'var(--color-secondary)' : '#E9D8FD' }}>
-                      {item.order_type === 'order' ? 'Order' : 'Return'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: 'var(--color-primary)' }}>
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      item.order.status === 'pending' ? 'text-yellow-800' :
-                      item.order.status === 'shipped' ? 'text-blue-800' :
-                      'text-green-800'
-                    }`}
-                    style={{
-                      backgroundColor: 
-                        item.order.status === 'pending' ? '#FEF3C7' :
-                        item.order.status === 'shipped' ? '#DBEAFE' :
-                        '#D1FAE5'
-                    }}>
-                      {item.order.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button 
-                        onClick={() => updateOrderStatus(item.order.id, 'shipped')}
-                        disabled={item.order.status !== 'pending'}
-                        className={`px-3 py-1 rounded-md text-xs ${item.order.status !== 'pending' ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'text-white hover:bg-blue-700'}`}
-                        style={{ backgroundColor: item.order.status === 'pending' ? 'var(--color-primary)' : '' }}
-                      >
-                        Ship
-                      </button>
-                      <button 
-                        onClick={() => updateOrderStatus(item.order.id, 'delivered')}
-                        disabled={item.order.status !== 'shipped'}
-                        className={`px-3 py-1 rounded-md text-xs ${item.order.status !== 'shipped' ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'text-white hover:bg-green-700'}`}
-                        style={{ backgroundColor: item.order.status === 'shipped' ? 'var(--color-secondary)' : '' }}
-                      >
-                        Deliver
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+      {/* Order List */}
+      {isPending ? (
+        <div className="flex h-64 items-center justify-center">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {!displayOrders?.orders?.length &&
+          !displayOrders?.return_orders?.length ? (
+            <NoOrders activeTab={activeTab} />
+          ) : (
+            <>
+              {displayOrders?.orders?.map((order) => (
+                <OrderCard
+                  key={order.id}
+                  order={order}
+                  getStatusIcon={getStatusIcon}
+                  getStatusColor={getStatusColor}
+                />
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
 
-      {filteredOrders.length === 0 && (
-        <div className="text-center py-8" style={{ color: 'var(--color-primary)' }}>
-          No orders available
+              {displayOrders?.return_orders?.map((returnOrder) => (
+                <ReturnOrderCard
+                  key={returnOrder.id}
+                  returnOrder={returnOrder}
+                  getStatusIcon={getStatusIcon}
+                  getStatusColor={getStatusColor}
+                />
+              ))}
+            </>
+          )}
         </div>
       )}
-    </div>
+    </main>
   );
 };
 
-export default OrdersPage;
+export default CourierDashboard;
+
+const tabs = ["orders", "return orders", "my orders", "my return orders"];

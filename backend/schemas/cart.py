@@ -4,7 +4,13 @@ from pydantic import BaseModel, ConfigDict
 from .book import AuthorCategorySchema
 
 
-class CrateCartItem(BaseModel):
+class CreateCartItemRequest(BaseModel):
+    book_details_id: int
+    quantity: int
+    borrowing_weeks: int | None = None
+
+
+class CrateCartItemResponse(BaseModel):
     book_details_id: int
     quantity: int
 
@@ -19,8 +25,9 @@ class BookInfoForCart(BaseModel):
 
 
 class BorrowItemResponse(BaseModel):
+    id: int
     book_details_id: int
-    borrow_weeks: int
+    borrowing_weeks: int
     borrow_fees_per_week: Decimal
     deposit_fees: Decimal
     delay_fees_per_day: Decimal
@@ -28,13 +35,14 @@ class BorrowItemResponse(BaseModel):
 
 
 class PurchaseItemResponse(BaseModel):
+    id: int
     book_details_id: int
     quantity: int
     book: BookInfoForCart
     book_price: Decimal
 
 
-class CartItemsResponse(BaseModel):
+class GetCartItemsResponse(BaseModel):
     purchase_items: List[PurchaseItemResponse] = []
     borrow_items: List[BorrowItemResponse] = []
     delevary_fees: Decimal

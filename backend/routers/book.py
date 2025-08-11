@@ -112,7 +112,7 @@ async def create_book_endpoint(
     publish_year: Annotated[int, Form()],
     purchase_available_stock: Annotated[int, Form()],
     borrow_available_stock: Annotated[int, Form()],
-    img_file: Annotated[UploadFile | None, File()] = None,
+    img_file: Annotated[UploadFile, File()],
     db: AsyncSession = Depends(get_db),
 ):
     if await is_book_exists(db, title, author_id):
