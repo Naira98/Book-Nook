@@ -508,9 +508,10 @@ async def update_borrow_order_book_status(
         ):
             # TODO: send notification to user about the problem
 
-            # TODO: what if book is damaged should all its fees be charged?
+            # TODO: what if book is damaged should all its fees be charged?        no deposit returned
             # TODO: What should happen if user has insufficient funds in wallet?
-            # TODO: if promocode applied, should it be considered in the fees?
+            # TODO: if promocode applied, should it be considered in the fees?     no deposit returned
+            # TODO: if it's lost => wallet can be negative
 
             plenty_fees = borrow_order_book.original_book_price - (
                 borrow_order_book.deposit_fees + borrow_order_book.borrow_fees

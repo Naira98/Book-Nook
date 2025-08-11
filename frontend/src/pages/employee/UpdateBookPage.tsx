@@ -1,35 +1,45 @@
-import type { FormApi } from "final-form";
 import { Field, Form } from "react-final-form";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import GoBackButton from "../../components/shared/buttons/GoBackButton";
 import MainButton from "../../components/shared/buttons/MainButton";
 import Dropzone from "../../components/shared/formInputs/Dropzone";
 import SelectInput from "../../components/shared/formInputs/SelectInput";
 import TextInput from "../../components/shared/formInputs/TextInput";
-import { useAddBook } from "../../hooks/books/useAddBook";
 import { useGetAuthors } from "../../hooks/books/useGetAuthors";
+import { useGetBookDetailsForUpdate } from "../../hooks/books/useGetBookDetalsForUpdate";
 import { useGetCategories } from "../../hooks/books/useGetCategories";
-import type { IAddBookData } from "../../types/staff/staffBookTypes";
+import { useUpdateBook } from "../../hooks/books/useUpdateBook";
+import type { IUpdateBookData } from "../../types/staff/staffBookTypes";
 
-const AddBookPage = () => {
-  const { categories } = useGetCategories();
-  const { authors } = useGetAuthors();
-  const { addBook, isPending } = useAddBook();
+const UpdateBookPage = () => {
+  const { book_id } = useParams<{ book_id: string }>();
+  const id = book_id!;
+  const { bookDetailsForUpdate, isPending: isBookDetailsForUpdatePending } =
+    useGetBookDetailsForUpdate(id);
+  const { categories, isPending: isCategoriesPending } = useGetCategories();
+  const { authors, isPending: isAuthorsPending } = useGetAuthors();
 
-  const onSubmit = (values: IAddBookData, form: FormApi<IAddBookData>) => {
-    addBook(values, {
-      onSuccess: () => form.reset(),
-    });
+  const { updateBook, isPending: isUpdatingBookPending } = useUpdateBook();
+
+  if (
+    isBookDetailsForUpdatePending ||
+    isCategoriesPending ||
+    isAuthorsPending
+  ) {
+    return <div>Loading...</div>;
+  }
+
+  const onSubmit = (values: IUpdateBookData) => {
+    updateBook(values);
   };
 
-  const validate = (values: IAddBookData) => {
-    const errors: Partial<Record<keyof IAddBookData, string>> = {};
+  const validate = (values: IUpdateBookData) => {
+    const errors: Partial<Record<keyof IUpdateBookData, string>> = {};
 
     if (!values.title) errors.title = "Title is required";
     if (!values.description) errors.description = "Description is required";
     if (!values.category_id) errors.category_id = "Category is required";
     if (!values.author_id) errors.author_id = "Author is required";
-    if (!values.img_file) errors.img_file = "Cover image is required";
     if (isNaN(values.price) || Number(values.price) <= 0)
       errors.price = "Price must be a positive number";
     if (!values.publish_year) {
@@ -95,11 +105,12 @@ const AddBookPage = () => {
       <GoBackButton />
 
       <h2 className="text-primary mt-12 text-center text-2xl font-bold md:mt-6">
-        Create a New Book
+        Update Book
       </h2>
       <Form
         onSubmit={onSubmit}
         validate={validate}
+        initialValues={bookDetailsForUpdate}
         render={({
           handleSubmit,
           submitting,
@@ -144,6 +155,7 @@ const AddBookPage = () => {
                         key={index}
                         value={input.value}
                         onChange={input.onChange}
+                        existingImage={bookDetailsForUpdate?.cover_img}
                       />
                     )}
                   </Field>
@@ -170,8 +182,8 @@ const AddBookPage = () => {
             <div className="mt-12">
               <MainButton
                 disabled={submitting || pristine || hasValidationErrors}
-                loading={isPending}
-                label="Add Book"
+                loading={isUpdatingBookPending}
+                label="Update Book"
               />
             </div>
           </form>
@@ -181,4 +193,4 @@ const AddBookPage = () => {
   );
 };
 
-export default AddBookPage;
+export default UpdateBookPage;

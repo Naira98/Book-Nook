@@ -12,18 +12,21 @@ import ResetPassword from "./pages/auth/ResetPassword";
 import OrderPage from "./pages/courier/OrdersPage";
 import BooksTablePage from "./pages/employee/BooksTablePage";
 // import GuestOnlyRoute from "./components/authorization/GuestOnlyRoute";
-import BorrowBooks from "./pages/client/BorrowBooks";
-import PurchaseBooks from "./pages/client/PurchaseBooks";
 import Navbar from "./components/Navbar";
+import CourierLayout from "./components/courier/CourierLayout";
 import NotFoundPage from "./pages/NotFoundPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
-import { UserRole } from "./types/User";
+import BorrowBooks from "./pages/client/BorrowBooks";
+import PurchaseBooks from "./pages/client/PurchaseBooks";
+import AddAuthorPage from "./pages/employee/AddAuthorPage";
 import AddBookPage from "./pages/employee/AddBookPage";
-import CourierLayout from "./components/courier/CourierLayout";
+import AddCategoryPage from "./pages/employee/AddCategoryPage";
+import UpdateBookPage from "./pages/employee/UpdateBookPage";
+import { UserRole } from "./types/User";
 
 import OrdersListPage from "./pages/auth/OrdersListPage";
-import OrderDetailsPage from "./pages/courier/OrderDetailsPage";
 import Footer from "./pages/client/Footer";
+import OrderDetailsPage from "./pages/courier/OrderDetailsPage";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -72,8 +75,23 @@ const App = () => {
             element={<RoleBasedRoute allowedRoles={[UserRole.EMPLOYEE]} />}
           >
             <Route element={<EmployeeLayout />}>
-              <Route path="/employee/books" element={<BooksTablePage />} />
-              <Route path="/employee/add-book" element={<AddBookPage />} />
+              <Route path="/staff/books" element={<BooksTablePage />} />
+              <Route
+                path="/staff/books/create-book"
+                element={<AddBookPage />}
+              />
+              <Route
+                path="/staff/books/create-author"
+                element={<AddAuthorPage />}
+              />
+              <Route
+                path="/staff/books/create-category"
+                element={<AddCategoryPage />}
+              />
+              <Route
+                path="/staff/books/update-book/:book_id"
+                element={<UpdateBookPage />}
+              />
             </Route>
           </Route>
 

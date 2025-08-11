@@ -2,16 +2,16 @@ import os
 import sys
 from contextlib import asynccontextmanager
 
+from core.cloudinary import init_cloudinary
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI
 from routers.auth import auth_router
-from routers.cart import cart_router
-from routers.prom_code import promo_code_router
-from routers.order import order_router
-from settings import settings
 from routers.book import book_router
-from core.cloudinary import init_cloudinary
+from routers.cart import cart_router
+from routers.order import order_router
+from routers.promo_code import promo_code_router
 from routers.websocket import websocket_router
+from settings import settings
 
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__))))
 

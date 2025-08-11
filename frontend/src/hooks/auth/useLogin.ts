@@ -20,7 +20,7 @@ export function useLogin() {
       } else if (user.role === "MANAGER") {
         navigate("/manager/dashboard", { replace: true });
       } else if (user.role === "EMPLOYEE") {
-        navigate("/employee/books", { replace: true });
+        navigate("/staff/books", { replace: true });
       } else if (user.role === "COURIER") {
         navigate("/courier/orders", { replace: true });
       }

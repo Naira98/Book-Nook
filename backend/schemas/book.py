@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import Optional
 
-from models.book import BookStatus
+from models.book import Book, BookStatus
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -16,17 +16,11 @@ class BookBase(BaseModel):
     cover_img: str | None = None
 
 
-class AuthorSchema(BaseModel):
-    id: int
+class CreateAuthorCategoryRequest(BaseModel):
     name: str
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class CategorySchema(BaseModel):
-    id: int
-    name: str
-
+class AuthorCategorySchema(CreateAuthorCategoryRequest, IdSchema):
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -38,8 +32,8 @@ class BookDetailsSchema(BaseModel):
 
 
 class BookResponse(BookBase, IdSchema):
-    author: AuthorSchema
-    category: CategorySchema
+    author: AuthorCategorySchema
+    category: AuthorCategorySchema
     book_details: list[BookDetailsSchema]
 
     model_config = ConfigDict(from_attributes=True)
@@ -48,29 +42,28 @@ class BookResponse(BookBase, IdSchema):
 class CreateBookRequest(BookBase):
     category_id: int
     author_id: int
+    publish_year: int
 
 
-class CreateBookResponse(CreateBookRequest, IdSchema):
-    model_config = ConfigDict(from_attributes=True)
-
-
-class EditBookRequest(BaseModel):
-    price: Decimal
+class UpdateBookData(BaseModel):
+    title: str
+    price: str
     description: str
+    publish_year: int
+    cover_img: Optional[str] = None
     category_id: int
-
-
-class UpdateStockRequest(BaseModel):
-    book_id: int
-    stock_type: BookStatus
-    new_stock: int
+    author_id: int
+    purchase_available_stock: int
+    borrow_available_stock: int
 
 
 """ Employee-only schema for book management """
+
+
 class BookTableSchema(BaseModel):
     id: int
     title: str
-    price: Decimal
+    price: str
     author_name: str = Field(..., alias="author_name")  # Alias to match the joined data
     category_name: str = Field(..., alias="category_name")
     available_stock_purchase: Optional[int] = None
@@ -78,7 +71,44 @@ class BookTableSchema(BaseModel):
 
     class Config:
         from_attributes = True
-        json_encoders = {
-            Decimal: lambda v: str(v)  # Ensure Decimal is serialized as string
-        }
+        json_encoders = {Decimal: lambda v: str(v)}
 
+
+class BookDetailsForUpdateResponse(BaseModel):
+    id: int
+    title: str
+    price: Decimal
+    description: Optional[str]
+    cover_img: Optional[str]
+    publish_year: int
+    category_id: int
+    author_id: int
+    purchase_available_stock: int = 0
+    borrow_available_stock: int = 0
+
+    @classmethod
+    def from_orm(cls, obj: "Book"):
+        purchase_stock = 0
+        borrow_stock = 0
+        for details in obj.book_details:
+            if details.status == BookStatus.PURCHASE:
+                purchase_stock = details.available_stock
+            elif details.status == BookStatus.BORROW:
+                borrow_stock = details.available_stock
+
+        return cls(
+            id=obj.id,
+            title=obj.title,
+            price=obj.price,
+            description=obj.description,
+            cover_img=obj.cover_img,
+            publish_year=obj.publish_year,
+            category_id=obj.category_id,
+            author_id=obj.author_id,
+            purchase_available_stock=purchase_stock,
+            borrow_available_stock=borrow_stock,
+        )
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
