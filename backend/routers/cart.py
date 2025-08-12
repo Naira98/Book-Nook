@@ -11,7 +11,7 @@ from crud.cart import (
     update_cart_item_crud,
 )
 from db.database import get_db
-from utils.auth import get_user_id, get_user
+from utils.auth import get_user_id_via_session, get_user_via_session
 from schemas.cart import (
     GetCartItemsResponse,
     CrateCartItemResponse,
@@ -40,7 +40,7 @@ cart_router = APIRouter(
     response_model=GetCartItemsResponse,
 )
 async def read_user_cart(
-    user_id: User = Depends(get_user_id),
+    user_id: User = Depends(get_user_id_via_session),
     db: AsyncSession = Depends(get_db),
 ):
     settings = await get_settings(db)
@@ -100,7 +100,7 @@ async def read_user_cart(
 @cart_router.post("/addcart", response_model=CrateCartItemResponse, status_code=201)
 async def add_to_cart(
     cart_data: Annotated[CreateCartItemRequest, Body()],
-    user: User = Depends(get_user),
+    user: User = Depends(get_user_via_session),
     db: AsyncSession = Depends(get_db),
 ):
     book_details = await validate_book_details(db, cart_data)
@@ -118,7 +118,7 @@ async def update_cart_item(
     cart_item_id: Annotated[int, Body()],
     quantity: Annotated[Optional[int], Body()] = None,
     borrowing_weeks: Annotated[Optional[int], Body()] = None,
-    user_id: User = Depends(get_user_id),
+    user_id: User = Depends(get_user_id_via_session),
     db: AsyncSession = Depends(get_db),
 ):
     cart_item_data = await get_cart_item(db, user_id, cart_item_id)
@@ -133,7 +133,7 @@ async def update_cart_item(
 @cart_router.delete("/{cart_item_id}", response_model=BookStatus)
 async def delete_cart_item(
     cart_item_id: Annotated[int, Path()],
-    user_id: User = Depends(get_user_id),
+    user_id: User = Depends(get_user_id_via_session),
     db: AsyncSession = Depends(get_db),
 ):
     deleted_cart_item = await delete_cart_item_crud(db, user_id, cart_item_id)

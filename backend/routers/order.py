@@ -29,7 +29,7 @@ from schemas.order import (
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
-from utils.auth import get_user, get_staff_user
+from utils.auth import get_user_via_session, get_staff_user
 from utils.order import (
     calculate_borrow_order_book_fees,
     calculate_purchase_order_book_fees,
@@ -52,7 +52,8 @@ order_router = APIRouter(
     "/", response_model=List[OrderResponseSchema], status_code=status.HTTP_200_OK
 )
 async def get_orders(
-    user: Annotated[User, Depends(get_user)], db: AsyncSession = Depends(get_db)
+    user: Annotated[User, Depends(get_user_via_session)],
+    db: AsyncSession = Depends(get_db),
 ):
     try:
         query = (
@@ -156,7 +157,7 @@ async def get_all_orders(
 )
 async def create_order(
     cart: CreateOrderRequest,
-    user: Annotated[User, Depends(get_user)],
+    user: Annotated[User, Depends(get_user_via_session)],
     db: AsyncSession = Depends(get_db),
 ):
     try:

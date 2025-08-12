@@ -28,7 +28,7 @@ from settings import settings
 from sqlalchemy import delete, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-from utils.auth import get_user_by_email, get_user
+from utils.auth import get_user_by_email, get_user_via_session
 
 auth_router = APIRouter(
     prefix="/auth",
@@ -38,7 +38,7 @@ auth_router = APIRouter(
 
 @auth_router.get("/me", response_model=LoginResponse)
 async def get_current_user(
-    user: str = Depends(get_user),
+    user: str = Depends(get_user_via_session),
 ):
     return user
 
