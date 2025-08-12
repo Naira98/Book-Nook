@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Annotated, List, Optional
 
@@ -163,7 +163,11 @@ async def create_order(
         settings = await get_settings(db)
 
         # Check borrowing limit
-        validate_borrowing_limit(cart, user, settings.max_num_of_borrow_books)
+        borrowing_book_count = len(cart.borrow_books)
+
+        validate_borrowing_limit(
+            user, settings.max_num_of_borrow_books, borrowing_book_count
+        )
 
         promo_code_discount_perc = await get_promo_code_discount_perc(cart, db)
 
@@ -305,6 +309,7 @@ async def create_order(
             description=f"Payment for Order ID: {order.id}",
             order_id=order.id,
         )
+        user.current_borrowed_books += borrowing_book_count
 
         # Add all new order books to the session
         db.add_all(borrow_order_books)
@@ -393,7 +398,7 @@ async def get_order_details(
 
 # TODO: ensure employee or courier who update order status
 @order_router.patch(
-    "/order_status",
+    "/order-status",
     response_model=UpdateOrderStatusRequest,
     status_code=status.HTTP_200_OK,
 )
@@ -440,6 +445,12 @@ async def update_order_status(
                 )
 
             order.pick_up_date = datetime.now()
+
+            for book in order.borrow_order_books_details:
+                book.return_date = datetime.now() + timedelta(
+                    weeks=book.borrowing_weeks
+                )
+
         elif order_Data.status == OrderStatus.PROBLEM:
             # TODO: send notification to user about the problem
             pass

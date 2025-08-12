@@ -5,7 +5,9 @@ from fastapi import HTTPException, status
 from models.settings import PromoCode
 from sqlalchemy import select
 from models.book import BookStatus
-from models.order import PickUpType
+from models.order import PickUpType, ReturnOrder
+from models.user import User
+from schemas.order import UpdateReturnOrderStatusRequest, ReturnOrderStatus
 
 
 async def get_promo_code_discount_perc(cart, db):
@@ -28,13 +30,13 @@ async def get_promo_code_discount_perc(cart, db):
     return promo_code_discount_perc
 
 
-def validate_borrowing_limit(cart, user, max_num_of_borrow_books):
-    borrowing_book_count = len(cart.borrow_books)
+def validate_borrowing_limit(user, max_num_of_borrow_books, borrowing_book_count):
     if borrowing_book_count + user.current_borrowed_books > max_num_of_borrow_books:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Cannot borrow more than {max_num_of_borrow_books} books at once.",
         )
+    return borrowing_book_count
 
 
 def calculate_borrow_order_book_fees(
@@ -143,3 +145,123 @@ def validate_borrow_book_and_borrowing_weeks_and_available_stock(item, book_deta
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Book with id {book_details.id} is out of stock.",
         )
+
+
+def validate_borrowed_books(return_order_data, db_borrowed_books_ids):
+    for book_id in return_order_data.borrowed_books_ids:
+        if book_id not in db_borrowed_books_ids:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Book with ID {book_id} is not currently borrowed by you.",
+            )
+
+
+def Validate_return_order_for_courier(
+    return_order_data: UpdateReturnOrderStatusRequest,
+    db_return_order: ReturnOrder,
+    user: User,
+):
+    allowed_statuses = [
+        ReturnOrderStatus.ON_THE_WAY,
+        ReturnOrderStatus.PICKED_UP,
+        ReturnOrderStatus.PROBLEM,
+    ]
+
+    if return_order_data.pick_up_type != PickUpType.COURIER:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Return order pick up type is not courier.",
+        )
+
+    if return_order_data.status not in allowed_statuses:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid return order status. Allowed statuses are: {allowed_statuses}",
+        )
+
+    if (
+        return_order_data.status == ReturnOrderStatus.ON_THE_WAY
+        and db_return_order.status != ReturnOrderStatus.CREATED
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Return order status must be CREATED to be set to ON_THE_WAY.",
+        )
+
+    if return_order_data.status == ReturnOrderStatus.PICKED_UP:
+        if db_return_order.courier_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not authorized to update this return order's status.",
+            )
+        if db_return_order.status != ReturnOrderStatus.ON_THE_WAY:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Return order status must be ON_THE_WAY to be set to PICKED_UP.",
+            )
+    if (
+        return_order_data.status == ReturnOrderStatus.PROBLEM
+        and db_return_order.status != ReturnOrderStatus.ON_THE_WAY
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Return order status must be ON_THE_WAY to be set to PROBLEM.",
+        )
+
+
+def Validate_return_order_for_employee(
+    return_order_data: UpdateReturnOrderStatusRequest,
+    db_return_order: ReturnOrder,
+    user: User,
+):
+    allowed_statuses = [
+        ReturnOrderStatus.CHECKING,
+        ReturnOrderStatus.DONE,
+        ReturnOrderStatus.PROBLEM,
+    ]
+
+    if return_order_data.status not in allowed_statuses:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid return order status. Allowed statuses are: {allowed_statuses}",
+        )
+
+    if return_order_data.status == ReturnOrderStatus.CHECKING:
+        if (
+            db_return_order.status != ReturnOrderStatus.PICKED_UP
+            and db_return_order.pick_up_type == PickUpType.COURIER
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Return order status must be PICKED_UP to be set to CHECKING.",
+            )
+
+        if (
+            db_return_order.status != ReturnOrderStatus.CREATED
+            and db_return_order.pick_up_type == PickUpType.SITE
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Return order status must be CREATED to be set to CHECKING.",
+            )
+
+    elif return_order_data.status == ReturnOrderStatus.DONE:
+        if db_return_order.status != ReturnOrderStatus.CHECKING:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Return order status must be CHECKING to be set to DONE.",
+            )
+
+        if return_order_data.borrow_order_books_details is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="borrow_order_books_details must be provided when status is DONE.",
+            )
+
+        if len(return_order_data.borrow_order_books_details) != len(
+            db_return_order.borrow_order_books_details
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Some borrowed books are missing from the request.",
+            )

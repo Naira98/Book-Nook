@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.book import BookDetails
+from sqlalchemy import select, func
+from models.book import BookDetails, BookStatus
 from schemas.cart import CreateCartItemRequest
 from models.cart import Cart
 from models.user import User
@@ -33,7 +34,19 @@ async def validate_book_details(
 async def validate_borrowing_limit(
     db: AsyncSession, user: User, max_num_of_borrow_books
 ):
-    if user.current_borrowed_books >= max_num_of_borrow_books:
+    cart_borrowed_books_number = await db.execute(
+        select(func.sum(Cart.quantity)).where(
+            Cart.user_id == user.id, Cart.book_details.has(status=BookStatus.BORROW)
+        )
+    )
+    cart_borrowed_books_number = cart_borrowed_books_number.scalar()
+    if cart_borrowed_books_number is None:
+        cart_borrowed_books_number = 0
+
+    if (
+        user.current_borrowed_books + cart_borrowed_books_number
+        >= max_num_of_borrow_books
+    ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Cannot borrow more than {max_num_of_borrow_books} books at once.",

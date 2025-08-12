@@ -1,9 +1,14 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from models.book import BookStatus
-from models.order import BorrowBookProblem, OrderStatus, PickUpType, ReturnOrderStatus
-from pydantic import BaseModel, ConfigDict
+from models.order import (
+    BorrowBookProblem,
+    OrderStatus,
+    PickUpType,
+    ReturnOrderStatus,
+)
+from pydantic import BaseModel, ConfigDict, model_validator
 
 
 class BookSchema(BaseModel):
@@ -22,17 +27,31 @@ class BookDetailsSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
 
-class ReturnOrderSchema(BaseModel):
-    id: int
-    pick_up_type: str
+class ReturnOrderRequest(BaseModel):
+    pick_up_type: PickUpType
     status: ReturnOrderStatus
     address: str
     phone_number: str
-    created_at: datetime
-    delivery_fees: Optional[float]
-    courier_id: Optional[int]
+    borrowed_books_ids: List[int]
 
-    model_config = ConfigDict(from_attributes=True, use_enum_values=True)
+
+class BorrowedBooksResponse(BaseModel):
+    id: int
+    borrowing_weeks: int
+    return_date: Optional[datetime]
+    book: BookSchema
+
+    @model_validator(mode="before")
+    @classmethod
+    def prepare_data(cls, data: Any):
+        return {
+            "id": data.id,
+            "borrowing_weeks": data.borrowing_weeks,
+            "return_date": data.return_date,
+            "book": data.book_details.book,
+        }
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class BorrowOrderBookSchema(BaseModel):
@@ -44,7 +63,7 @@ class BorrowOrderBookSchema(BaseModel):
     return_date: Optional[datetime]
     deposit_fees: float
     delay_fees_per_day: float
-    return_order: Optional[ReturnOrderSchema]
+    return_order_id: Optional[int]
     book_details: BookDetailsSchema
     original_book_price: float
 
@@ -146,17 +165,22 @@ class AllOrdersResponse(AllOrdersResponseBase):
     status: OrderStatus
 
 
-class AllReturnOrdersResponse(AllOrdersResponseBase):
+class ReturnOrderResponse(AllOrdersResponseBase):
     status: ReturnOrderStatus
 
 
 class GetAllOrdersResponse(BaseModel):
     orders: list[AllOrdersResponse]
-    return_orders: list[AllReturnOrdersResponse]
+    return_orders: list[ReturnOrderResponse]
 
 
 class UpdateOrderStatusRequest(AllOrdersResponse):
     pass
+
+
+class UpdateReturnOrderStatusRequest(ReturnOrderResponse):
+    borrow_order_books_details: Optional[list[BorrowOrderBookSchema]]
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UpdateOrderStatusResponse(AllOrdersResponse):
