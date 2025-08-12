@@ -27,6 +27,7 @@ import { UserRole } from "./types/User";
 import OrdersListPage from "./pages/auth/OrdersListPage";
 import Footer from "./pages/client/Footer";
 import OrderDetailsPage from "./pages/courier/OrderDetailsPage";
+import ReturnOrderDetailsPage from "./pages/courier/RetrunOrderDetailsPage";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -100,6 +101,11 @@ const App = () => {
             <Route element={<CourierLayout />}>
               <Route path="/courier/orders" element={<OrderPage />} />
               <Route path="/order/:id" element={<OrderDetailsPage />} />
+              <Route
+                path="/return-order/:id"
+                element={<ReturnOrderDetailsPage />}
+              />
+              "
               <Route path="/orders" element={<OrdersListPage />} />
             </Route>
           </Route>

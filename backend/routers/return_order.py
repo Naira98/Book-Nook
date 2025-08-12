@@ -197,10 +197,7 @@ async def update_order_status(
     except Exception as e:
         # For any other unexpected error, rollback and raise a generic 500 error
         await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An unexpected error occurred while updating the return order status: {str(e)}",
-        )
+        raise e
 
 
 @return_order_router.get(

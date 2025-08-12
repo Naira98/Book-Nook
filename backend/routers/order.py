@@ -96,10 +96,12 @@ async def get_all_orders(
     courier_id: Optional[int | None] = None,
 ):
     try:
-        conditions = [Order.pick_up_type == order_status]
+        order_conditions = [Order.pick_up_type == order_status]
+        return_order_conditions = [ReturnOrder.pick_up_type == order_status]
 
         if courier_id is not None:
-            conditions.append(Order.courier_id == courier_id)
+            order_conditions.append(Order.courier_id == courier_id)
+            return_order_conditions.append(ReturnOrder.courier_id == courier_id)
 
         get_orders_query = (
             select(Order)
@@ -116,12 +118,12 @@ async def get_all_orders(
             .options(selectinload(ReturnOrder.borrow_order_books_details))
         )
 
-        get_orders_query = get_orders_query.where(*conditions).order_by(
+        get_orders_query = get_orders_query.where(*order_conditions).order_by(
             Order.created_at.desc()
         )
-        get_return_orders_query = get_return_orders_query.where(*conditions).order_by(
-            ReturnOrder.created_at.desc()
-        )
+        get_return_orders_query = get_return_orders_query.where(
+            *return_order_conditions
+        ).order_by(ReturnOrder.created_at.desc())
 
         # .order_by(Order.created_at.desc())
         orders_result = await db.execute(get_orders_query)

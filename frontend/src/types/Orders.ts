@@ -76,10 +76,17 @@ export interface ReturnOrder {
   number_of_books: number;
   status: ReturnOrderStatus;
   courier_id: number | null;
+  borrow_order_books_details: BorrowOrderBookDetail[];
 }
 
 export type changeOrderStatusRequest = {
   order_id: number;
   status: OrderStatus;
+  courier_id: number | null;
+};
+
+export type changeRetrunOrderStatusRequest = {
+  return_order_id: number;
+  status: ReturnOrderStatus;
   courier_id: number | null;
 };

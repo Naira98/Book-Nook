@@ -179,7 +179,7 @@ class UpdateOrderStatusRequest(AllOrdersResponse):
 
 
 class UpdateReturnOrderStatusRequest(ReturnOrderResponse):
-    borrow_order_books_details: Optional[list[BorrowOrderBookSchema]]
+    borrow_order_books_details: Optional[list[BorrowOrderBookSchema] | None] = None
     model_config = ConfigDict(from_attributes=True)
 
 

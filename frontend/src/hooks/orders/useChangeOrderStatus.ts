@@ -11,7 +11,7 @@ export function useChangeOrderStatus() {
   const queryClient = useQueryClient();
   const { mutate: changeOrderStatus, isPending } = useMutation({
     mutationFn: async (values: changeOrderStatusRequest) => {
-      return await apiReq("PATCH", "/order/order_status", values);
+      return await apiReq("PATCH", "/order/order-status", values);
     },
     onSuccess: (resp: Order) => {
       toast("Order status changed successfully", { type: "success" });
@@ -22,11 +22,24 @@ export function useChangeOrderStatus() {
           if (!oldData) return oldData;
           const newData = { ...oldData };
           newData.orders = newData.orders.map((order) =>
-            order.id === resp.id ? { ...order, status: resp.status } : order,
+            order.id === resp.id
+              ? { ...order, status: resp.status, courier_id: resp.courier_id }
+              : order,
           );
           return newData;
         },
       );
+
+      if (resp.status != "ON_THE_WAY") {
+        queryClient.setQueryData(
+          ["order", `${resp.id}`],
+          (oldData: AllOrdersResponse) => {
+            if (!oldData) return oldData;
+            const newData = { ...oldData, status: resp.status };
+            return newData;
+          },
+        );
+      }
     },
     onError: (err) => {
       console.log(err);

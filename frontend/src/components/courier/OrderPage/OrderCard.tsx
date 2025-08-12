@@ -99,13 +99,6 @@ export default function OrderCard({
                   order_id: order.id,
                   status: OrderStatus.ON_THE_WAY,
                 });
-                console.log(
-                  JSON.stringify({
-                    ...order,
-                    order_id: order.id,
-                    status: OrderStatus.ON_THE_WAY,
-                  }),
-                );
               }}
               loading={isPending}
               className="h-[30px] !w-20"
