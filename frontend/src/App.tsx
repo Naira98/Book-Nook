@@ -9,6 +9,7 @@ import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
 // import BorrowBooks from "./pages/client/BorrowBooks";
 // import PurchaseBooks from "./pages/client/PurchaseBooks";
+import BookDetails from "./pages/client/BookDetails";
 import Navbar from "./components/Navbar";
 import OrderPage from "./pages/auth/OrdersPage";
 
@@ -40,6 +41,7 @@ const App = () => {
           {/* <Route path="/borrow-books" element={<><Navbar/><BorrowBooks /></>} /> */}
           {/* <Route path="/purchase-books" element={<><Navbar/><PurchaseBooks /></>} /> */}
           <Route path="/order" element={<OrderPage />} />
+          <Route path="/book/:id" element={<><Navbar/><BookDetails /></>} />
         </Routes>
 
         <ToastContainer

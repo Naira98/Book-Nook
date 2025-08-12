@@ -11,6 +11,7 @@ export interface Category {
 }
 
 export interface BookDetails {
+  book_details_id: number
   status: BookStatus;
   available_stock: number;
 }
@@ -20,8 +21,9 @@ export interface Book {
   title: string;
   price: number;
   description: string;
-  cover_img: string | null;
+  cover_img: string ;
   author: Author;
   category: Category;
   book_details: BookDetails[];
+  publish_year: string; 
 }
