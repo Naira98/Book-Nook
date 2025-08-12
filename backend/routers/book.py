@@ -120,12 +120,12 @@ async def update_book_stock(
 
 
 
-@book_router.get("/{book_id}", response_model=BookResponse)
-async def read_book_details(book_id: int, db: AsyncSession = Depends(get_db)):
-    book = await get_book_details(book_id=book_id, db=db)
+@book_router.get("/{book_details_id}", response_model=BookResponse)
+async def read_book_details(book_details_id: int, db: AsyncSession = Depends(get_db)):
+    book = await get_book_details(book_details_id=book_details_id, db=db)
     if book is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Book with id {book_id} not found",
+            detail=f"Book with id {book_details_id} not found",
         )
     return book

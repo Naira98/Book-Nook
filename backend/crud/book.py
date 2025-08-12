@@ -183,10 +183,10 @@ async def update_book_stock_crud(new_stock_data: UpdateStockRequest, db: AsyncSe
 
     await db.commit()
 
-async def get_book_details(book_id: int, db: AsyncSession):
+async def get_book_details(book_details_id: int, db: AsyncSession):
     stmt =(
         select(Book)
-        .where(Book.id == book_id)
+        .where(Book.book_details.any(BookDetails.id == book_details_id))
         .options(
             selectinload(Book.author),
             selectinload(Book.category),

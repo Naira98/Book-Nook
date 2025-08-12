@@ -12,6 +12,7 @@ class BookBase(BaseModel):
     price: Decimal
     description: str
     cover_img: str | None = None
+    publish_year: int
 
 
 class AuthorSchema(BaseModel):
@@ -59,6 +60,6 @@ class EditBookRequest(BaseModel):
 
 
 class UpdateStockRequest(BaseModel):
-    book_id: int
+    book_details_id: int
     stock_type: BookStatus
     new_stock: int
