@@ -130,14 +130,6 @@ async def get_all_orders(
         orders = orders_result.scalars().unique().all()
         return_orders = return_orders_result.scalars().unique().all()
 
-        for order in orders:
-            order.number_of_books = len(order.borrow_order_books_details) + len(
-                order.purchase_order_books_details
-            )
-
-        for return_order in return_orders:
-            return_order.number_of_books = len(return_order.borrow_order_books_details)
-
         return {
             "orders": orders,
             "return_orders": return_orders,
@@ -380,10 +372,6 @@ async def get_order_details(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Order with id {order_id} not found.",
             )
-
-        order.number_of_books = len(order.borrow_order_books_details) + len(
-            order.purchase_order_books_details
-        )
         return order
 
     except Exception as e:
@@ -447,9 +435,6 @@ async def update_order_status(
         order.status = order_Data.status
         await db.commit()
         await db.refresh(order)
-        order.number_of_books = len(order.borrow_order_books_details) + len(
-            order.purchase_order_books_details
-        )
 
         if order_Data.status == OrderStatus.ON_THE_WAY:
             await webSocket_connection_manager.broadcast_to_role(

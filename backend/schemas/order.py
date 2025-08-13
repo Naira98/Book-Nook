@@ -2,8 +2,15 @@ from datetime import datetime
 from typing import List, Optional
 
 from models.book import BookStatus
-from models.order import BorrowBookProblem, OrderStatus, PickUpType, ReturnOrderStatus
-from pydantic import BaseModel, ConfigDict
+from models.order import (
+    BorrowBookProblem,
+    OrderStatus,
+    PickUpType,
+    ReturnOrderStatus,
+    Order,
+    ReturnOrder,
+)
+from pydantic import BaseModel, ConfigDict, model_validator
 
 
 class BookSchema(BaseModel):
@@ -92,6 +99,27 @@ class OrderDetailsResponseSchema(OrderResponseSchema):
     user: OrderDetailsResponseUser
     number_of_books: int
 
+    @model_validator(mode="before")
+    @classmethod
+    def prepare_data(cls, data: Order):
+        return {
+            "id": data.id,
+            "created_at": data.created_at,
+            "address": data.address,
+            "pick_up_date": data.pick_up_date,
+            "pick_up_type": data.pick_up_type,
+            "delivery_fees": data.delivery_fees,
+            "promo_code_id": data.promo_code_id,
+            "phone_number": data.phone_number,
+            "status": data.status,
+            "user_id": data.user_id,
+            "borrow_order_books_details": data.borrow_order_books_details,
+            "purchase_order_books_details": data.purchase_order_books_details,
+            "user": data.user,
+            "number_of_books": len(data.borrow_order_books_details)
+            + len(data.purchase_order_books_details),
+        }
+
 
 class BorrowBookItem(BaseModel):
     book_details_id: int
@@ -145,9 +173,41 @@ class AllOrdersResponse(AllOrdersResponseBase):
     pick_up_date: Optional[datetime]
     status: OrderStatus
 
+    @model_validator(mode="before")
+    @classmethod
+    def prepare_data(cls, data: Order):
+        return {
+            "id": data.id,
+            "created_at": data.created_at,
+            "address": data.address,
+            "pick_up_type": data.pick_up_type,
+            "phone_number": data.phone_number,
+            "user": data.user,
+            "number_of_books": len(data.borrow_order_books_details)
+            + len(data.purchase_order_books_details),
+            "courier_id": data.courier_id,
+            "pick_up_date": data.pick_up_date,
+            "status": data.status,
+        }
+
 
 class AllReturnOrdersResponse(AllOrdersResponseBase):
     status: ReturnOrderStatus
+
+    @model_validator(mode="before")
+    @classmethod
+    def prepare_data(cls, data: ReturnOrder):
+        return {
+            "id": data.id,
+            "created_at": data.created_at,
+            "address": data.address,
+            "pick_up_type": data.pick_up_type,
+            "phone_number": data.phone_number,
+            "user": data.user,
+            "number_of_books": len(data.borrow_order_books_details),
+            "courier_id": data.courier_id,
+            "status": data.status,
+        }
 
 
 class GetAllOrdersResponse(BaseModel):
