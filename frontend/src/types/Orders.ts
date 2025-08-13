@@ -35,6 +35,11 @@ export interface User {
   email: string;
 }
 
+export enum PickUpType {
+  COURIER = "COURIER",
+  SITE = "SITE",
+}
+
 export enum OrderStatus {
   CREATED = "CREATED",
   ON_THE_WAY = "ON_THE_WAY",

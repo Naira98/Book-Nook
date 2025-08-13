@@ -91,13 +91,13 @@ async def get_orders(
 )
 async def get_all_orders(
     user: Annotated[User, Depends(get_staff_user)],
-    order_status: PickUpType,
+    pickup_type: PickUpType,
     db: AsyncSession = Depends(get_db),
     courier_id: Optional[int | None] = None,
 ):
     try:
-        order_conditions = [Order.pick_up_type == order_status]
-        return_order_conditions = [ReturnOrder.pick_up_type == order_status]
+        order_conditions = [Order.pick_up_type == pickup_type]
+        return_order_conditions = [ReturnOrder.pick_up_type == pickup_type]
 
         if courier_id is not None:
             order_conditions.append(Order.courier_id == courier_id)

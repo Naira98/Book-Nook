@@ -9,13 +9,11 @@ import {
 import OrderCard from "../../components/shared/orderCards/OrderCard";
 import ReturnOrderCard from "../../components/shared/orderCards/ReturnOrderCard";
 import NoOrders from "../../components/courier/OrderPage/NoOrders";
-import { useGetMe } from "../../hooks/auth/useGetMe";
 
-const CourierDashboard = () => {
-  const { allOrders, isPending } = useGetAllOrders(PickUpType.COURIER);
-  const [activeTab, setActiveTab] = useState("Pending Orders");
+const StaffOrdersPage = () => {
+  const { allOrders, isPending } = useGetAllOrders(PickUpType.SITE);
+  const [activeTab, setActiveTab] = useState("Pending orders");
   const [newOrderAlert] = useState<string[]>([]);
-  const { me } = useGetMe();
   const orders: AllOrdersResponse | null = useMemo(
     () => allOrders || null,
     [allOrders],
@@ -25,8 +23,6 @@ const CourierDashboard = () => {
     switch (status) {
       case "CREATED":
         return "bg-amber-50 text-amber-700";
-      case "ON_THE_WAY":
-        return "bg-blue-50 text-secondary";
       case "PICKED_UP":
         return "bg-green-50 text-green-700";
       case "PROBLEM":
@@ -40,8 +36,6 @@ const CourierDashboard = () => {
     switch (status) {
       case "CREATED":
         return "🕒";
-      case "ON_THE_WAY":
-        return "🚚";
       case "PICKED_UP":
         return "✅";
       case "PROBLEM":
@@ -58,19 +52,19 @@ const CourierDashboard = () => {
       return {
         orders: [],
         return_orders: orders.return_orders?.filter(
-          (o) => o.courier_id === me?.id,
+          (o) => o.status !== "CREATED",
         ),
       };
     }
 
     if (activeTab === "my orders") {
       return {
-        orders: orders.orders?.filter((o) => o.courier_id === me?.id),
+        orders: orders.orders?.filter((o) => o.status !== "CREATED"),
         return_orders: [],
       };
     }
 
-    return activeTab === "Pending Orders"
+    return activeTab === "Pending orders"
       ? {
           orders: orders.orders?.filter((o) => o.status === "CREATED"),
           return_orders: [],
@@ -81,10 +75,10 @@ const CourierDashboard = () => {
             (o) => o.status === "CREATED",
           ),
         };
-  }, [activeTab, orders, me?.id]);
+  }, [activeTab, orders]);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6">
+    <main className="mx-auto max-w-6xl py-6 md:px-4">
       {/* Tabs */}
       <div className="mb-6 flex space-x-1 rounded-lg bg-gray-100 p-1">
         {tabs.map((tab) => (
@@ -122,7 +116,7 @@ const CourierDashboard = () => {
                   order={order}
                   getStatusIcon={getStatusIcon}
                   getStatusColor={getStatusColor}
-                  pickUpType={PickUpType.COURIER}
+                  pickUpType={PickUpType.SITE}
                 />
               ))}
 
@@ -132,7 +126,7 @@ const CourierDashboard = () => {
                   returnOrder={returnOrder}
                   getStatusIcon={getStatusIcon}
                   getStatusColor={getStatusColor}
-                  pickUpType={PickUpType.COURIER}
+                  pickUpType={PickUpType.SITE}
                 />
               ))}
             </>
@@ -143,10 +137,10 @@ const CourierDashboard = () => {
   );
 };
 
-export default CourierDashboard;
+export default StaffOrdersPage;
 
 const tabs = [
-  "Pending Orders",
+  "Pending orders",
   "return orders",
   "my orders",
   "my return orders",

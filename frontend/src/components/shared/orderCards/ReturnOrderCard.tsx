@@ -1,52 +1,54 @@
 import { useNavigate } from "react-router-dom";
-import { MapPin, Box, User, BookOpen } from "lucide-react";
 import {
-  OrderStatus,
+  type OrderStatus,
   ReturnOrderStatus,
-  type Order,
-  type changeOrderStatusRequest,
+  type ReturnOrder,
+  type changeRetrunOrderStatusRequest,
+  PickUpType,
 } from "../../../types/Orders";
-import { useChangeOrderStatus } from "../../../hooks/orders/useChangeOrderStatus";
+import { MapPin, CalendarArrowUp, User, BookOpen } from "lucide-react";
 import MainButton from "../../shared/buttons/MainButton";
+import { useChangeReturnOrderStatus } from "../../../hooks/orders/useChangeReturnOrderStatus";
 
-type OrderCard = {
+type ReturnOrderCard = {
   getStatusIcon: (status: OrderStatus | ReturnOrderStatus) => string;
-  order: Order;
+  returnOrder: ReturnOrder;
   getStatusColor: (status: OrderStatus | ReturnOrderStatus) => string;
+  pickUpType: PickUpType;
 };
-
-export default function OrderCard({
-  order,
+export default function ReturnOrderCard({
+  returnOrder,
   getStatusIcon,
   getStatusColor,
-}: OrderCard) {
+  pickUpType,
+}: ReturnOrderCard) {
+  const { changeReturnOrderStatus, isPending } = useChangeReturnOrderStatus();
   const navigate = useNavigate();
-  const { changeOrderStatus, isPending } = useChangeOrderStatus();
 
-  const handleChangeStatus = (values: changeOrderStatusRequest) => {
-    changeOrderStatus(values);
+  const handleChangeStatus = (values: changeRetrunOrderStatusRequest) => {
+    changeReturnOrderStatus(values);
   };
-
   return (
     <div
+      key={returnOrder.id}
       className={`rounded-lg bg-white p-4 shadow-sm transition-all hover:shadow-md`}
     >
       <div className="mb-3 flex items-start justify-between">
         <div>
           <div className="flex items-center space-x-2">
-            <Box size={20} className="stroke-secondary" />
+            <CalendarArrowUp size={20} className="stroke-secondary" />
             <h3 className="font-medium text-gray-800">
               Delivery Order{" "}
-              <span className="text-sm text-gray-500">#{order.id}</span>
+              <span className="text-sm text-gray-500">#{returnOrder.id}</span>
             </h3>
           </div>
         </div>
         <div className="flex items-center space-x-1">
-          <span className="text-sm">{getStatusIcon(order.status)}</span>
+          <span className="text-sm">{getStatusIcon(returnOrder.status)}</span>
           <span
-            className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(order.status)}`}
+            className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(returnOrder.status)}`}
           >
-            {order.status.replace(/_/g, " ")}
+            {returnOrder.status.replace(/_/g, " ")}
           </span>
         </div>
       </div>
@@ -57,18 +59,18 @@ export default function OrderCard({
           <p className="text-xs font-medium text-gray-500">
             To:{" "}
             <span className="text-sm font-semibold text-gray-700">
-              {order.address}
+              {returnOrder.address}
             </span>
           </p>
         </div>
-        {order.user.first_name && (
+        {returnOrder.user.first_name && (
           <div className="flex items-start">
             <User size={18} className="stroke-secondary mr-2" />
             <div>
               <p className="text-xs font-medium text-gray-500">
                 Owner:{" "}
                 <span className="text-sm font-semibold text-gray-700">
-                  {order.user.first_name} {order.user.last_name}
+                  {returnOrder.user.first_name} {returnOrder.user.last_name}
                 </span>
               </p>
             </div>
@@ -80,7 +82,7 @@ export default function OrderCard({
           <p className="text-xs font-medium text-gray-500">
             Num Of Books:{" "}
             <span className="text-sm font-semibold text-gray-700">
-              {order.number_of_books}
+              {returnOrder.number_of_books}
             </span>
           </p>
         </div>
@@ -88,16 +90,19 @@ export default function OrderCard({
 
       <div className="flex items-center justify-between border-t border-gray-100 pt-2">
         <span className="text-xs text-gray-500">
-          {new Date(order.created_at).toLocaleString()}
+          {new Date(returnOrder.created_at).toLocaleString()}
         </span>
         <div className="flex space-x-2">
-          {order.status === "CREATED" ? (
+          {returnOrder.status === "CREATED" ? (
             <MainButton
               onClick={() => {
                 handleChangeStatus({
-                  ...order,
-                  order_id: order.id,
-                  status: OrderStatus.ON_THE_WAY,
+                  ...returnOrder,
+                  return_order_id: returnOrder.id,
+                  status:
+                    pickUpType == PickUpType.COURIER
+                      ? ReturnOrderStatus.ON_THE_WAY
+                      : ReturnOrderStatus.CHECKING,
                 });
               }}
               loading={isPending}
@@ -107,7 +112,11 @@ export default function OrderCard({
           ) : (
             <MainButton
               onClick={() => {
-                navigate(`/order/${order.id}`);
+                navigate(
+                  pickUpType == PickUpType.COURIER
+                    ? `/return-order/${returnOrder.id}`
+                    : `/employee/return-orders/${returnOrder.id}`,
+                );
               }}
               className="h-[30px] !w-20 !bg-gray-200 !text-gray-700 hover:!bg-gray-50"
               label="Details"
