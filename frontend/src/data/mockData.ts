@@ -1,13 +1,14 @@
 // src/data/mockData.ts
-import type { Book as BookType } from '../types/client/books';
+import type { Book as BookType } from "../types/client/books";
 
 export const borrowBooksDummy: BookType[] = [
   {
     id: 1,
     title: "Clean Code",
-    price: 25,
+    price: "25",
     description: "A must-read guide for writing better software.",
-    cover_img: "https://miro.medium.com/v2/resize:fit:1126/1*_DQFYtGrTNHbi8QoUnFdqw.jpeg",
+    cover_img:
+      "https://miro.medium.com/v2/resize:fit:1126/1*_DQFYtGrTNHbi8QoUnFdqw.jpeg",
     author: { id: 1, name: "Robert C. Martin" },
     category: { id: 1, name: "Programming" },
     book_details: [{ status: "BORROW", available_stock: 5 }],
@@ -15,9 +16,10 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 2,
     title: "العادات السبع للناس الأكثر فعالية",
-    price: 30,
+    price: "30",
     description: "Your journey to mastery in software development.",
-    cover_img: "https://chamona.com/wp-content/uploads/2022/09/%D8%A7%D9%84%D8%B9%D8%A7%D8%AF%D8%A7%D8%AA-%D8%A7%D9%84%D8%B3%D8%A8%D8%B9.jpg",
+    cover_img:
+      "https://chamona.com/wp-content/uploads/2022/09/%D8%A7%D9%84%D8%B9%D8%A7%D8%AF%D8%A7%D8%AA-%D8%A7%D9%84%D8%B3%D8%A8%D8%B9.jpg",
     author: { id: 2, name: "Stephen Covey" },
     category: { id: 1, name: "Development" },
     book_details: [{ status: "BORROW", available_stock: 3 }],
@@ -25,9 +27,10 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 3,
     title: "Sapiens: A Brief History of Humankind",
-    price: 22,
+    price: "22",
     description: "A fascinating look at the history of our species.",
-    cover_img: "https://5.imimg.com/data5/SELLER/Default/2021/9/UM/SB/PD/133456484/sapiens-a-brief-history-of-humankind-paperback.jpg",
+    cover_img:
+      "https://5.imimg.com/data5/SELLER/Default/2021/9/UM/SB/PD/133456484/sapiens-a-brief-history-of-humankind-paperback.jpg",
     author: { id: 3, name: "Yuval Noah Harari" },
     category: { id: 2, name: "History" },
     book_details: [{ status: "BORROW", available_stock: 7 }],
@@ -35,7 +38,7 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 4,
     title: "The Lord of the Rings",
-    price: 28,
+    price: "28",
     description: "An epic high fantasy novel by J. R. R. Tolkien.",
     cover_img: "https://pictures.abebooks.com/isbn/9780618129027-us.jpg",
     author: { id: 4, name: "J. R. R. Tolkien" },
@@ -45,7 +48,7 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 5,
     title: "مائة عام من العزلة",
-    price: 18,
+    price: "18",
     description: "رواية كلاسيكية من الأدب العالمي.",
     cover_img: "https://fastorder.store/img/offers/67612b2c1f484.jpg",
     author: { id: 5, name: "Gabriel García Márquez" },
@@ -55,9 +58,10 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 6,
     title: "The Hitchhiker's Guide to the Galaxy",
-    price: 20,
+    price: "20",
     description: "A comedic sci-fi adventure.",
-    cover_img: "https://img.drz.lazcdn.com/g/kf/S4abf152c5520422a9a0d04a78aef7da3L.jpg_720x720q80.jpg",
+    cover_img:
+      "https://img.drz.lazcdn.com/g/kf/S4abf152c5520422a9a0d04a78aef7da3L.jpg_720x720q80.jpg",
     author: { id: 6, name: "Douglas Adams" },
     category: { id: 2, name: "Sci-Fi" },
     book_details: [{ status: "BORROW", available_stock: 6 }],
@@ -65,19 +69,21 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 7,
     title: "الخيميائي",
-    price: 35,
+    price: "35",
     description: "رواية ملهمة عن رحلة البحث عن الذات.",
-    cover_img: "https://podcast.ps/wp-content/uploads/2022/07/artworks-8LRRysmZnBWrCH08-zVrz4g-t3000x3000-eyPGpg-scaled.jpeg",
+    cover_img:
+      "https://podcast.ps/wp-content/uploads/2022/07/artworks-8LRRysmZnBWrCH08-zVrz4g-t3000x3000-eyPGpg-scaled.jpeg",
     author: { id: 9, name: "Paulo Coelho" },
     category: { id: 2, name: "Fiction" },
     book_details: [{ status: "BORROW", available_stock: 8 }],
   },
-    {
+  {
     id: 1,
     title: "Clean Code",
-    price: 25,
+    price: "25",
     description: "A must-read guide for writing better software.",
-    cover_img: "https://miro.medium.com/v2/resize:fit:1126/1*_DQFYtGrTNHbi8QoUnFdqw.jpeg",
+    cover_img:
+      "https://miro.medium.com/v2/resize:fit:1126/1*_DQFYtGrTNHbi8QoUnFdqw.jpeg",
     author: { id: 1, name: "Robert C. Martin" },
     category: { id: 1, name: "Programming" },
     book_details: [{ status: "BORROW", available_stock: 5 }],
@@ -85,9 +91,10 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 2,
     title: "العادات السبع للناس الأكثر فعالية",
-    price: 30,
+    price: "30",
     description: "Your journey to mastery in software development.",
-    cover_img: "https://chamona.com/wp-content/uploads/2022/09/%D8%A7%D9%84%D8%B9%D8%A7%D8%AF%D8%A7%D8%AA-%D8%A7%D9%84%D8%B3%D8%A8%D8%B9.jpg",
+    cover_img:
+      "https://chamona.com/wp-content/uploads/2022/09/%D8%A7%D9%84%D8%B9%D8%A7%D8%AF%D8%A7%D8%AA-%D8%A7%D9%84%D8%B3%D8%A8%D8%B9.jpg",
     author: { id: 2, name: "Stephen Covey" },
     category: { id: 1, name: "Development" },
     book_details: [{ status: "BORROW", available_stock: 3 }],
@@ -95,9 +102,10 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 3,
     title: "Sapiens: A Brief History of Humankind",
-    price: 22,
+    price: "22",
     description: "A fascinating look at the history of our species.",
-    cover_img: "https://5.imimg.com/data5/SELLER/Default/2021/9/UM/SB/PD/133456484/sapiens-a-brief-history-of-humankind-paperback.jpg",
+    cover_img:
+      "https://5.imimg.com/data5/SELLER/Default/2021/9/UM/SB/PD/133456484/sapiens-a-brief-history-of-humankind-paperback.jpg",
     author: { id: 3, name: "Yuval Noah Harari" },
     category: { id: 2, name: "History" },
     book_details: [{ status: "BORROW", available_stock: 7 }],
@@ -105,7 +113,7 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 4,
     title: "The Lord of the Rings",
-    price: 28,
+    price: "28",
     description: "An epic high fantasy novel by J. R. R. Tolkien.",
     cover_img: "https://pictures.abebooks.com/isbn/9780618129027-us.jpg",
     author: { id: 4, name: "J. R. R. Tolkien" },
@@ -115,7 +123,7 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 5,
     title: "مائة عام من العزلة",
-    price: 18,
+    price: "18",
     description: "رواية كلاسيكية من الأدب العالمي.",
     cover_img: "https://fastorder.store/img/offers/67612b2c1f484.jpg",
     author: { id: 5, name: "Gabriel García Márquez" },
@@ -125,9 +133,10 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 6,
     title: "The Hitchhiker's Guide to the Galaxy",
-    price: 20,
+    price: "20",
     description: "A comedic sci-fi adventure.",
-    cover_img: "https://img.drz.lazcdn.com/g/kf/S4abf152c5520422a9a0d04a78aef7da3L.jpg_720x720q80.jpg",
+    cover_img:
+      "https://img.drz.lazcdn.com/g/kf/S4abf152c5520422a9a0d04a78aef7da3L.jpg_720x720q80.jpg",
     author: { id: 6, name: "Douglas Adams" },
     category: { id: 2, name: "Sci-Fi" },
     book_details: [{ status: "BORROW", available_stock: 6 }],
@@ -135,19 +144,21 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 7,
     title: "الخيميائي",
-    price: 35,
+    price: "35",
     description: "رواية ملهمة عن رحلة البحث عن الذات.",
-    cover_img: "https://podcast.ps/wp-content/uploads/2022/07/artworks-8LRRysmZnBWrCH08-zVrz4g-t3000x3000-eyPGpg-scaled.jpeg",
+    cover_img:
+      "https://podcast.ps/wp-content/uploads/2022/07/artworks-8LRRysmZnBWrCH08-zVrz4g-t3000x3000-eyPGpg-scaled.jpeg",
     author: { id: 9, name: "Paulo Coelho" },
     category: { id: 2, name: "Fiction" },
     book_details: [{ status: "BORROW", available_stock: 8 }],
   },
-    {
+  {
     id: 1,
     title: "Clean Code",
-    price: 25,
+    price: "25",
     description: "A must-read guide for writing better software.",
-    cover_img: "https://miro.medium.com/v2/resize:fit:1126/1*_DQFYtGrTNHbi8QoUnFdqw.jpeg",
+    cover_img:
+      "https://miro.medium.com/v2/resize:fit:1126/1*_DQFYtGrTNHbi8QoUnFdqw.jpeg",
     author: { id: 1, name: "Robert C. Martin" },
     category: { id: 1, name: "Programming" },
     book_details: [{ status: "BORROW", available_stock: 5 }],
@@ -155,9 +166,10 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 2,
     title: "العادات السبع للناس الأكثر فعالية",
-    price: 30,
+    price: "30",
     description: "Your journey to mastery in software development.",
-    cover_img: "https://chamona.com/wp-content/uploads/2022/09/%D8%A7%D9%84%D8%B9%D8%A7%D8%AF%D8%A7%D8%AA-%D8%A7%D9%84%D8%B3%D8%A8%D8%B9.jpg",
+    cover_img:
+      "https://chamona.com/wp-content/uploads/2022/09/%D8%A7%D9%84%D8%B9%D8%A7%D8%AF%D8%A7%D8%AA-%D8%A7%D9%84%D8%B3%D8%A8%D8%B9.jpg",
     author: { id: 2, name: "Stephen Covey" },
     category: { id: 1, name: "Development" },
     book_details: [{ status: "BORROW", available_stock: 3 }],
@@ -165,9 +177,10 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 3,
     title: "Sapiens: A Brief History of Humankind",
-    price: 22,
+    price: "22",
     description: "A fascinating look at the history of our species.",
-    cover_img: "https://5.imimg.com/data5/SELLER/Default/2021/9/UM/SB/PD/133456484/sapiens-a-brief-history-of-humankind-paperback.jpg",
+    cover_img:
+      "https://5.imimg.com/data5/SELLER/Default/2021/9/UM/SB/PD/133456484/sapiens-a-brief-history-of-humankind-paperback.jpg",
     author: { id: 3, name: "Yuval Noah Harari" },
     category: { id: 2, name: "History" },
     book_details: [{ status: "BORROW", available_stock: 7 }],
@@ -175,7 +188,7 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 4,
     title: "The Lord of the Rings",
-    price: 28,
+    price: "28",
     description: "An epic high fantasy novel by J. R. R. Tolkien.",
     cover_img: "https://pictures.abebooks.com/isbn/9780618129027-us.jpg",
     author: { id: 4, name: "J. R. R. Tolkien" },
@@ -185,23 +198,23 @@ export const borrowBooksDummy: BookType[] = [
   {
     id: 5,
     title: "مائة عام من العزلة",
-    price: 18,
+    price: "18",
     description: "رواية كلاسيكية من الأدب العالمي.",
     cover_img: "https://fastorder.store/img/offers/67612b2c1f484.jpg",
     author: { id: 5, name: "Gabriel García Márquez" },
     category: { id: 1, name: "Literature" },
     book_details: [{ status: "BORROW", available_stock: 2 }],
   },
-
 ];
 
 export const purchaseBooksDummy: BookType[] = [
   {
     id: 101,
     title: "Code Complete 2",
-    price: 150,
+    price: "150",
     description: "The definitive guide to software construction.",
-    cover_img: "https://media.bunjang.co.kr/product/333387369_1_1754520628_w360.jpg",
+    cover_img:
+      "https://media.bunjang.co.kr/product/333387369_1_1754520628_w360.jpg",
     author: { id: 1, name: "Steve McConnell" },
     category: { id: 1, name: "Programming" },
     book_details: [{ status: "PURCHASE", available_stock: 5 }],
@@ -209,7 +222,7 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 102,
     title: "1984",
-    price: 180,
+    price: "180",
     description: "A classic dystopian novel.",
     cover_img: "https://www.spbooks.com/1764-thickbox_default/1984.jpg",
     author: { id: 2, name: "George Orwell" },
@@ -219,9 +232,11 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 103,
     title: "Dune",
-    price: 200,
-    description: "An epic science fiction story of a young man on a desert planet.",
-    cover_img: "https://storage.googleapis.com/intercity/uploads/work/the-worlds-of-dune/Intercity_The-Worlds-of-Dune_1.2.jpg",
+    price: "200",
+    description:
+      "An epic science fiction story of a young man on a desert planet.",
+    cover_img:
+      "https://storage.googleapis.com/intercity/uploads/work/the-worlds-of-dune/Intercity_The-Worlds-of-Dune_1.2.jpg",
     author: { id: 3, name: "Frank Herbert" },
     category: { id: 2, name: "Sci-Fi" },
     book_details: [{ status: "PURCHASE", available_stock: 7 }],
@@ -229,9 +244,10 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 104,
     title: "رحلة عقل",
-    price: 220,
+    price: "220",
     description: "كتاب في الفلسفة وعلم النفس.",
-    cover_img: "https://cdn.salla.sa/eQKZp/bsn2g0zncckPNku5n7DqhC8BElb9cJMTR6rS6Kvx.jpg",
+    cover_img:
+      "https://cdn.salla.sa/eQKZp/bsn2g0zncckPNku5n7DqhC8BElb9cJMTR6rS6Kvx.jpg",
     author: { id: 7, name: "عمرو شريف" },
     category: { id: 2, name: "Philosophy" },
     book_details: [{ status: "PURCHASE", available_stock: 2 }],
@@ -239,9 +255,10 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 105,
     title: "The Martian",
-    price: 190,
+    price: "190",
     description: "An astronaut is stranded on Mars and must survive.",
-    cover_img: "https://i.etsystatic.com/52985808/r/il/a39371/6395631802/il_570xN.6395631802_ggct.jpg",
+    cover_img:
+      "https://i.etsystatic.com/52985808/r/il/a39371/6395631802/il_570xN.6395631802_ggct.jpg",
     author: { id: 8, name: "Andy Weir" },
     category: { id: 2, name: "Sci-Fi" },
     book_details: [{ status: "PURCHASE", available_stock: 4 }],
@@ -249,8 +266,9 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 106,
     title: "Designing Data-Intensive Applications",
-    price: 160,
-    description: "A comprehensive guide to building reliable, scalable, and maintainable data systems.",
+    price: "160",
+    description:
+      "A comprehensive guide to building reliable, scalable, and maintainable data systems.",
     cover_img: "https://images.booksense.com/images/868/675/9798300675868.jpg",
     author: { id: 10, name: "Martin Kleppmann" },
     category: { id: 1, name: "Programming" },
@@ -259,19 +277,21 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 107,
     title: "فن اللامبالاة",
-    price: 250,
+    price: "250",
     description: "كتاب في التنمية البشرية.",
-    cover_img: "https://alwen.net/wp-content/uploads/2020/09/%D9%81%D9%86_%D8%A7%D9%84%D9%84%D8%A7%D9%85%D8%A8%D8%A7%D9%84%D8%A7%D8%A9.jpg",
+    cover_img:
+      "https://alwen.net/wp-content/uploads/2020/09/%D9%81%D9%86_%D8%A7%D9%84%D9%84%D8%A7%D9%85%D8%A8%D8%A7%D9%84%D8%A7%D8%A9.jpg",
     author: { id: 11, name: "Mark Manson" },
     category: { id: 3, name: "Self-Help" },
     book_details: [{ status: "PURCHASE", available_stock: 9 }],
   },
-    {
+  {
     id: 101,
     title: "Code Complete 2",
-    price: 150,
+    price: "150",
     description: "The definitive guide to software construction.",
-    cover_img: "https://media.bunjang.co.kr/product/333387369_1_1754520628_w360.jpg",
+    cover_img:
+      "https://media.bunjang.co.kr/product/333387369_1_1754520628_w360.jpg",
     author: { id: 1, name: "Steve McConnell" },
     category: { id: 1, name: "Programming" },
     book_details: [{ status: "PURCHASE", available_stock: 5 }],
@@ -279,7 +299,7 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 102,
     title: "1984",
-    price: 180,
+    price: "180",
     description: "A classic dystopian novel.",
     cover_img: "https://www.spbooks.com/1764-thickbox_default/1984.jpg",
     author: { id: 2, name: "George Orwell" },
@@ -289,9 +309,11 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 103,
     title: "Dune",
-    price: 200,
-    description: "An epic science fiction story of a young man on a desert planet.",
-    cover_img: "https://storage.googleapis.com/intercity/uploads/work/the-worlds-of-dune/Intercity_The-Worlds-of-Dune_1.2.jpg",
+    price: "200",
+    description:
+      "An epic science fiction story of a young man on a desert planet.",
+    cover_img:
+      "https://storage.googleapis.com/intercity/uploads/work/the-worlds-of-dune/Intercity_The-Worlds-of-Dune_1.2.jpg",
     author: { id: 3, name: "Frank Herbert" },
     category: { id: 2, name: "Sci-Fi" },
     book_details: [{ status: "PURCHASE", available_stock: 7 }],
@@ -299,9 +321,10 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 104,
     title: "رحلة عقل",
-    price: 220,
+    price: "220",
     description: "كتاب في الفلسفة وعلم النفس.",
-    cover_img: "https://cdn.salla.sa/eQKZp/bsn2g0zncckPNku5n7DqhC8BElb9cJMTR6rS6Kvx.jpg",
+    cover_img:
+      "https://cdn.salla.sa/eQKZp/bsn2g0zncckPNku5n7DqhC8BElb9cJMTR6rS6Kvx.jpg",
     author: { id: 7, name: "عمرو شريف" },
     category: { id: 2, name: "Philosophy" },
     book_details: [{ status: "PURCHASE", available_stock: 2 }],
@@ -309,9 +332,10 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 105,
     title: "The Martian",
-    price: 190,
+    price: "190",
     description: "An astronaut is stranded on Mars and must survive.",
-    cover_img: "https://i.etsystatic.com/52985808/r/il/a39371/6395631802/il_570xN.6395631802_ggct.jpg",
+    cover_img:
+      "https://i.etsystatic.com/52985808/r/il/a39371/6395631802/il_570xN.6395631802_ggct.jpg",
     author: { id: 8, name: "Andy Weir" },
     category: { id: 2, name: "Sci-Fi" },
     book_details: [{ status: "PURCHASE", available_stock: 4 }],
@@ -319,8 +343,9 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 106,
     title: "Designing Data-Intensive Applications",
-    price: 160,
-    description: "A comprehensive guide to building reliable, scalable, and maintainable data systems.",
+    price: "160",
+    description:
+      "A comprehensive guide to building reliable, scalable, and maintainable data systems.",
     cover_img: "https://images.booksense.com/images/868/675/9798300675868.jpg",
     author: { id: 10, name: "Martin Kleppmann" },
     category: { id: 1, name: "Programming" },
@@ -329,19 +354,21 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 107,
     title: "فن اللامبالاة",
-    price: 250,
+    price: "250",
     description: "كتاب في التنمية البشرية.",
-    cover_img: "https://alwen.net/wp-content/uploads/2020/09/%D9%81%D9%86_%D8%A7%D9%84%D9%84%D8%A7%D9%85%D8%A8%D8%A7%D9%84%D8%A7%D8%A9.jpg",
+    cover_img:
+      "https://alwen.net/wp-content/uploads/2020/09/%D9%81%D9%86_%D8%A7%D9%84%D9%84%D8%A7%D9%85%D8%A8%D8%A7%D9%84%D8%A7%D8%A9.jpg",
     author: { id: 11, name: "Mark Manson" },
     category: { id: 3, name: "Self-Help" },
     book_details: [{ status: "PURCHASE", available_stock: 9 }],
   },
-    {
+  {
     id: 101,
     title: "Code Complete 2",
-    price: 150,
+    price: "150",
     description: "The definitive guide to software construction.",
-    cover_img: "https://media.bunjang.co.kr/product/333387369_1_1754520628_w360.jpg",
+    cover_img:
+      "https://media.bunjang.co.kr/product/333387369_1_1754520628_w360.jpg",
     author: { id: 1, name: "Steve McConnell" },
     category: { id: 1, name: "Programming" },
     book_details: [{ status: "PURCHASE", available_stock: 5 }],
@@ -349,7 +376,7 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 102,
     title: "1984",
-    price: 180,
+    price: "180",
     description: "A classic dystopian novel.",
     cover_img: "https://www.spbooks.com/1764-thickbox_default/1984.jpg",
     author: { id: 2, name: "George Orwell" },
@@ -359,9 +386,11 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 103,
     title: "Dune",
-    price: 200,
-    description: "An epic science fiction story of a young man on a desert planet.",
-    cover_img: "https://storage.googleapis.com/intercity/uploads/work/the-worlds-of-dune/Intercity_The-Worlds-of-Dune_1.2.jpg",
+    price: "200",
+    description:
+      "An epic science fiction story of a young man on a desert planet.",
+    cover_img:
+      "https://storage.googleapis.com/intercity/uploads/work/the-worlds-of-dune/Intercity_The-Worlds-of-Dune_1.2.jpg",
     author: { id: 3, name: "Frank Herbert" },
     category: { id: 2, name: "Sci-Fi" },
     book_details: [{ status: "PURCHASE", available_stock: 7 }],
@@ -369,9 +398,10 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 104,
     title: "رحلة عقل",
-    price: 220,
+    price: "220",
     description: "كتاب في الفلسفة وعلم النفس.",
-    cover_img: "https://cdn.salla.sa/eQKZp/bsn2g0zncckPNku5n7DqhC8BElb9cJMTR6rS6Kvx.jpg",
+    cover_img:
+      "https://cdn.salla.sa/eQKZp/bsn2g0zncckPNku5n7DqhC8BElb9cJMTR6rS6Kvx.jpg",
     author: { id: 7, name: "عمرو شريف" },
     category: { id: 2, name: "Philosophy" },
     book_details: [{ status: "PURCHASE", available_stock: 2 }],
@@ -379,9 +409,10 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 105,
     title: "The Martian",
-    price: 190,
+    price: "190",
     description: "An astronaut is stranded on Mars and must survive.",
-    cover_img: "https://i.etsystatic.com/52985808/r/il/a39371/6395631802/il_570xN.6395631802_ggct.jpg",
+    cover_img:
+      "https://i.etsystatic.com/52985808/r/il/a39371/6395631802/il_570xN.6395631802_ggct.jpg",
     author: { id: 8, name: "Andy Weir" },
     category: { id: 2, name: "Sci-Fi" },
     book_details: [{ status: "PURCHASE", available_stock: 4 }],
@@ -389,8 +420,9 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 106,
     title: "Designing Data-Intensive Applications",
-    price: 160,
-    description: "A comprehensive guide to building reliable, scalable, and maintainable data systems.",
+    price: "160",
+    description:
+      "A comprehensive guide to building reliable, scalable, and maintainable data systems.",
     cover_img: "https://images.booksense.com/images/868/675/9798300675868.jpg",
     author: { id: 10, name: "Martin Kleppmann" },
     category: { id: 1, name: "Programming" },
@@ -399,9 +431,10 @@ export const purchaseBooksDummy: BookType[] = [
   {
     id: 107,
     title: "فن اللامبالاة",
-    price: 250,
+    price: "250",
     description: "كتاب في التنمية البشرية.",
-    cover_img: "https://alwen.net/wp-content/uploads/2020/09/%D9%81%D9%86_%D8%A7%D9%84%D9%84%D8%A7%D9%85%D8%A8%D8%A7%D9%84%D8%A7%D8%A9.jpg",
+    cover_img:
+      "https://alwen.net/wp-content/uploads/2020/09/%D9%81%D9%86_%D8%A7%D9%84%D9%84%D8%A7%D9%85%D8%A8%D8%A7%D9%84%D8%A7%D8%A9.jpg",
     author: { id: 11, name: "Mark Manson" },
     category: { id: 3, name: "Self-Help" },
     book_details: [{ status: "PURCHASE", available_stock: 9 }],

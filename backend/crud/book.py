@@ -250,7 +250,7 @@ async def get_books_table_crud(db):
             BookTableSchema(
                 id=book.id,
                 title=book.title,
-                price=f"{book.price:.2f}",
+                price=book.price,
                 author_name=book.author.name,
                 category_name=book.category.name,
                 available_stock_purchase=purchase_stock,

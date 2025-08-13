@@ -30,7 +30,7 @@ const AddBookPage = () => {
     if (!values.category_id) errors.category_id = "Category is required";
     if (!values.author_id) errors.author_id = "Author is required";
     if (!values.img_file) errors.img_file = "Cover image is required";
-    if (isNaN(values.price) || Number(values.price) <= 0)
+    if (isNaN(parseFloat(values.price)) || Number(values.price) <= 0)
       errors.price = "Price must be a positive number";
     if (!values.publish_year) {
       errors.publish_year = "Publish year is required";

@@ -148,7 +148,7 @@ async def create_book_endpoint(
     return BookTableSchema(
         id=book.id,
         title=book.title,
-        price=f"{book.price:.2f}",
+        price=book.price,
         author_name=author.name,
         category_name=category.name,
         available_stock_purchase=purchase_available_stock,

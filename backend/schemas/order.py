@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from typing import List, Optional
 
 from models.book import BookStatus
@@ -29,7 +30,7 @@ class ReturnOrderSchema(BaseModel):
     address: str
     phone_number: str
     created_at: datetime
-    delivery_fees: Optional[float]
+    delivery_fees: Optional[Decimal]
     courier_id: Optional[int]
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
@@ -39,14 +40,14 @@ class BorrowOrderBookSchema(BaseModel):
     id: int
     borrowing_weeks: int
     borrow_book_problem: BorrowBookProblem
-    borrow_fees: float
-    promo_code_discount: Optional[float]
+    borrow_fees: Decimal
+    promo_code_discount: Optional[Decimal]
     return_date: Optional[datetime]
-    deposit_fees: float
-    delay_fees_per_day: float
+    deposit_fees: Decimal
+    delay_fees_per_day: Decimal
     return_order: Optional[ReturnOrderSchema]
     book_details: BookDetailsSchema
-    original_book_price: float
+    original_book_price: Decimal
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
@@ -54,8 +55,8 @@ class BorrowOrderBookSchema(BaseModel):
 class PurchaseOrderBookSchema(BaseModel):
     id: int
     quantity: int
-    paid_price_per_book: float
-    promo_code_discount_per_book: Optional[float]
+    paid_price_per_book: Decimal
+    promo_code_discount_per_book: Optional[Decimal]
     book_details: BookDetailsSchema
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
@@ -67,7 +68,7 @@ class OrderResponseSchema(BaseModel):
     address: str
     pick_up_date: Optional[datetime]
     pick_up_type: PickUpType
-    delivery_fees: Optional[float]
+    delivery_fees: Optional[Decimal]
     promo_code_id: Optional[int]
     phone_number: str
     status: OrderStatus

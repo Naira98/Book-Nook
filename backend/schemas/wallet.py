@@ -14,8 +14,8 @@ class TransactionSchema(BaseModel):
     id: int
     amount: Decimal
     transaction_type: TransactionType
-    description: Optional[str]
-    created_at: Optional[datetime]
+    description: str
+    created_at: datetime
     user_id: int
     order_id: Optional[int]
 
