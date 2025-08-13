@@ -1,16 +1,17 @@
 from decimal import Decimal
-from typing import Annotated
+from typing import Annotated, List
 
 import stripe
 from db.database import get_db
 from fastapi import APIRouter, Depends, HTTPException, Query
 from models.transaction import Transaction, TransactionType
 from models.user import User
-from schemas.wallet import CreateCheckoutRequest
+from schemas.wallet import CreateCheckoutRequest, TransactionSchema
 from settings import settings
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import RedirectResponse
-from utils.auth import get_user_by_id, get_user_via_session
+from utils.auth import get_user_by_id, get_user_id_via_session, get_user_via_session
 
 wallet_router = APIRouter(
     prefix="/wallet",
@@ -120,7 +121,7 @@ async def payment_success(
                 new_transaction = Transaction(
                     amount=amount_egp_pounds,
                     transaction_type=TransactionType.ADDING.value,
-                    description="Wallet top-up via Stripe Checkout Session",
+                    description="Wallet top-up via Stripe",
                     user_id=user.id,
                 )
                 db.add(new_transaction)
@@ -142,3 +143,19 @@ async def payment_success(
         raise HTTPException(status_code=400, detail=f"Stripe Error: {e.user_message}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+
+
+@wallet_router.get("/transactions", response_model=List[TransactionSchema])
+async def get_transactions(
+    user_id: int = Depends(get_user_id_via_session), db: AsyncSession = Depends(get_db)
+):
+    stmt = (
+        select(Transaction)
+        .where(Transaction.user_id == user_id)
+        .order_by(Transaction.created_at.desc())
+    )
+
+    result = await db.execute(stmt)
+    transactions = result.scalars().all()
+
+    return transactions

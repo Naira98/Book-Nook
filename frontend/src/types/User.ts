@@ -17,7 +17,7 @@ export interface IUser {
   first_name: string;
   last_name: string;
   phone_number: string;
-  wallet: number;
+  wallet: string;
   role: UserRole;
   interests: string | null;
 }

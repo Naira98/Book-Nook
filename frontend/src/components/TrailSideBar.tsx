@@ -2,25 +2,25 @@ import clsx from "clsx";
 import { LogOut, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import logo from "../../assets/light-bg-logo.svg";
-import { useGetMe } from "../../hooks/auth/useGetMe";
+import logo from "../assets/logo_without_sharshora.svg";
+import { useGetMe } from "../hooks/auth/useGetMe";
 
 interface SidebarProps {
   navItems: { to: string; label: string; icon: ReactNode }[];
 }
 
-const Sidebar = ({ navItems }: SidebarProps) => {
+const TrailSideBar = ({ navItems }: SidebarProps) => {
   const { me } = useGetMe();
   const location = useLocation();
 
   return (
-    <aside className="flex h-screen w-16 flex-col justify-between bg-sky-950 text-white transition-all duration-300 md:w-48 lg:w-64">
-      <div className="flex justify-center p-2 md:p-4 lg:p-6">
-        <img src={logo} alt="logo" className="mb-4 w-20 md:mb-0 lg:w-32" />
+    <aside className="text-text flex h-screen w-16 flex-col gap-8 border-r-1 border-slate-100 bg-white p-8 transition-all duration-300 md:w-48 lg:w-64">
+      <div className="flex justify-center">
+        <img src={logo} alt="logo" className="mb-4 w-20 lg:w-32" />
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        <nav className="mt-2 flex flex-col space-y-1 px-1 md:px-2 lg:px-4">
+      <div className="flex flex-1 flex-col justify-between">
+        <nav className="flex flex-col space-y-4">
           {navItems.map((item) => {
             const isActive = location.pathname.startsWith(item.to);
             return (
@@ -28,39 +28,37 @@ const Sidebar = ({ navItems }: SidebarProps) => {
                 key={item.to}
                 to={item.to}
                 className={clsx(
-                  "flex items-center justify-center rounded-lg p-1.5 text-base transition-all md:justify-start md:px-2 md:py-1.5 lg:px-3 lg:py-2",
+                  "flex items-center justify-center rounded-lg p-1.5 text-base transition-all md:justify-start md:px-1 md:py-1.5 lg:px-3 lg:py-2",
                   isActive
-                    ? "border-l-2 border-sky-200 text-white md:border-l-3"
-                    : "text-white/80 hover:text-white",
+                    ? "bg-secondary text-primary md:border-l-2 lg:border-l-3"
+                    : "hover:bg-secondary",
                 )}
               >
                 <span
                   className={clsx(
-                    "text-lg md:text-xl",
-                    isActive && "text-sky-200",
+                    "text-xl md:text-base lg:text-xl",
+                    isActive && "text-primary",
                   )}
                 >
                   {item.icon}
                 </span>
-                <span className="ml-2 hidden text-sm md:block lg:text-base">
+                <span className="ml-2 hidden text-xs md:block md:text-xs lg:text-sm">
                   {item.label}
                 </span>
               </NavLink>
             );
           })}
         </nav>
-      </div>
 
-      <div className="p-1 md:p-2 lg:p-4">
-        <div className="border-t border-white/10 text-white/80">
+        <div className="border-secondary border-t">
           <div className="flex flex-col items-start gap-y-1 md:gap-y-2">
             <div className="mt-2 hidden w-full cursor-default items-center px-2 md:flex lg:px-3">
-              <User className="h-4 w-4 md:h-5 md:w-5" />
+              <User className="h-5 w-5 md:h-6 md:w-6 lg:h-6 lg:w-6" />
               <span className="ml-2 flex flex-col lg:ml-3">
-                <span className="line-clamp-1 text-xs text-sky-200 md:text-sm">
+                <span className="text-primary line-clamp-1 text-xs md:text-xs lg:text-sm">
                   {me!.first_name} {me!.last_name}
                 </span>
-                <span className="line-clamp-1 text-xs md:text-sm">
+                <span className="line-clamp-1 text-xs md:text-xs lg:text-sm">
                   {me!.email}
                 </span>
               </span>
@@ -68,13 +66,13 @@ const Sidebar = ({ navItems }: SidebarProps) => {
 
             <div
               className={clsx(
-                "flex w-full items-center justify-center rounded-md p-1.5 text-sm transition-all md:justify-start md:px-2 md:py-1.5 lg:px-3 lg:py-2",
-                "cursor-pointer text-white/80 hover:text-white",
+                "flex w-full items-center justify-center rounded-md p-1.5 text-sm transition-all md:justify-start md:px-1 md:py-1.5 lg:px-3 lg:py-2",
+                "hover:bg-secondary cursor-pointer",
               )}
               role="button"
               tabIndex={0}
             >
-              <LogOut className="md:h-5 md:w-5" />
+              <LogOut className="h-5 w-5 md:h-4 md:w-4 lg:h-5 lg:w-5" />
               <span className="ml-2 hidden text-xs md:block lg:ml-3 lg:text-sm">
                 Logout
               </span>
@@ -86,4 +84,4 @@ const Sidebar = ({ navItems }: SidebarProps) => {
   );
 };
 
-export default Sidebar;
+export default TrailSideBar;

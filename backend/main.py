@@ -1,6 +1,8 @@
+import json
 import os
 import sys
 from contextlib import asynccontextmanager
+from decimal import Decimal
 
 from core.cloudinary import init_cloudinary
 from dotenv import load_dotenv
@@ -10,13 +12,20 @@ from routers.book import book_router
 from routers.cart import cart_router
 from routers.order import order_router
 from routers.promo_code import promo_code_router
-from routers.websocket import websocket_router
 from routers.wallet import wallet_router
+from routers.websocket import websocket_router
 from settings import settings
 
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__))))
 
 load_dotenv()
+
+
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Decimal):
+            return str(o)
+        return super().default(o)
 
 
 @asynccontextmanager
@@ -29,7 +38,12 @@ async def lifespan(app: FastAPI):
     print("Application shutdown.")
 
 
-app = FastAPI(title=settings.APP_NAME, version=settings.VERSION, lifespan=lifespan)
+app = FastAPI(
+    title=settings.APP_NAME,
+    version=settings.VERSION,
+    lifespan=lifespan,
+    json_encoder=CustomJSONEncoder,
+)
 
 
 api_router = APIRouter(prefix="/api")

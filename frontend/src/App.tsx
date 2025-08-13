@@ -25,7 +25,9 @@ import UpdateBookPage from "./pages/employee/UpdateBookPage";
 import { UserRole } from "./types/User";
 
 import OrdersListPage from "./pages/auth/OrdersListPage";
+import CheckoutSuccess from "./pages/client/CheckoutSuccess";
 import Footer from "./pages/client/Footer";
+import TransactionsPage from "./pages/client/TransactionsPage";
 import OrderDetailsPage from "./pages/courier/OrderDetailsPage";
 
 const App = () => {
@@ -66,9 +68,11 @@ const App = () => {
           {/* </Route> */}
 
           {/* CLIENT-only routes */}
-          {/* <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}> */}
-          <Route path="/" element={<Home />} />
-          {/* </Route> */}
+          <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/transactions" element={<TransactionsPage />} />
+            <Route path="/checkout-success" element={<CheckoutSuccess />} />
+          </Route>
 
           {/* EMPLOYEE-only routes */}
           <Route
@@ -114,8 +118,7 @@ const App = () => {
 
           {/* Notfound route */}
           <Route path="*" element={<NotFoundPage />} />
-          {/* <Route path="/borrow-books" element={<><Navbar/><BorrowBooks /></>} /> */}
-          {/* <Route path="/purchase-books" element={<><Navbar/><PurchaseBooks /></>} /> */}
+
           <Route
             path="/borrow-books"
             element={

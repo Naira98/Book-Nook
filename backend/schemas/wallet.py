@@ -1,5 +1,22 @@
-from pydantic import BaseModel
+from datetime import datetime
+from decimal import Decimal
+from typing import Optional
+
+from models.transaction import TransactionType
+from pydantic import BaseModel, ConfigDict
 
 
 class CreateCheckoutRequest(BaseModel):
     amount: int
+
+
+class TransactionSchema(BaseModel):
+    id: int
+    amount: Decimal
+    transaction_type: TransactionType
+    description: Optional[str]
+    created_at: Optional[datetime]
+    user_id: int
+    order_id: Optional[int]
+
+    model_config = ConfigDict(from_attributes=True, use_enum_values=True)
