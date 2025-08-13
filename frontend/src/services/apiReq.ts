@@ -49,3 +49,4 @@ const apiReq = async (method: string, endpoint: string, body?: unknown) => {
 };
 
 export default apiReq;
+
