@@ -27,6 +27,7 @@ import { UserRole } from "./types/User";
 import OrdersListPage from "./pages/auth/OrdersListPage";
 import Footer from "./pages/client/Footer";
 import OrderDetailsPage from "./pages/courier/OrderDetailsPage";
+import CheckoutPage from "./pages/client/checkOut";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => {
             path="/reset-password/:reset_token"
             element={<ResetPassword />}
           />
+          {/* handle checkOut page routing  */}
           <Route
             path="/borrow-books"
             element={
@@ -52,6 +54,15 @@ const App = () => {
                 <Navbar />
                 <BorrowBooks />
               </>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <>
+                <Navbar />
+                <CheckoutPage />  
+                    </>
             }
           />
           <Route
