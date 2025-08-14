@@ -20,5 +20,4 @@ async def websocket_endpoint(
         # This is an expected exception when the client closes the connection.
         pass
     finally:
-        print("Client disconnected ✨✨")
         webSocket_connection_manager.disconnect(user.id, user.role)

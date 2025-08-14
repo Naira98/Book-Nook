@@ -2,23 +2,46 @@ import { Outlet } from "react-router-dom";
 import CourierNavbar from "./CourierNavbar";
 import { connectWebSocket } from "../../services/websocketService";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetMe } from "../../hooks/auth/useGetMe";
+import type { AllOrdersResponse, Order, ReturnOrder } from "../../types/Orders";
 
 const CourierLayout = () => {
   const queryClient = useQueryClient();
-  const { me } = useGetMe();
+
+  function addNewOrder(order: Order) {
+    queryClient.setQueryData(
+      ["allStaffOrders"],
+      (oldData: AllOrdersResponse) => {
+        if (!oldData) return oldData;
+        const newData = { ...oldData };
+        newData.orders = [order, ...oldData.orders];
+        return newData;
+      },
+    );
+  }
+
+  function addNewReturnOrder(returnOrder: ReturnOrder) {
+    queryClient.setQueryData(
+      ["allStaffOrders"],
+      (oldData: AllOrdersResponse) => {
+        if (!oldData) return oldData;
+        const newData = { ...oldData };
+        newData.return_orders = [returnOrder, ...oldData.return_orders];
+        return newData;
+      },
+    );
+  }
+
   function onSocketOpen() {
     console.log("Socket opened");
   }
+
   function onSocketMessage(event: MessageEvent) {
     const data = JSON.parse(event.data);
-    console.log(data, "Socket data");
-    if (
-      data &&
-      (data.message == "order_created" ||
-        (data.message == "order_status_updated" && data.courier_id != me?.id))
-    ) {
-      queryClient.invalidateQueries({ queryKey: ["allStaffOrders"] });
+    if (data && data.message == "order_created") {
+      addNewOrder(data.order);
+    }
+    if (data && data.message == "return_order_created") {
+      addNewReturnOrder(data.return_order);
     }
   }
   function onSocketClose() {

@@ -179,7 +179,7 @@ class AllOrdersResponseBase(BaseModel):
     pick_up_type: PickUpType
     phone_number: str
     user: GetAllOrdersUserResponse
-    number_of_books: int
+    number_of_books: int = 0
     courier_id: Optional[int]
 
 
@@ -189,7 +189,9 @@ class AllOrdersResponse(AllOrdersResponseBase):
 
     @model_validator(mode="before")
     @classmethod
-    def prepare_data(cls, data: Order):
+    def prepare_data(cls, data: Any):
+        if not isinstance(data, Order):
+            return data
         return {
             "id": data.id,
             "created_at": data.created_at,
@@ -210,7 +212,9 @@ class ReturnOrderResponse(AllOrdersResponseBase):
 
     @model_validator(mode="before")
     @classmethod
-    def prepare_data(cls, data: ReturnOrder):
+    def prepare_data(cls, data: Any):
+        if not isinstance(data, ReturnOrder):
+            return data
         return {
             "id": data.id,
             "created_at": data.created_at,

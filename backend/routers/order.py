@@ -41,6 +41,8 @@ from utils.order import (
 )
 from utils.settings import get_settings
 from utils.wallet import pay_from_wallet
+from utils.socket import send_created_order_via_socket
+
 
 order_router = APIRouter(
     prefix="/order",
@@ -314,6 +316,9 @@ async def create_order(
         # Commit the transaction
         await db.commit()
 
+        await send_created_order_via_socket(
+            order, borrow_order_books, purchase_order_books
+        )
         if order.pick_up_type == PickUpType.COURIER:
             await webSocket_connection_manager.broadcast_to_role(
                 {"message": "order_created", "order_id": order.id}, UserRole.COURIER

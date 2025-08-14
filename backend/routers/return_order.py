@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from typing import Annotated
+from typing import Annotated, List
 from decimal import Decimal
 from datetime import datetime, timezone
 
@@ -30,7 +30,7 @@ from utils.order import (
     Validate_return_order_for_employee,
 )
 from utils.wallet import pay_from_wallet, add_to_wallet
-
+from utils.socket import send_created_return_order_via_socket
 
 from schemas.order import (
     ReturnOrderRequest,
@@ -70,11 +70,14 @@ async def create_return_order(
                 break
 
     await db.commit()
+    await db.refresh(return_order)
+    await send_created_return_order_via_socket(
+        return_order, return_return_order_data.borrowed_books_ids
+    )
+    return return_order
 
-    pass
 
-
-@return_order_router.get("/borrowed-books", response_model=list[BorrowedBooksResponse])
+@return_order_router.get("/borrowed-books", response_model=List[BorrowedBooksResponse])
 async def get_borrowed_books(
     user: User = Depends(get_user), db: AsyncSession = Depends(get_db)
 ):
