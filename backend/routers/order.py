@@ -14,9 +14,10 @@ from models.order import (
     PurchaseOrderBook,
     PickUpType,
     ReturnOrder,
+    ReturnOrderStatus,
 )
-from core.websocket import webSocket_connection_manager
 from models.user import User, UserRole
+
 from schemas.order import (
     BorrowOrderBookUpdateProblemResponse,
     CreateOrderRequest,
@@ -41,7 +42,7 @@ from utils.order import (
 )
 from utils.settings import get_settings
 from utils.wallet import pay_from_wallet
-from utils.socket import send_created_order_via_socket
+from utils.socket import send_created_order, send_updated_order
 
 
 order_router = APIRouter(
@@ -92,18 +93,39 @@ async def get_orders(
     "/all", response_model=GetAllOrdersResponse, status_code=status.HTTP_200_OK
 )
 async def get_all_orders(
-    user: Annotated[User, Depends(get_staff_user)],
-    pickup_type: PickUpType,
+    staff_user: Annotated[User, Depends(get_staff_user)],
     db: AsyncSession = Depends(get_db),
-    courier_id: Optional[int | None] = None,
 ):
     try:
-        order_conditions = [Order.pick_up_type == pickup_type]
-        return_order_conditions = [ReturnOrder.pick_up_type == pickup_type]
+        order_conditions = []
+        return_order_conditions = []
+        if staff_user.role == UserRole.COURIER:
+            order_conditions.append(Order.pick_up_type == PickUpType.COURIER)
+            order_conditions.append(
+                (Order.courier_id == staff_user.id) | (Order.courier_id == None)  # noqa: E711
+            )
 
-        if courier_id is not None:
-            order_conditions.append(Order.courier_id == courier_id)
-            return_order_conditions.append(ReturnOrder.courier_id == courier_id)
+            return_order_conditions.append(
+                ReturnOrder.pick_up_type == PickUpType.COURIER
+            )
+            return_order_conditions.append(
+                (ReturnOrder.courier_id == staff_user.id)
+                | (ReturnOrder.courier_id == None)  # noqa: E711
+            )
+
+        elif staff_user.role == UserRole.EMPLOYEE:
+            order_conditions.append(Order.pick_up_type == PickUpType.SITE)
+
+            return_order_conditions.append(
+                (ReturnOrder.pick_up_type == PickUpType.SITE)
+                | (
+                    (ReturnOrder.pick_up_type == PickUpType.COURIER)
+                    & (
+                        ReturnOrder.status
+                        not in [ReturnOrderStatus.CREATED, ReturnOrderStatus.ON_THE_WAY]
+                    )
+                )
+            )
 
         get_orders_query = (
             select(Order)
@@ -123,6 +145,7 @@ async def get_all_orders(
         get_orders_query = get_orders_query.where(*order_conditions).order_by(
             Order.created_at.desc()
         )
+
         get_return_orders_query = get_return_orders_query.where(
             *return_order_conditions
         ).order_by(ReturnOrder.created_at.desc())
@@ -316,13 +339,7 @@ async def create_order(
         # Commit the transaction
         await db.commit()
 
-        await send_created_order_via_socket(
-            order, borrow_order_books, purchase_order_books
-        )
-        if order.pick_up_type == PickUpType.COURIER:
-            await webSocket_connection_manager.broadcast_to_role(
-                {"message": "order_created", "order_id": order.id}, UserRole.COURIER
-            )
+        await send_created_order(order, borrow_order_books, purchase_order_books)
 
         return {"message": "Order created successfully", "order_id": order.id}
 
@@ -330,13 +347,6 @@ async def create_order(
         # If an HTTPException is raised, rollback and re-raise the exception
         await db.rollback()
         raise e
-    except Exception as e:
-        # For any other unexpected error, rollback and raise a generic 500 error
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An unexpected error occurred while creating the order: {str(e)}",
-        )
 
 
 @order_router.get(
@@ -455,10 +465,13 @@ async def update_order_status(
         await db.refresh(order)
 
         if order_Data.status == OrderStatus.ON_THE_WAY:
-            await webSocket_connection_manager.broadcast_to_role(
-                {"message": "order_status_updated", "courier_id": order.courier_id},
-                UserRole.COURIER,
-            )
+            await send_updated_order(order, UserRole.COURIER)
+        if (
+            order_Data.status == OrderStatus.PICKED_UP
+            and order.pick_up_type == PickUpType.SITE
+        ):
+            await send_updated_order(order, UserRole.EMPLOYEE)
+
         return order
 
     except HTTPException as e:

@@ -51,6 +51,7 @@ const ReturnOrderDetailsPage = () => {
   const getNextAction = () => {
     switch (returnOrder.status) {
       case ReturnOrderStatus.CREATED:
+      case ReturnOrderStatus.PICKED_UP:
         handleStatusChange(ReturnOrderStatus.CHECKING);
         break;
       case ReturnOrderStatus.CHECKING:
@@ -198,10 +199,11 @@ const ReturnOrderDetailsPage = () => {
               loading={isUpdatingStatus}
               className="!w-[160px]"
               label={
-                returnOrder.status === "CREATED"
-                  ? "CHECKING"
+                returnOrder.status === "CREATED" ||
+                returnOrder.status === "PICKED_UP"
+                  ? "Checking"
                   : returnOrder.status === "CHECKING"
-                    ? "DONE"
+                    ? "Done"
                     : "Order Completed"
               }
             />

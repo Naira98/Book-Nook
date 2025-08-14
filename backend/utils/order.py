@@ -14,12 +14,11 @@ async def get_promo_code_discount_perc(cart, db):
     promo_code_discount_perc = None
 
     # Check for and validate promo code if an ID is provided
-    if cart.promo_code_id:
+    if cart.promo_code_id is not None:
         promo_code_result = await db.execute(
             select(PromoCode).where(PromoCode.id == cart.promo_code_id)
         )
         promo_code = promo_code_result.scalar_one_or_none()
-
         if not promo_code or not promo_code.is_active:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -162,12 +161,12 @@ def Validate_return_order_for_courier(
     user: User,
 ):
     allowed_statuses = [
-        ReturnOrderStatus.ON_THE_WAY,
-        ReturnOrderStatus.PICKED_UP,
-        ReturnOrderStatus.PROBLEM,
+        ReturnOrderStatus.ON_THE_WAY.value,
+        ReturnOrderStatus.PICKED_UP.value,
+        ReturnOrderStatus.PROBLEM.value,
     ]
 
-    if return_order_data.pick_up_type != PickUpType.COURIER:
+    if return_order_data.pick_up_type != PickUpType.COURIER.value:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Return order pick up type is not courier.",
@@ -180,7 +179,7 @@ def Validate_return_order_for_courier(
         )
 
     if (
-        return_order_data.status == ReturnOrderStatus.ON_THE_WAY
+        return_order_data.status == ReturnOrderStatus.ON_THE_WAY.value
         and db_return_order.status != ReturnOrderStatus.CREATED
     ):
         raise HTTPException(
@@ -188,7 +187,7 @@ def Validate_return_order_for_courier(
             detail="Return order status must be CREATED to be set to ON_THE_WAY.",
         )
 
-    if return_order_data.status == ReturnOrderStatus.PICKED_UP:
+    if return_order_data.status == ReturnOrderStatus.PICKED_UP.value:
         if db_return_order.courier_id != user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -200,7 +199,7 @@ def Validate_return_order_for_courier(
                 detail="Return order status must be ON_THE_WAY to be set to PICKED_UP.",
             )
     if (
-        return_order_data.status == ReturnOrderStatus.PROBLEM
+        return_order_data.status == ReturnOrderStatus.PROBLEM.value
         and db_return_order.status != ReturnOrderStatus.ON_THE_WAY
     ):
         raise HTTPException(
@@ -215,18 +214,17 @@ def Validate_return_order_for_employee(
     user: User,
 ):
     allowed_statuses = [
-        ReturnOrderStatus.CHECKING,
-        ReturnOrderStatus.DONE,
-        ReturnOrderStatus.PROBLEM,
+        ReturnOrderStatus.CHECKING.value,
+        ReturnOrderStatus.DONE.value,
+        ReturnOrderStatus.PROBLEM.value,
     ]
-
     if return_order_data.status not in allowed_statuses:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid return order status. Allowed statuses are: {allowed_statuses}",
         )
 
-    if return_order_data.status == ReturnOrderStatus.CHECKING:
+    if return_order_data.status == ReturnOrderStatus.CHECKING.value:
         if (
             db_return_order.status != ReturnOrderStatus.PICKED_UP
             and db_return_order.pick_up_type == PickUpType.COURIER
@@ -245,7 +243,7 @@ def Validate_return_order_for_employee(
                 detail="Return order status must be CREATED to be set to CHECKING.",
             )
 
-    elif return_order_data.status == ReturnOrderStatus.DONE:
+    elif return_order_data.status == ReturnOrderStatus.DONE.value:
         if db_return_order.status != ReturnOrderStatus.CHECKING:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

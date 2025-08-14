@@ -237,9 +237,29 @@ class UpdateOrderStatusRequest(AllOrdersResponse):
     pass
 
 
-class UpdateReturnOrderStatusRequest(ReturnOrderResponse):
+class UpdateReturnOrderStatusRequest(AllOrdersResponseBase):
+    status: ReturnOrderStatus
     borrow_order_books_details: Optional[list[BorrowOrderBookSchema] | None] = None
-    model_config = ConfigDict(from_attributes=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def prepare_data(cls, data: Any):
+        if not isinstance(data, ReturnOrder):
+            return data
+        return {
+            "id": data.id,
+            "created_at": data.created_at,
+            "address": data.address,
+            "pick_up_type": data.pick_up_type,
+            "phone_number": data.phone_number,
+            "user": data.user,
+            "number_of_books": len(data.borrow_order_books_details),
+            "courier_id": data.courier_id,
+            "status": data.status,
+            "borrow_order_books_details": data.borrow_order_books_details,
+        }
+
+    model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
 
 class UpdateOrderStatusResponse(AllOrdersResponse):

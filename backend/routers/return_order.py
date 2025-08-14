@@ -30,7 +30,11 @@ from utils.order import (
     Validate_return_order_for_employee,
 )
 from utils.wallet import pay_from_wallet, add_to_wallet
-from utils.socket import send_created_return_order_via_socket
+from utils.socket import (
+    send_created_return_order,
+    send_updated_return_order,
+    send_courier_return_order,
+)
 
 from schemas.order import (
     ReturnOrderRequest,
@@ -71,7 +75,7 @@ async def create_return_order(
 
     await db.commit()
     await db.refresh(return_order)
-    await send_created_return_order_via_socket(
+    await send_created_return_order(
         return_order, return_return_order_data.borrowed_books_ids
     )
     return return_order
@@ -122,11 +126,11 @@ async def update_order_status(
         if user.role == UserRole.EMPLOYEE:
             Validate_return_order_for_employee(return_order_data, db_return_order, user)
 
-        if return_order_data.status == ReturnOrderStatus.ON_THE_WAY:
+        if return_order_data.status == ReturnOrderStatus.ON_THE_WAY.value:
             db_return_order.courier_id = user.id
 
         if (
-            return_order_data.status == ReturnOrderStatus.DONE
+            return_order_data.status == ReturnOrderStatus.DONE.value
             and return_order_data.borrow_order_books_details is not None
         ):
             # set new borrow_book_problem in db_return_order
@@ -147,17 +151,17 @@ async def update_order_status(
                         detail=f"Book with id {book.id} has not been returned yet.",
                     )
 
-                if book.borrow_book_problem == BorrowBookProblem.NORMAL.value:
+                if book.borrow_book_problem == BorrowBookProblem.NORMAL:
                     if book.return_date < now_utc:
                         amount_to_withdraw += (
                             now_utc - book.return_date
                         ).days * book.delay_fees_per_day
                     else:
                         amount_to_add += book.deposit_fees
-                    pass
+
                 elif (
-                    book.borrow_book_problem == BorrowBookProblem.LOST.value
-                    or book.borrow_book_problem == BorrowBookProblem.DAMAGED.value
+                    book.borrow_book_problem == BorrowBookProblem.LOST
+                    or book.borrow_book_problem == BorrowBookProblem.DAMAGED
                 ):
                     if book.promo_code_discount is not None:
                         amount_to_withdraw += (
@@ -195,6 +199,15 @@ async def update_order_status(
         )
 
         # TODO send notification to user
+        if return_order_data.status == ReturnOrderStatus.ON_THE_WAY.value:
+            await send_updated_return_order(db_return_order, UserRole.COURIER)
+
+        if return_order_data.status == ReturnOrderStatus.PICKED_UP.value:
+            await send_courier_return_order(db_return_order)
+
+        if return_order_data.status == ReturnOrderStatus.CHECKING.value:
+            await send_updated_return_order(db_return_order, UserRole.EMPLOYEE)
+
         return db_return_order
 
     except Exception as e:
@@ -211,14 +224,12 @@ async def update_order_status(
 async def get_order_details(
     return_order_id: int,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_staff_user),
+    staff_user: User = Depends(get_staff_user),
 ):
     conditions = [ReturnOrder.id == return_order_id]
 
-    if user.role == UserRole.CLIENT:
-        conditions.append(ReturnOrder.user_id == user.id)
-    elif user.role == UserRole.COURIER:
-        conditions.append(ReturnOrder.courier_id == user.id)
+    if staff_user.role == UserRole.COURIER:
+        conditions.append(ReturnOrder.courier_id == staff_user.id)
 
     try:
         query = (

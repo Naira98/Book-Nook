@@ -1,11 +1,10 @@
 from models.order import Order, ReturnOrder
-from schemas.order import AllOrdersResponse
 from core.websocket import webSocket_connection_manager
 from models.user import UserRole
 from models.order import PickUpType
 
 
-async def send_created_order_via_socket(
+async def send_created_order(
     order: Order, borrow_order_books: list, purchase_order_books: list
 ):
     new_order_object = {
@@ -34,31 +33,77 @@ async def send_created_order_via_socket(
         )
 
 
-async def send_created_return_order_via_socket(
-    retrun_order: ReturnOrder, borrow_order_books_ids: list
+async def send_created_return_order(
+    return_order: ReturnOrder, borrow_order_books_ids: list
 ):
     new_order_object = {
-        "id": retrun_order.id,
-        "created_at": retrun_order.created_at.isoformat(),
-        "address": retrun_order.address,
-        "pick_up_type": retrun_order.pick_up_type.value,
-        "phone_number": retrun_order.phone_number,
+        "id": return_order.id,
+        "created_at": return_order.created_at.isoformat(),
+        "address": return_order.address,
+        "pick_up_type": return_order.pick_up_type.value,
+        "phone_number": return_order.phone_number,
         "user": {
-            "first_name": retrun_order.user.first_name,
-            "last_name": retrun_order.user.last_name,
+            "first_name": return_order.user.first_name,
+            "last_name": return_order.user.last_name,
         },
         "number_of_books": len(borrow_order_books_ids),
-        "courier_id": retrun_order.courier_id,
-        "status": retrun_order.status.value,
+        "courier_id": return_order.courier_id,
+        "status": return_order.status.value,
     }
-    if retrun_order.pick_up_type == PickUpType.COURIER:
+    if return_order.pick_up_type == PickUpType.COURIER:
         await webSocket_connection_manager.broadcast_to_role(
             {"message": "return_order_created", "return_order": new_order_object},
             UserRole.COURIER,
         )
 
-    if retrun_order.pick_up_type == PickUpType.SITE:
+    if return_order.pick_up_type == PickUpType.SITE:
         await webSocket_connection_manager.broadcast_to_role(
             {"message": "return_order_created", "return_order": new_order_object},
             UserRole.EMPLOYEE,
         )
+
+
+async def send_updated_order(order: Order, userRole: UserRole):
+    await webSocket_connection_manager.broadcast_to_role(
+        {
+            "message": "order_status_updated",
+            "courier_id": order.courier_id,
+            "order_id": order.id,
+            "status": order.status.value,
+        },
+        userRole,
+    )
+
+
+async def send_updated_return_order(return_order: Order, userRole: UserRole):
+    await webSocket_connection_manager.broadcast_to_role(
+        {
+            "message": "return_order_status_updated",
+            "return_order_id": return_order.id,
+            "status": return_order.status.value,
+            "courier_id": return_order.courier_id,
+        },
+        userRole,
+    )
+
+
+async def send_courier_return_order(return_order: ReturnOrder):
+    new_order_object = {
+        "id": return_order.id,
+        "created_at": return_order.created_at.isoformat(),
+        "address": return_order.address,
+        "pick_up_type": return_order.pick_up_type.value,
+        "phone_number": return_order.phone_number,
+        "user": {
+            "first_name": return_order.user.first_name,
+            "last_name": return_order.user.last_name,
+        },
+        "number_of_books": len(return_order.borrow_order_books_details),
+        "courier_id": return_order.courier_id,
+        "status": return_order.status.value,
+    }
+
+    await webSocket_connection_manager.broadcast_to_role(
+        {"message": "courier_return_order", "return_order": new_order_object},
+        UserRole.EMPLOYEE,
+    )

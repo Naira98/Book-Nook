@@ -15,12 +15,14 @@ type ReturnOrderCard = {
   returnOrder: ReturnOrder;
   getStatusColor: (status: OrderStatus | ReturnOrderStatus) => string;
   pickUpType: PickUpType;
+  view: "COURIER" | "EMPLOYEE";
 };
 export default function ReturnOrderCard({
   returnOrder,
   getStatusIcon,
   getStatusColor,
   pickUpType,
+  view,
 }: ReturnOrderCard) {
   const { changeReturnOrderStatus, isPending } = useChangeReturnOrderStatus();
   const navigate = useNavigate();
@@ -93,7 +95,8 @@ export default function ReturnOrderCard({
           {new Date(returnOrder.created_at).toLocaleString()}
         </span>
         <div className="flex space-x-2">
-          {returnOrder.status === "CREATED" ? (
+          {returnOrder.status === "CREATED" ||
+          (returnOrder.status == "PICKED_UP" && view == "EMPLOYEE") ? (
             <MainButton
               onClick={() => {
                 handleChangeStatus({

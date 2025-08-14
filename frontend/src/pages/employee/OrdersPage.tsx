@@ -72,7 +72,7 @@ const StaffOrdersPage = () => {
       : {
           orders: [],
           return_orders: orders.return_orders?.filter(
-            (o) => o.status === "CREATED",
+            (o) => o.status === "CREATED" || o.status === "PICKED_UP",
           ),
         };
   }, [activeTab, orders]);
@@ -127,6 +127,7 @@ const StaffOrdersPage = () => {
                   getStatusIcon={getStatusIcon}
                   getStatusColor={getStatusColor}
                   pickUpType={PickUpType.SITE}
+                  view="EMPLOYEE"
                 />
               ))}
             </>
