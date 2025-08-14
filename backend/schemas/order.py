@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, List, Optional, TypedDict
 
 from models.book import BookStatus
 from models.order import (
@@ -115,19 +115,7 @@ class OrderDetailsResponseSchema(OrderResponseSchema):
     number_of_books: int
 
 
-class BorrowBookItem(BaseModel):
-    book_details_id: int
-    borrowing_weeks: int
-
-
-class PurchaseBookItem(BaseModel):
-    book_details_id: int
-    quantity: int
-
-
 class CreateOrderRequest(BaseModel):
-    borrow_books: list[BorrowBookItem] = []
-    purchase_books: list[PurchaseBookItem] = []
     pickup_type: PickUpType
     address: str
     phone_number: str
@@ -188,3 +176,19 @@ class UpdateReturnOrderStatusRequest(ReturnOrderResponse):
 
 class UpdateOrderStatusResponse(AllOrdersResponse):
     model_config = ConfigDict(from_attributes=True)
+
+
+""" TypedDict not pydantic schema """
+class BorrowBookItem(TypedDict):
+    book_details_id: int
+    borrowing_weeks: int
+
+
+class PurchaseBookItem(TypedDict):
+    book_details_id: int
+    quantity: int
+
+
+class UserCart(TypedDict):
+    borrow_books: List[BorrowBookItem]
+    purchase_books: List[PurchaseBookItem]

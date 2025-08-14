@@ -48,7 +48,7 @@ def calculate_borrow_order_book_fees(
     deposit_fees = book_price * (deposit_perc / 100)
 
     daily_equivalent_borrow_fee = base_borrow_fee_per_week / Decimal(7)
-    daily_delay_amount = daily_equivalent_borrow_fee * (delay_perc / 100)
+    daily_delay_amount = book_price * (delay_perc / 100)
     delay_fees_per_day = daily_equivalent_borrow_fee + daily_delay_amount
 
     borrow_fees = original_borrowing_fees
@@ -109,7 +109,7 @@ def validate_purchase_book_and_available_stock(item, book_details):
         )
 
         # Validate stock for the purchase quantity
-    if item.quantity <= 0 or item.quantity > book_details.available_stock:
+    if item["quantity"] <= 0 or item["quantity"] > book_details.available_stock:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid quantity or not enough stock for book with id {book_details.id}.",
@@ -126,7 +126,7 @@ def validate_borrow_book_and_borrowing_weeks_and_available_stock(item, book_deta
 
         # Validate borrowing weeks and stock
         # Assuming borrowing_weeks is an integer between 1 and 4
-    if not (1 <= item.borrowing_weeks <= 4):
+    if not (1 <= item["borrowing_weeks"] <= 4):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Borrowing weeks must be between 1 and 4.",
