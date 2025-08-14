@@ -39,7 +39,7 @@ cart_router = APIRouter(
     "/usercart",
     response_model=GetCartItemsResponse,
 )
-async def read_user_cart(
+async def get_user_cart(
     user_id: User = Depends(get_user_id),
     db: AsyncSession = Depends(get_db),
 ):

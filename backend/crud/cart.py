@@ -43,7 +43,6 @@ async def add_to_cart_crud(
         )
         db.add(cart_item)
         try:
-            user.current_borrowed_books += 1
             await db.commit()
             await db.refresh(cart_item)
             return cart_item

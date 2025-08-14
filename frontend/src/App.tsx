@@ -26,7 +26,11 @@ import { UserRole } from "./types/User";
 
 import OrdersListPage from "./pages/auth/OrdersListPage";
 import Footer from "./pages/client/Footer";
-import OrderDetailsPage from "./pages/courier/OrderDetailsPage";
+import CourierOrderDetailsPage from "./pages/courier/OrderDetailsPage";
+import CourierReturnOrderDetailsPage from "./pages/courier/RetrunOrderDetailsPage";
+import StaffOrdersPage from "./pages/employee/OrdersPage";
+import EmployeeOrderDetailsPage from "./pages/employee/OrderDetailsPage";
+import EmployeeReturnOrderDetailsPage from "./pages/employee/RetrunOrderDetailsPage";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -92,6 +96,15 @@ const App = () => {
                 path="/staff/books/update-book/:book_id"
                 element={<UpdateBookPage />}
               />
+              <Route path="/employee/orders" element={<StaffOrdersPage />} />
+              <Route
+                path="/employee/orders/:id"
+                element={<EmployeeOrderDetailsPage />}
+              />
+              <Route
+                path="/employee/return-orders/:id"
+                element={<EmployeeReturnOrderDetailsPage />}
+              />
             </Route>
           </Route>
 
@@ -99,7 +112,11 @@ const App = () => {
           <Route element={<RoleBasedRoute allowedRoles={[UserRole.COURIER]} />}>
             <Route element={<CourierLayout />}>
               <Route path="/courier/orders" element={<OrderPage />} />
-              <Route path="/order/:id" element={<OrderDetailsPage />} />
+              <Route path="/order/:id" element={<CourierOrderDetailsPage />} />
+              <Route
+                path="/return-order/:id"
+                element={<CourierReturnOrderDetailsPage />}
+              />
               <Route path="/orders" element={<OrdersListPage />} />
             </Route>
           </Route>
