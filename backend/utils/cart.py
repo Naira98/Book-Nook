@@ -32,7 +32,7 @@ async def validate_book_details(
 
 
 async def validate_borrowing_limit(
-    db: AsyncSession, user: User, max_num_of_borrow_books
+    db: AsyncSession, user: User, max_num_of_borrow_books: int
 ):
     cart_borrowed_books_number = await db.execute(
         select(func.sum(Cart.quantity)).where(

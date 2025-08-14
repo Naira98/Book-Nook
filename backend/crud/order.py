@@ -45,7 +45,7 @@ async def create_return_order_crud(
     return_order = ReturnOrder(
         address=return_order_data.address,
         phone_number=return_order_data.phone_number,
-        pick_up_type=return_order_data.pick_up_type,
+        pickup_type=return_order_data.pickup_type,
         status=return_order_data.status,
         delivery_fees=delivery_fees,
         user_id=user_id,

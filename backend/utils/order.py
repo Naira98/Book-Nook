@@ -30,15 +30,6 @@ async def get_promo_code_discount_perc(cart, db):
     return promo_code_discount_perc
 
 
-def validate_borrowing_limit(user, max_num_of_borrow_books, borrowing_book_count):
-    if borrowing_book_count + user.current_borrowed_books > max_num_of_borrow_books:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Cannot borrow more than {max_num_of_borrow_books} books at once.",
-        )
-    return borrowing_book_count
-
-
 def calculate_borrow_order_book_fees(
     book_price: Decimal,
     borrowing_weeks: int,
@@ -103,7 +94,7 @@ def calculate_purchase_order_book_fees(
 def get_delivery_fees(cart, settings_delivery_fees):
     delivery_fees = None
 
-    if cart.pick_up_type == PickUpType.COURIER:
+    if cart.pickup_type == PickUpType.COURIER:
         delivery_fees = settings_delivery_fees
 
     return delivery_fees
@@ -156,7 +147,7 @@ def validate_borrowed_books(return_order_data, db_borrowed_books_ids):
             )
 
 
-def Validate_return_order_for_courier(
+def validate_return_order_for_courier(
     return_order_data: UpdateReturnOrderStatusRequest,
     db_return_order: ReturnOrder,
     user: User,
@@ -167,7 +158,7 @@ def Validate_return_order_for_courier(
         ReturnOrderStatus.PROBLEM,
     ]
 
-    if return_order_data.pick_up_type != PickUpType.COURIER:
+    if return_order_data.pickup_type != PickUpType.COURIER:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Return order pick up type is not courier.",
@@ -209,7 +200,7 @@ def Validate_return_order_for_courier(
         )
 
 
-def Validate_return_order_for_employee(
+def validate_return_order_for_employee(
     return_order_data: UpdateReturnOrderStatusRequest,
     db_return_order: ReturnOrder,
     user: User,
@@ -229,7 +220,7 @@ def Validate_return_order_for_employee(
     if return_order_data.status == ReturnOrderStatus.CHECKING:
         if (
             db_return_order.status != ReturnOrderStatus.PICKED_UP
-            and db_return_order.pick_up_type == PickUpType.COURIER
+            and db_return_order.pickup_type == PickUpType.COURIER
         ):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -238,7 +229,7 @@ def Validate_return_order_for_employee(
 
         if (
             db_return_order.status != ReturnOrderStatus.CREATED
-            and db_return_order.pick_up_type == PickUpType.SITE
+            and db_return_order.pickup_type == PickUpType.SITE
         ):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

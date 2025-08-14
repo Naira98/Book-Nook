@@ -60,11 +60,11 @@ export interface Order {
   id: number;
   created_at: string;
   address: string;
-  pick_up_type: string;
+  pickup_type: string;
   phone_number: string;
   user: User;
   number_of_books: number;
-  pick_up_date?: string;
+  pickup_date?: string;
   status: OrderStatus;
   courier_id: number | null;
   borrow_order_books_details: BorrowOrderBookDetail[];
@@ -75,7 +75,7 @@ export interface ReturnOrder {
   id: number;
   created_at: string;
   address: string;
-  pick_up_type: string;
+  pickup_type: string;
   phone_number: string;
   user: User;
   number_of_books: number;

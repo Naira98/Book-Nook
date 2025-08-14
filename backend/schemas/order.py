@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, model_validator
 class BookSchema(BaseModel):
     id: int
     title: str
-    cover_img: Optional[str]
+    cover_img: str
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
@@ -28,7 +28,7 @@ class BookDetailsSchema(BaseModel):
 
 
 class ReturnOrderRequest(BaseModel):
-    pick_up_type: PickUpType
+    pickup_type: PickUpType
     status: ReturnOrderStatus
     address: str
     phone_number: str
@@ -38,7 +38,8 @@ class ReturnOrderRequest(BaseModel):
 class BorrowedBooksResponse(BaseModel):
     id: int
     borrowing_weeks: int
-    return_date: Optional[datetime]
+    actual_return_date: Optional[datetime]
+    expected_return_date: Optional[datetime]
     book: BookSchema
 
     @model_validator(mode="before")
@@ -47,7 +48,8 @@ class BorrowedBooksResponse(BaseModel):
         return {
             "id": data.id,
             "borrowing_weeks": data.borrowing_weeks,
-            "return_date": data.return_date,
+            "actual_return_date": data.actual_return_date,
+            "expected_return_date": data.expected_return_date,
             "book": data.book_details.book,
         }
 
@@ -60,7 +62,8 @@ class BorrowOrderBookSchema(BaseModel):
     borrow_book_problem: BorrowBookProblem
     borrow_fees: float
     promo_code_discount: Optional[float]
-    return_date: Optional[datetime]
+    actual_return_date: Optional[datetime]
+    expected_return_date: Optional[datetime]
     deposit_fees: float
     delay_fees_per_day: float
     return_order_id: Optional[int]
@@ -84,8 +87,8 @@ class OrderResponseSchema(BaseModel):
     id: int
     created_at: datetime
     address: str
-    pick_up_date: Optional[datetime]
-    pick_up_type: PickUpType
+    pickup_date: Optional[datetime]
+    pickup_type: PickUpType
     delivery_fees: Optional[float]
     promo_code_id: Optional[int]
     phone_number: str
@@ -125,7 +128,7 @@ class PurchaseBookItem(BaseModel):
 class CreateOrderRequest(BaseModel):
     borrow_books: list[BorrowBookItem] = []
     purchase_books: list[PurchaseBookItem] = []
-    pick_up_type: PickUpType
+    pickup_type: PickUpType
     address: str
     phone_number: str
     promo_code_id: Optional[int] = None
@@ -153,7 +156,7 @@ class AllOrdersResponseBase(BaseModel):
     id: int
     created_at: datetime
     address: str
-    pick_up_type: PickUpType
+    pickup_type: PickUpType
     phone_number: str
     user: GetAllOrdersUserResponse
     number_of_books: int
@@ -161,7 +164,7 @@ class AllOrdersResponseBase(BaseModel):
 
 
 class AllOrdersResponse(AllOrdersResponseBase):
-    pick_up_date: Optional[datetime]
+    pickup_date: Optional[datetime]
     status: OrderStatus
 
 
