@@ -24,10 +24,20 @@ async def add_dummy_borrow_orders(db: AsyncSession):
         )
 
         if not result.scalars().first():
-            # Convert 'return_date' string to a datetime object, if it exists
-            if borrow_order_to_add.get("return_date") and isinstance(borrow_order_to_add["return_date"], str):
-                borrow_order_to_add["return_date"] = datetime.strptime(
-                    borrow_order_to_add["return_date"], "%Y-%m-%dT%H:%M:%SZ"
+            # Convert 'actual_return_dat and expected_return_date' string to a datetime object, if it exists
+            if borrow_order_to_add.get("actual_return_date") and isinstance(
+                borrow_order_to_add["actual_return_date"], str
+            ):
+                borrow_order_to_add["actual_return_date"] = datetime.strptime(
+                    borrow_order_to_add["actual_return_date"], "%Y-%m-%dT%H:%M:%SZ"
+                )
+
+
+            if borrow_order_to_add.get("expected_return_date") and isinstance(
+                borrow_order_to_add["expected_return_date"], str
+            ):
+                borrow_order_to_add["expected_return_date"] = datetime.strptime(
+                    borrow_order_to_add["expected_return_date"], "%Y-%m-%dT%H:%M:%SZ"
                 )
             borrow_orders_to_add.append(BorrowOrderBook(**borrow_order_to_add))
             print(

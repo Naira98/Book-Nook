@@ -1,9 +1,12 @@
 from fastapi import HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from models.book import BookDetails
-from schemas.cart import CreateCartItemRequest
+from models.book import BookDetails, BookStatus
 from models.cart import Cart
 from models.user import User
+from schemas.cart import CreateCartItemRequest
+from schemas.order import UserCart
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 
 async def validate_book_details(
@@ -31,9 +34,21 @@ async def validate_book_details(
 
 
 async def validate_borrowing_limit(
-    db: AsyncSession, user: User, max_num_of_borrow_books
+    db: AsyncSession, user: User, max_num_of_borrow_books: int
 ):
-    if user.current_borrowed_books >= max_num_of_borrow_books:
+    cart_borrowed_books_number = await db.execute(
+        select(func.sum(Cart.quantity)).where(
+            Cart.user_id == user.id, Cart.book_details.has(status=BookStatus.BORROW)
+        )
+    )
+    cart_borrowed_books_number = cart_borrowed_books_number.scalar()
+    if cart_borrowed_books_number is None:
+        cart_borrowed_books_number = 0
+
+    if (
+        user.current_borrowed_books + cart_borrowed_books_number
+        > max_num_of_borrow_books
+    ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Cannot borrow more than {max_num_of_borrow_books} books at once.",
@@ -107,3 +122,31 @@ def validate_update_cart_item(
             )
 
     pass
+
+
+async def get_user_cart(user_id: int, db: AsyncSession) -> UserCart:
+    stmt = (
+        select(Cart)
+        .options(joinedload(Cart.book_details))
+        .filter(Cart.user_id == user_id)
+    )
+    result = await db.execute(stmt)
+    cart_items = result.scalars().unique().all()
+
+    borrow_books = []
+    purchase_books = []
+
+    for item in cart_items:
+        if item.book_details.status == BookStatus.BORROW:
+            borrow_books.append(
+                {
+                    "book_details_id": item.book_details_id,
+                    "borrowing_weeks": item.borrowing_weeks,
+                }
+            )
+        elif item.book_details.status == BookStatus.PURCHASE:
+            purchase_books.append(
+                {"book_details_id": item.book_details_id, "quantity": item.quantity}
+            )
+
+    return {"borrow_books": borrow_books, "purchase_books": purchase_books}

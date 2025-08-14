@@ -1,24 +1,33 @@
 import { useNavigate } from "react-router-dom";
-import type {
-  OrderStatus,
+import {
+  type OrderStatus,
   ReturnOrderStatus,
-  ReturnOrder,
+  type ReturnOrder,
+  type changeRetrunOrderStatusRequest,
+  PickUpType,
 } from "../../../types/Orders";
 import { MapPin, CalendarArrowUp, User, BookOpen } from "lucide-react";
 import MainButton from "../../shared/buttons/MainButton";
+import { useChangeReturnOrderStatus } from "../../../hooks/orders/useChangeReturnOrderStatus";
 
 type ReturnOrderCard = {
   getStatusIcon: (status: OrderStatus | ReturnOrderStatus) => string;
   returnOrder: ReturnOrder;
   getStatusColor: (status: OrderStatus | ReturnOrderStatus) => string;
+  pickUpType: PickUpType;
 };
 export default function ReturnOrderCard({
   returnOrder,
   getStatusIcon,
   getStatusColor,
+  pickUpType,
 }: ReturnOrderCard) {
+  const { changeReturnOrderStatus, isPending } = useChangeReturnOrderStatus();
   const navigate = useNavigate();
 
+  const handleChangeStatus = (values: changeRetrunOrderStatusRequest) => {
+    changeReturnOrderStatus(values);
+  };
   return (
     <div
       key={returnOrder.id}
@@ -85,11 +94,29 @@ export default function ReturnOrderCard({
         </span>
         <div className="flex space-x-2">
           {returnOrder.status === "CREATED" ? (
-            <MainButton className="h-[30px] !w-20" label="Accept" />
+            <MainButton
+              onClick={() => {
+                handleChangeStatus({
+                  ...returnOrder,
+                  return_order_id: returnOrder.id,
+                  status:
+                    pickUpType == PickUpType.COURIER
+                      ? ReturnOrderStatus.ON_THE_WAY
+                      : ReturnOrderStatus.CHECKING,
+                });
+              }}
+              loading={isPending}
+              className="h-[30px] !w-20"
+              label="Accept"
+            />
           ) : (
             <MainButton
               onClick={() => {
-                navigate(`/order/${returnOrder.id}`);
+                navigate(
+                  pickUpType == PickUpType.COURIER
+                    ? `/return-order/${returnOrder.id}`
+                    : `/employee/return-orders/${returnOrder.id}`,
+                );
               }}
               className="h-[30px] !w-20 !bg-gray-200 !text-gray-700 hover:!bg-gray-50"
               label="Details"

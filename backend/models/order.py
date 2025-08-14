@@ -43,7 +43,10 @@ class BorrowOrderBook(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     borrowing_weeks: Mapped[int]
-    return_date: Mapped[datetime | None] = mapped_column(
+    actual_return_date: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    expected_return_date: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
     borrow_book_problem: Mapped[BorrowBookProblem] = mapped_column(
@@ -122,8 +125,8 @@ class Order(Base):
     )
     address: Mapped[str]
     phone_number: Mapped[str]
-    pick_up_date: Mapped[datetime | None] = mapped_column(default=None, nullable=True)
-    pick_up_type: Mapped[PickUpType]
+    pickup_date: Mapped[datetime | None] = mapped_column(default=None, nullable=True)
+    pickup_type: Mapped[PickUpType]
     status: Mapped[OrderStatus] = mapped_column(default=OrderStatus.CREATED.value)
     delivery_fees: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
 
@@ -157,7 +160,7 @@ class ReturnOrder(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     address: Mapped[str]
     phone_number: Mapped[str]
-    pick_up_type: Mapped[PickUpType]
+    pickup_type: Mapped[PickUpType]
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

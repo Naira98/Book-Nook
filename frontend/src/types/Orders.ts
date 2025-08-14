@@ -35,6 +35,11 @@ export interface User {
   email: string;
 }
 
+export enum PickUpType {
+  COURIER = "COURIER",
+  SITE = "SITE",
+}
+
 export enum OrderStatus {
   CREATED = "CREATED",
   ON_THE_WAY = "ON_THE_WAY",
@@ -55,11 +60,11 @@ export interface Order {
   id: number;
   created_at: string;
   address: string;
-  pick_up_type: string;
+  pickup_type: string;
   phone_number: string;
   user: User;
   number_of_books: number;
-  pick_up_date?: string;
+  pickup_date?: string;
   status: OrderStatus;
   courier_id: number | null;
   borrow_order_books_details: BorrowOrderBookDetail[];
@@ -70,16 +75,23 @@ export interface ReturnOrder {
   id: number;
   created_at: string;
   address: string;
-  pick_up_type: string;
+  pickup_type: string;
   phone_number: string;
   user: User;
   number_of_books: number;
   status: ReturnOrderStatus;
   courier_id: number | null;
+  borrow_order_books_details: BorrowOrderBookDetail[];
 }
 
 export type changeOrderStatusRequest = {
   order_id: number;
   status: OrderStatus;
+  courier_id: number | null;
+};
+
+export type changeRetrunOrderStatusRequest = {
+  return_order_id: number;
+  status: ReturnOrderStatus;
   courier_id: number | null;
 };
