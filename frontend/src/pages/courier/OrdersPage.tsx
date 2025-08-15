@@ -133,6 +133,7 @@ const CourierDashboard = () => {
                   getStatusIcon={getStatusIcon}
                   getStatusColor={getStatusColor}
                   pickUpType={PickUpType.COURIER}
+                  view="COURIER"
                 />
               ))}
             </>

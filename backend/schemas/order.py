@@ -8,6 +8,8 @@ from models.order import (
     OrderStatus,
     PickUpType,
     ReturnOrderStatus,
+    Order,
+    ReturnOrder,
 )
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -64,12 +66,12 @@ class BorrowOrderBookSchema(BaseModel):
     id: int
     borrowing_weeks: int
     borrow_book_problem: BorrowBookProblem
-    borrow_fees: float
-    promo_code_discount: Optional[float]
+    borrow_fees: Decimal
+    promo_code_discount: Optional[Decimal]
     actual_return_date: Optional[datetime]
     expected_return_date: Optional[datetime]
-    deposit_fees: float
-    delay_fees_per_day: float
+    deposit_fees: Decimal
+    delay_fees_per_day: Decimal
     return_order_id: Optional[int]
     book_details: BookDetailsSchema
     original_book_price: Decimal
@@ -93,7 +95,7 @@ class OrderResponseSchema(BaseModel):
     address: str
     pickup_date: Optional[datetime]
     pickup_type: PickUpType
-    delivery_fees: Optional[float]
+    delivery_fees: Optional[Decimal]
     promo_code_id: Optional[int]
     phone_number: str
     status: OrderStatus
@@ -117,6 +119,27 @@ class OrderDetailsResponseUser(GetAllOrdersUserResponse):
 class OrderDetailsResponseSchema(OrderResponseSchema):
     user: OrderDetailsResponseUser
     number_of_books: int
+
+    @model_validator(mode="before")
+    @classmethod
+    def prepare_data(cls, data: Order):
+        return {
+            "id": data.id,
+            "created_at": data.created_at,
+            "address": data.address,
+            "pickup_date": data.pickup_date,
+            "pickup_type": data.pickup_type,
+            "delivery_fees": data.delivery_fees,
+            "promo_code_id": data.promo_code_id,
+            "phone_number": data.phone_number,
+            "status": data.status,
+            "user_id": data.user_id,
+            "borrow_order_books_details": data.borrow_order_books_details,
+            "purchase_order_books_details": data.purchase_order_books_details,
+            "user": data.user,
+            "number_of_books": len(data.borrow_order_books_details)
+            + len(data.purchase_order_books_details),
+        }
 
 
 class CreateOrderRequest(BaseModel):
@@ -151,7 +174,7 @@ class AllOrdersResponseBase(BaseModel):
     pickup_type: PickUpType
     phone_number: str
     user: GetAllOrdersUserResponse
-    number_of_books: int
+    number_of_books: int = 0
     courier_id: Optional[int]
 
 
@@ -159,9 +182,45 @@ class AllOrdersResponse(AllOrdersResponseBase):
     pickup_date: Optional[datetime]
     status: OrderStatus
 
+    @model_validator(mode="before")
+    @classmethod
+    def prepare_data(cls, data: Any):
+        if not isinstance(data, Order):
+            return data
+        return {
+            "id": data.id,
+            "created_at": data.created_at,
+            "address": data.address,
+            "pickup_type": data.pickup_type,
+            "phone_number": data.phone_number,
+            "user": data.user,
+            "number_of_books": len(data.borrow_order_books_details)
+            + len(data.purchase_order_books_details),
+            "courier_id": data.courier_id,
+            "pickup_date": data.pickup_date,
+            "status": data.status,
+        }
+
 
 class ReturnOrderResponse(AllOrdersResponseBase):
     status: ReturnOrderStatus
+
+    @model_validator(mode="before")
+    @classmethod
+    def prepare_data(cls, data: Any):
+        if not isinstance(data, ReturnOrder):
+            return data
+        return {
+            "id": data.id,
+            "created_at": data.created_at,
+            "address": data.address,
+            "pickup_type": data.pickup_type,
+            "phone_number": data.phone_number,
+            "user": data.user,
+            "number_of_books": len(data.borrow_order_books_details),
+            "courier_id": data.courier_id,
+            "status": data.status,
+        }
 
 
 class GetAllOrdersResponse(BaseModel):
@@ -173,9 +232,29 @@ class UpdateOrderStatusRequest(AllOrdersResponse):
     pass
 
 
-class UpdateReturnOrderStatusRequest(ReturnOrderResponse):
+class UpdateReturnOrderStatusRequest(AllOrdersResponseBase):
+    status: ReturnOrderStatus
     borrow_order_books_details: Optional[list[BorrowOrderBookSchema] | None] = None
-    model_config = ConfigDict(from_attributes=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def prepare_data(cls, data: Any):
+        if not isinstance(data, ReturnOrder):
+            return data
+        return {
+            "id": data.id,
+            "created_at": data.created_at,
+            "address": data.address,
+            "pickup_type": data.pickup_type,
+            "phone_number": data.phone_number,
+            "user": data.user,
+            "number_of_books": len(data.borrow_order_books_details),
+            "courier_id": data.courier_id,
+            "status": data.status,
+            "borrow_order_books_details": data.borrow_order_books_details,
+        }
+
+    model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
 
 class UpdateOrderStatusResponse(AllOrdersResponse):

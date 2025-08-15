@@ -25,9 +25,14 @@ from utils.auth import get_staff_user, get_user_via_session
 from utils.order import (
     validate_borrowed_books,
     validate_return_order_for_courier,
-    validate_return_order_for_employee,
+    validate_return_order_for_employee
 )
 from utils.settings import get_settings
+from utils.socket import (
+    send_courier_return_order,
+    send_created_return_order,
+    send_updated_return_order,
+)
 from utils.wallet import add_to_wallet, pay_from_wallet
 
 return_order_router = APIRouter(
@@ -60,8 +65,11 @@ async def create_return_order(
                 break
 
     await db.commit()
-
-    pass
+    await db.refresh(return_order)
+    await send_created_return_order(
+        return_order, return_return_order_data.borrowed_books_ids
+    )
+    return return_order
 
 
 @return_order_router.get("/borrowed-books", response_model=List[BorrowedBooksResponse])
@@ -79,7 +87,7 @@ async def get_borrowed_books(
 async def update_return_order_status(
     return_order_data: Annotated[UpdateReturnOrderStatusRequest, Body()],
     db: AsyncSession = Depends(get_db),
-    staff: User = Depends(get_staff_user),
+    staff_user: User = Depends(get_staff_user),
 ):
     try:
         query = (
@@ -103,19 +111,19 @@ async def update_return_order_status(
                 detail=f"Return Order with id {return_order_data.id} not found.",
             )
 
-        if staff.role == UserRole.COURIER:
-            validate_return_order_for_courier(return_order_data, db_return_order, staff)
+        if staff_user.role == UserRole.COURIER:
+            validate_return_order_for_courier(return_order_data, db_return_order, staff_user)
 
-        if staff.role == UserRole.EMPLOYEE:
+        if staff_user.role == UserRole.EMPLOYEE:
             validate_return_order_for_employee(
-                return_order_data, db_return_order, staff
+                return_order_data, db_return_order
             )
 
-        if return_order_data.status == ReturnOrderStatus.ON_THE_WAY:
-            db_return_order.courier_id = staff.id
+        if return_order_data.status == ReturnOrderStatus.ON_THE_WAY.value:
+            db_return_order.courier_id = staff_user.id
 
         if (
-            return_order_data.status == ReturnOrderStatus.DONE
+            return_order_data.status == ReturnOrderStatus.DONE.value
             and return_order_data.borrow_order_books_details is not None
         ):
             # set new borrow_book_problem in db_return_order
@@ -136,7 +144,7 @@ async def update_return_order_status(
                         detail=f"Book with id {book.id} has not been picked up yet.",
                     )
 
-                if book.borrow_book_problem == BorrowBookProblem.NORMAL.value:
+                if book.borrow_book_problem == BorrowBookProblem.NORMAL:
                     if (
                         book.expected_return_date
                         and book.expected_return_date < now_utc
@@ -146,7 +154,7 @@ async def update_return_order_status(
                         ).days * book.delay_fees_per_day
                     else:
                         amount_to_add += book.deposit_fees
-                elif book.borrow_book_problem == BorrowBookProblem.LOST.value:
+                elif book.borrow_book_problem == BorrowBookProblem.LOST:
                     if book.promo_code_discount is not None:
                         amount_to_withdraw += (
                             book.original_book_price
@@ -185,6 +193,15 @@ async def update_return_order_status(
         )
 
         # TODO send notification to user
+        if return_order_data.status == ReturnOrderStatus.ON_THE_WAY.value:
+            await send_updated_return_order(db_return_order, UserRole.COURIER)
+
+        if return_order_data.status == ReturnOrderStatus.PICKED_UP.value:
+            await send_courier_return_order(db_return_order)
+
+        if return_order_data.status == ReturnOrderStatus.CHECKING.value:
+            await send_updated_return_order(db_return_order, UserRole.EMPLOYEE)
+
         return db_return_order
 
     except Exception as e:
@@ -201,14 +218,12 @@ async def update_return_order_status(
 async def get_order_details(
     return_order_id: int,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_user_via_session),
+    staff_user: User = Depends(get_staff_user),
 ):
     conditions = [ReturnOrder.id == return_order_id]
 
-    if user.role == UserRole.CLIENT:
-        conditions.append(ReturnOrder.user_id == user.id)
-    elif user.role == UserRole.COURIER:
-        conditions.append(ReturnOrder.courier_id == user.id)
+    if staff_user.role == UserRole.COURIER:
+        conditions.append(ReturnOrder.courier_id == staff_user.id)
 
     try:
         query = (

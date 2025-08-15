@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import Annotated, List, Optional
+from typing import Annotated, List
 
-from core.websocket import webSocket_connection_manager
 from db.database import get_db
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from models.book import BookDetails
@@ -15,6 +14,7 @@ from models.order import (
     PickUpType,
     PurchaseOrderBook,
     ReturnOrder,
+    ReturnOrderStatus,
 )
 from models.user import User, UserRole
 from schemas.order import (
@@ -29,8 +29,8 @@ from schemas.order import (
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
-from utils.auth import get_user_via_session, get_staff_user
-from utils.cart import validate_borrowing_limit, get_user_cart
+from utils.auth import get_staff_user, get_user_via_session
+from utils.cart import get_user_cart, validate_borrowing_limit
 from utils.order import (
     calculate_borrow_order_book_fees,
     calculate_purchase_order_book_fees,
@@ -40,6 +40,7 @@ from utils.order import (
     validate_purchase_book_and_available_stock,
 )
 from utils.settings import get_settings
+from utils.socket import send_created_order, send_updated_order
 from utils.wallet import pay_from_wallet
 
 order_router = APIRouter(
@@ -93,18 +94,39 @@ async def get_orders(
     "/all", response_model=GetAllOrdersResponse, status_code=status.HTTP_200_OK
 )
 async def get_all_orders(
-    user: Annotated[User, Depends(get_staff_user)],
-    pickup_type: PickUpType,
+    staff_user: Annotated[User, Depends(get_staff_user)],
     db: AsyncSession = Depends(get_db),
-    courier_id: Optional[int | None] = None,
 ):
     try:
-        order_conditions = [Order.pickup_type == pickup_type]
-        return_order_conditions = [ReturnOrder.pickup_type == pickup_type]
+        order_conditions = []
+        return_order_conditions = []
+        if staff_user.role == UserRole.COURIER:
+            order_conditions.append(Order.pickup_type == PickUpType.COURIER)
+            order_conditions.append(
+                (Order.courier_id == staff_user.id) | (Order.courier_id == None)  # noqa: E711
+            )
 
-        if courier_id is not None:
-            order_conditions.append(Order.courier_id == courier_id)
-            return_order_conditions.append(ReturnOrder.courier_id == courier_id)
+            return_order_conditions.append(
+                ReturnOrder.pickup_type == PickUpType.COURIER
+            )
+            return_order_conditions.append(
+                (ReturnOrder.courier_id == staff_user.id)
+                | (ReturnOrder.courier_id == None)  # noqa: E711
+            )
+
+        elif staff_user.role == UserRole.EMPLOYEE:
+            order_conditions.append(Order.pickup_type == PickUpType.SITE)
+
+            return_order_conditions.append(
+                (ReturnOrder.pickup_type == PickUpType.SITE)
+                | (
+                    (ReturnOrder.pickup_type == PickUpType.COURIER)
+                    & (
+                        ReturnOrder.status
+                        not in [ReturnOrderStatus.CREATED, ReturnOrderStatus.ON_THE_WAY]
+                    )
+                )
+            )
 
         get_orders_query = (
             select(Order)
@@ -124,6 +146,7 @@ async def get_all_orders(
         get_orders_query = get_orders_query.where(*order_conditions).order_by(
             Order.created_at.desc()
         )
+
         get_return_orders_query = get_return_orders_query.where(
             *return_order_conditions
         ).order_by(ReturnOrder.created_at.desc())
@@ -133,14 +156,6 @@ async def get_all_orders(
 
         orders = orders_result.scalars().unique().all()
         return_orders = return_orders_result.scalars().unique().all()
-
-        for order in orders:
-            order.number_of_books = len(order.borrow_order_books_details) + len(
-                order.purchase_order_books_details
-            )
-
-        for return_order in return_orders:
-            return_order.number_of_books = len(return_order.borrow_order_books_details)
 
         return {
             "orders": orders,
@@ -328,10 +343,7 @@ async def create_order(
         # Commit the transaction
         await db.commit()
 
-        if order.pickup_type == PickUpType.COURIER:
-            await webSocket_connection_manager.broadcast_to_role(
-                {"message": "order_created", "order_id": order.id}, UserRole.COURIER
-            )
+        await send_created_order(order, borrow_order_books, purchase_order_books)
 
         return {"message": "Order created successfully", "order_id": order.id}
 
@@ -339,13 +351,6 @@ async def create_order(
         # If an HTTPException is raised, rollback and re-raise the exception
         await db.rollback()
         raise e
-    except Exception as e:
-        # For any other unexpected error, rollback and raise a generic 500 error
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An unexpected error occurred while creating the order: {str(e)}",
-        )
 
 
 @order_router.get(
@@ -356,14 +361,14 @@ async def create_order(
 async def get_order_details(
     order_id: int,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_staff_user),
+    staff_user: User = Depends(get_staff_user),
 ):
     conditions = [Order.id == order_id]
 
-    if user.role == UserRole.CLIENT:
-        conditions.append(Order.user_id == user.id)
-    elif user.role == UserRole.COURIER:
-        conditions.append(Order.courier_id == user.id)
+    if staff_user.role == UserRole.CLIENT:
+        conditions.append(Order.user_id == staff_user.id)
+    elif staff_user.role == UserRole.COURIER:
+        conditions.append(Order.courier_id == staff_user.id)
 
     try:
         query = (
@@ -393,10 +398,6 @@ async def get_order_details(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Order with id {order_id} not found.",
             )
-
-        order.number_of_books = len(order.borrow_order_books_details) + len(
-            order.purchase_order_books_details
-        )
         return order
 
     except Exception as e:
@@ -410,14 +411,14 @@ async def get_order_details(
     status_code=status.HTTP_200_OK,
 )
 async def update_order_status(
-    order_Data: Annotated[UpdateOrderStatusRequest, Body()],
+    order_data: Annotated[UpdateOrderStatusRequest, Body()],
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_staff_user),
+    staff_user: User = Depends(get_staff_user),
 ):
     try:
         query = (
             select(Order)
-            .where(Order.id == order_Data.id)
+            .where(Order.id == order_data.id)
             .options(joinedload(Order.user))
             .options(
                 selectinload(Order.borrow_order_books_details),
@@ -430,22 +431,22 @@ async def update_order_status(
         if not order:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Order with id {order_Data.id} not found.",
+                detail=f"Order with id {order_data.id} not found.",
             )
         if (
-            order_Data.status == OrderStatus.ON_THE_WAY
-            and order_Data.courier_id is None
+            order_data.status == OrderStatus.ON_THE_WAY
+            and order_data.courier_id is None
         ):
-            if user.role != UserRole.COURIER:
+            if staff_user.role != UserRole.COURIER:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Only couriers can set order status to ON_THE_WAY",
                 )
 
-            order.courier_id = user.id
+            order.courier_id = staff_user.id
 
-        if order_Data.status == OrderStatus.PICKED_UP:
-            if user.role == UserRole.COURIER and order.courier_id != user.id:
+        if order_data.status == OrderStatus.PICKED_UP:
+            if staff_user.role == UserRole.COURIER and order.courier_id != staff_user.id:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="You are not authorized to update this order's status.",
@@ -458,22 +459,22 @@ async def update_order_status(
                     weeks=book.borrowing_weeks
                 )
 
-        elif order_Data.status == OrderStatus.PROBLEM:
+        elif order_data.status == OrderStatus.PROBLEM:
             # TODO: send notification to user about the problem
             pass
 
-        order.status = order_Data.status
+        order.status = order_data.status
         await db.commit()
         await db.refresh(order)
-        order.number_of_books = len(order.borrow_order_books_details) + len(
-            order.purchase_order_books_details
-        )
 
-        if order_Data.status == OrderStatus.ON_THE_WAY:
-            await webSocket_connection_manager.broadcast_to_role(
-                {"message": "order_status_updated", "courier_id": order.courier_id},
-                UserRole.COURIER,
-            )
+        if order_data.status == OrderStatus.ON_THE_WAY:
+            await send_updated_order(order, UserRole.COURIER)
+        if (
+            order_data.status == OrderStatus.PICKED_UP
+            and order.pickup_type == PickUpType.SITE
+        ):
+            await send_updated_order(order, UserRole.EMPLOYEE)
+
         return order
 
     except HTTPException as e:
