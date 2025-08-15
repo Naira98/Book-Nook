@@ -9,7 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 class Session(Base):
     __tablename__ = "sessions"
-    __table_args__ = (UniqueConstraint("session", name="uq_yourtable_session"),)
+    __table_args__ = (UniqueConstraint("session", name="uq_session"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     session: Mapped[str] = mapped_column(index=True)
