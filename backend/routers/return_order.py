@@ -1,47 +1,39 @@
-from fastapi import APIRouter, Depends, Body, HTTPException, status
-
-from sqlalchemy import select
-from sqlalchemy.orm import joinedload, selectinload
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from typing import Annotated, List
-from decimal import Decimal
 from datetime import datetime, timezone
+from decimal import Decimal
+from typing import Annotated, List
 
+from crud.order import create_return_order_crud, get_borrowed_books_crud
 from db.database import get_db
-
-from models.user import User, UserRole
+from fastapi import APIRouter, Body, Depends, HTTPException, status
+from models.book import BookDetails
 from models.order import (
-    ReturnOrder,
-    ReturnOrderStatus,
     BorrowBookProblem,
     BorrowOrderBook,
+    ReturnOrder,
+    ReturnOrderStatus,
 )
-from models.book import BookDetails
-
-from crud.order import get_borrowed_books_crud, create_return_order_crud
-
-from utils.auth import get_staff_user
-from utils.auth import get_user
-from utils.settings import get_settings
-from utils.order import (
-    validate_borrowed_books,
-    Validate_return_order_for_courier,
-    Validate_return_order_for_employee,
-)
-from utils.wallet import pay_from_wallet, add_to_wallet
-from utils.socket import (
-    send_created_return_order,
-    send_updated_return_order,
-    send_courier_return_order,
-)
-
+from models.user import User, UserRole
 from schemas.order import (
-    ReturnOrderRequest,
     BorrowedBooksResponse,
+    ReturnOrderRequest,
     UpdateReturnOrderStatusRequest,
 )
-
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload, selectinload
+from utils.auth import get_staff_user, get_user_via_session
+from utils.order import (
+    validate_borrowed_books,
+    validate_return_order_for_courier,
+    validate_return_order_for_employee
+)
+from utils.settings import get_settings
+from utils.socket import (
+    send_courier_return_order,
+    send_created_return_order,
+    send_updated_return_order,
+)
+from utils.wallet import add_to_wallet, pay_from_wallet
 
 return_order_router = APIRouter(
     prefix="/return-order",
@@ -52,7 +44,7 @@ return_order_router = APIRouter(
 @return_order_router.post("/")
 async def create_return_order(
     return_return_order_data: ReturnOrderRequest,
-    user: User = Depends(get_user),
+    user: User = Depends(get_user_via_session),
     db: AsyncSession = Depends(get_db),
 ):
     borrowed_books = await get_borrowed_books_crud(user.id, db)
@@ -60,7 +52,6 @@ async def create_return_order(
 
     validate_borrowed_books(return_return_order_data, db_borrowed_books_ids)
 
-    # create return order in db
     settings = await get_settings(db)
 
     return_order = await create_return_order_crud(
@@ -83,7 +74,7 @@ async def create_return_order(
 
 @return_order_router.get("/borrowed-books", response_model=List[BorrowedBooksResponse])
 async def get_borrowed_books(
-    user: User = Depends(get_user), db: AsyncSession = Depends(get_db)
+    user: User = Depends(get_user_via_session), db: AsyncSession = Depends(get_db)
 ):
     borrowed_books = await get_borrowed_books_crud(user.id, db)
     return borrowed_books
@@ -93,10 +84,10 @@ async def get_borrowed_books(
     "/return-order-status",
     response_model=UpdateReturnOrderStatusRequest,
 )
-async def update_order_status(
+async def update_return_order_status(
     return_order_data: Annotated[UpdateReturnOrderStatusRequest, Body()],
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_staff_user),
+    staff_user: User = Depends(get_staff_user),
 ):
     try:
         query = (
@@ -120,14 +111,16 @@ async def update_order_status(
                 detail=f"Return Order with id {return_order_data.id} not found.",
             )
 
-        if user.role == UserRole.COURIER:
-            Validate_return_order_for_courier(return_order_data, db_return_order, user)
+        if staff_user.role == UserRole.COURIER:
+            validate_return_order_for_courier(return_order_data, db_return_order, staff_user)
 
-        if user.role == UserRole.EMPLOYEE:
-            Validate_return_order_for_employee(return_order_data, db_return_order, user)
+        if staff_user.role == UserRole.EMPLOYEE:
+            validate_return_order_for_employee(
+                return_order_data, db_return_order
+            )
 
         if return_order_data.status == ReturnOrderStatus.ON_THE_WAY.value:
-            db_return_order.courier_id = user.id
+            db_return_order.courier_id = staff_user.id
 
         if (
             return_order_data.status == ReturnOrderStatus.DONE.value
@@ -145,24 +138,23 @@ async def update_order_status(
             now_utc = datetime.now(timezone.utc)
 
             for book in db_return_order.borrow_order_books_details:
-                if book.return_date is None:
+                if book.expected_return_date is None:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
-                        detail=f"Book with id {book.id} has not been returned yet.",
+                        detail=f"Book with id {book.id} has not been picked up yet.",
                     )
 
                 if book.borrow_book_problem == BorrowBookProblem.NORMAL:
-                    if book.return_date < now_utc:
+                    if (
+                        book.expected_return_date
+                        and book.expected_return_date < now_utc
+                    ):
                         amount_to_withdraw += (
-                            now_utc - book.return_date
+                            now_utc - book.expected_return_date
                         ).days * book.delay_fees_per_day
                     else:
                         amount_to_add += book.deposit_fees
-
-                elif (
-                    book.borrow_book_problem == BorrowBookProblem.LOST
-                    or book.borrow_book_problem == BorrowBookProblem.DAMAGED
-                ):
+                elif book.borrow_book_problem == BorrowBookProblem.LOST:
                     if book.promo_code_discount is not None:
                         amount_to_withdraw += (
                             book.original_book_price
@@ -173,6 +165,8 @@ async def update_order_status(
                         amount_to_withdraw += (
                             book.original_book_price - book.deposit_fees
                         )
+
+            # This after for loop
             if amount_to_add > 0:
                 await add_to_wallet(
                     db=db,

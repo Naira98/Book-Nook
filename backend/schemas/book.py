@@ -63,7 +63,7 @@ class UpdateBookData(BaseModel):
 class BookTableSchema(BaseModel):
     id: int
     title: str
-    price: str
+    price: Decimal
     author_name: str = Field(..., alias="author_name")  # Alias to match the joined data
     category_name: str = Field(..., alias="category_name")
     available_stock_purchase: Optional[int] = None

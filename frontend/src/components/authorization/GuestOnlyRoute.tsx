@@ -1,12 +1,14 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useGetMe } from "../../hooks/auth/useGetMe";
+import Spinner from "../shared/Spinner";
+import { getHomePath } from "../../utils/getHomePath";
 
 export default function GuestOnlyRoute() {
   const { me, isPending } = useGetMe();
 
-  if (isPending) return <div>Loading...</div>;
+  if (isPending) return <Spinner />;
 
-  if (me) return <Navigate to="/" replace />;
+  if (me) return <Navigate to={getHomePath(me.role)} replace />;
 
   return <Outlet />;
 }

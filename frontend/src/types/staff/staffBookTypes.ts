@@ -1,6 +1,6 @@
 export interface IAddBookData {
   title: string;
-  price: number;
+  price: string;
   description: string;
   publish_year: number;
   author_id: number;

@@ -48,7 +48,7 @@ async def add_to_cart_crud(
             return cart_item
         except Exception as e:
             await db.rollback()
-            raise
+            raise e
 
     elif book_details.status.value == "PURCHASE":
         existing_item = await db.execute(

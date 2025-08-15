@@ -9,6 +9,11 @@ from datetime import timezone
 from db.database import get_db
 
 
+async def get_user_by_id(id: int, db: AsyncSession):
+    result = await db.execute(select(User).where(User.id == id))
+    return result.scalars().first()
+
+
 async def get_user_by_email(email: str, db: AsyncSession):
     result = await db.execute(select(User).where(User.email == email))
     return result.scalars().first()
@@ -25,7 +30,7 @@ async def get_user_session(
     return session_token
 
 
-async def get_user_id(
+async def get_user_id_via_session(
     session_token: str = Depends(get_user_session),
     db: AsyncSession = Depends(get_db),
 ):
@@ -45,7 +50,7 @@ async def get_user_id(
     return session_data.user_id
 
 
-async def get_user(
+async def get_user_via_session(
     session_token: str = Depends(get_user_session),
     db: AsyncSession = Depends(get_db),
 ) -> User:
@@ -72,7 +77,7 @@ async def get_user(
     return session.user
 
 
-async def get_staff_user(user: User = Depends(get_user)):
+async def get_staff_user(user: User = Depends(get_user_via_session)):
     if (
         user.role != UserRole.EMPLOYEE
         and user.role != UserRole.MANAGER

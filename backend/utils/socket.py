@@ -11,7 +11,7 @@ async def send_created_order(
         "id": order.id,
         "created_at": order.created_at.isoformat(),
         "address": order.address,
-        "pick_up_type": order.pick_up_type.value,
+        "pickup_type": order.pickup_type.value,
         "phone_number": order.phone_number,
         "user": {
             "first_name": order.user.first_name,
@@ -19,15 +19,15 @@ async def send_created_order(
         },
         "number_of_books": len(borrow_order_books) + len(purchase_order_books),
         "courier_id": order.courier_id,
-        "pick_up_date": order.pick_up_date,
+        "pickup_date": order.pickup_date,
         "status": order.status,
     }
-    if order.pick_up_type == PickUpType.COURIER:
+    if order.pickup_type == PickUpType.COURIER:
         await webSocket_connection_manager.broadcast_to_role(
             {"message": "order_created", "order": new_order_object}, UserRole.COURIER
         )
 
-    if order.pick_up_type == PickUpType.SITE:
+    if order.pickup_type == PickUpType.SITE:
         await webSocket_connection_manager.broadcast_to_role(
             {"message": "order_created", "order": new_order_object}, UserRole.EMPLOYEE
         )
@@ -40,7 +40,7 @@ async def send_created_return_order(
         "id": return_order.id,
         "created_at": return_order.created_at.isoformat(),
         "address": return_order.address,
-        "pick_up_type": return_order.pick_up_type.value,
+        "pickup_type": return_order.pickup_type.value,
         "phone_number": return_order.phone_number,
         "user": {
             "first_name": return_order.user.first_name,
@@ -50,13 +50,13 @@ async def send_created_return_order(
         "courier_id": return_order.courier_id,
         "status": return_order.status.value,
     }
-    if return_order.pick_up_type == PickUpType.COURIER:
+    if return_order.pickup_type == PickUpType.COURIER:
         await webSocket_connection_manager.broadcast_to_role(
             {"message": "return_order_created", "return_order": new_order_object},
             UserRole.COURIER,
         )
 
-    if return_order.pick_up_type == PickUpType.SITE:
+    if return_order.pickup_type == PickUpType.SITE:
         await webSocket_connection_manager.broadcast_to_role(
             {"message": "return_order_created", "return_order": new_order_object},
             UserRole.EMPLOYEE,
@@ -92,7 +92,7 @@ async def send_courier_return_order(return_order: ReturnOrder):
         "id": return_order.id,
         "created_at": return_order.created_at.isoformat(),
         "address": return_order.address,
-        "pick_up_type": return_order.pick_up_type.value,
+        "pickup_type": return_order.pickup_type.value,
         "phone_number": return_order.phone_number,
         "user": {
             "first_name": return_order.user.first_name,

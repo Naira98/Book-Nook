@@ -10,6 +10,7 @@ import { useGetBookDetailsForUpdate } from "../../hooks/books/useGetBookDetalsFo
 import { useGetCategories } from "../../hooks/books/useGetCategories";
 import { useUpdateBook } from "../../hooks/books/useUpdateBook";
 import type { IUpdateBookData } from "../../types/staff/staffBookTypes";
+import Spinner from "../../components/shared/Spinner";
 
 const UpdateBookPage = () => {
   const { book_id } = useParams<{ book_id: string }>();
@@ -26,7 +27,7 @@ const UpdateBookPage = () => {
     isCategoriesPending ||
     isAuthorsPending
   ) {
-    return <div>Loading...</div>;
+    return <Spinner />;
   }
 
   const onSubmit = (values: IUpdateBookData) => {
@@ -40,7 +41,7 @@ const UpdateBookPage = () => {
     if (!values.description) errors.description = "Description is required";
     if (!values.category_id) errors.category_id = "Category is required";
     if (!values.author_id) errors.author_id = "Author is required";
-    if (isNaN(values.price) || Number(values.price) <= 0)
+    if (!values.price || Number(values.price) <= 0)
       errors.price = "Price must be a positive number";
     if (!values.publish_year) {
       errors.publish_year = "Publish year is required";
