@@ -2,38 +2,38 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import Navbar from "./components/Navbar";
+import GuestOnlyRoute from "./components/authorization/GuestOnlyRoute";
 import RoleBasedRoute from "./components/authorization/RoleBasedRoute";
+import CourierLayout from "./components/courier/CourierLayout";
 import EmployeeLayout from "./components/staff/EmployeeLayout";
 import Home from "./pages/Home";
+import NotFoundPage from "./pages/NotFoundPage";
+import UnauthorizedPage from "./pages/UnauthorizedPage";
 import ForgetPassword from "./pages/auth/ForgetPassword";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
-import OrderPage from "./pages/courier/OrdersPage";
-import BooksTablePage from "./pages/employee/BooksTablePage";
-// import GuestOnlyRoute from "./components/authorization/GuestOnlyRoute";
-import Navbar from "./components/Navbar";
-import CourierLayout from "./components/courier/CourierLayout";
-import NotFoundPage from "./pages/NotFoundPage";
-import UnauthorizedPage from "./pages/UnauthorizedPage";
 import BorrowBooks from "./pages/client/BorrowBooks";
 import PurchaseBooks from "./pages/client/PurchaseBooks";
+import OrderPage from "./pages/courier/OrdersPage";
 import AddAuthorPage from "./pages/employee/AddAuthorPage";
 import AddBookPage from "./pages/employee/AddBookPage";
 import AddCategoryPage from "./pages/employee/AddCategoryPage";
+import BooksTablePage from "./pages/employee/BooksTablePage";
 import UpdateBookPage from "./pages/employee/UpdateBookPage";
 import { UserRole } from "./types/User";
 
 import OrdersListPage from "./pages/auth/OrdersListPage";
+import CheckoutSuccess from "./pages/client/CheckoutSuccess";
 import Footer from "./pages/client/Footer";
+import TransactionsPage from "./pages/client/TransactionsPage";
 
 import CourierOrderDetailsPage from "./pages/courier/OrderDetailsPage";
 import CourierReturnOrderDetailsPage from "./pages/courier/RetrunOrderDetailsPage";
 import StaffOrdersPage from "./pages/employee/OrdersPage";
 import EmployeeOrderDetailsPage from "./pages/employee/OrderDetailsPage";
 import EmployeeReturnOrderDetailsPage from "./pages/employee/RetrunOrderDetailsPage";
-import OrderDetailsPage from "./pages/courier/OrderDetailsPage";
-import CheckoutPage from "./pages/client/checkOut";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -44,52 +44,68 @@ const App = () => {
         <ReactQueryDevtools initialIsOpen={false} />
         <Routes>
           {/* GUEST-only routes */}
-          {/* <Route element={<GuestOnlyRoute />}> */}
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/forget-password" element={<ForgetPassword />} />
-          <Route
-            path="/reset-password/:reset_token"
-            element={<ResetPassword />}
-          />
-          {/* handle checkOut page routing  */}
-          <Route
-            path="/borrow-books"
-            element={
-              <>
-                <Navbar />
-                <BorrowBooks />
-              </>
-            }
-          />
-          <Route
-            path="/checkout"
-            element={
-              <>
-                <Navbar />
-                <CheckoutPage />  
-                    </>
-            }
-          />
-          <Route
-            path="/purchase-books"
-            element={
-              <>
-                <Navbar />
-                <PurchaseBooks />
-              </>
-            }
-          />
-          {/* </Route> */}
+          <Route element={<GuestOnlyRoute />}>
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/forget-password" element={<ForgetPassword />} />
+            <Route
+              path="/reset-password/:reset_token"
+              element={<ResetPassword />}
+            />
+            <Route
+              path="/borrow-books"
+              element={
+                <>
+                  <Navbar />
+                  <BorrowBooks />
+                </>
+              }
+            />
+            <Route
+              path="/purchase-books"
+              element={
+                <>
+                  <Navbar />
+                  <PurchaseBooks />
+                </>
+              }
+            />
+          </Route>
 
           {/* CLIENT-only routes */}
-          {/* <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}> */}
-          <Route path="/" element={<Home />} />
-          {/* </Route> */}
+          <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}>
+            <Route path="/" element={<Home />} />
+            <Route
+              path="/borrow-books"
+              element={
+                <>
+                  <Navbar />
+                  <BorrowBooks />
+                  <Footer />
+                </>
+              }
+            />
+            <Route
+              path="/purchase-books"
+              element={
+                <>
+                  <Navbar />
+                  <PurchaseBooks />
+                  <Footer />
+                </>
+              }
+            />
+            <Route path="/transactions" element={<TransactionsPage />} />
+            <Route path="/checkout-success" element={<CheckoutSuccess />} />
+          </Route>
 
           {/* EMPLOYEE-only routes */}
           <Route
-            element={<RoleBasedRoute allowedRoles={[UserRole.EMPLOYEE]} />}
+            element={
+              <RoleBasedRoute
+                allowedRoles={[UserRole.EMPLOYEE, UserRole.MANAGER]}
+              />
+            }
           >
             <Route element={<EmployeeLayout />}>
               <Route path="/staff/books" element={<BooksTablePage />} />
@@ -144,28 +160,6 @@ const App = () => {
 
           {/* Notfound route */}
           <Route path="*" element={<NotFoundPage />} />
-          {/* <Route path="/borrow-books" element={<><Navbar/><BorrowBooks /></>} /> */}
-          {/* <Route path="/purchase-books" element={<><Navbar/><PurchaseBooks /></>} /> */}
-          <Route
-            path="/borrow-books"
-            element={
-              <>
-                <Navbar />
-                <BorrowBooks />
-                <Footer />
-              </>
-            }
-          />
-          <Route
-            path="/purchase-books"
-            element={
-              <>
-                <Navbar />
-                <PurchaseBooks />
-                <Footer />
-              </>
-            }
-          />
         </Routes>
 
         <ToastContainer

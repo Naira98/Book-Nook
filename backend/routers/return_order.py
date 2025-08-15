@@ -21,7 +21,7 @@ from schemas.order import (
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
-from utils.auth import get_staff_user, get_user
+from utils.auth import get_staff_user, get_user_via_session
 from utils.order import (
     validate_borrowed_books,
     validate_return_order_for_courier,
@@ -39,7 +39,7 @@ return_order_router = APIRouter(
 @return_order_router.post("/")
 async def create_return_order(
     return_return_order_data: ReturnOrderRequest,
-    user: User = Depends(get_user),
+    user: User = Depends(get_user_via_session),
     db: AsyncSession = Depends(get_db),
 ):
     borrowed_books = await get_borrowed_books_crud(user.id, db)
@@ -66,7 +66,7 @@ async def create_return_order(
 
 @return_order_router.get("/borrowed-books", response_model=List[BorrowedBooksResponse])
 async def get_borrowed_books(
-    user: User = Depends(get_user), db: AsyncSession = Depends(get_db)
+    user: User = Depends(get_user_via_session), db: AsyncSession = Depends(get_db)
 ):
     borrowed_books = await get_borrowed_books_crud(user.id, db)
     return borrowed_books
@@ -146,9 +146,7 @@ async def update_return_order_status(
                         ).days * book.delay_fees_per_day
                     else:
                         amount_to_add += book.deposit_fees
-                elif (
-                    book.borrow_book_problem == BorrowBookProblem.LOST.value
-                ):
+                elif book.borrow_book_problem == BorrowBookProblem.LOST.value:
                     if book.promo_code_discount is not None:
                         amount_to_withdraw += (
                             book.original_book_price
@@ -203,7 +201,7 @@ async def update_return_order_status(
 async def get_order_details(
     return_order_id: int,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_user),
+    user: User = Depends(get_user_via_session),
 ):
     conditions = [ReturnOrder.id == return_order_id]
 

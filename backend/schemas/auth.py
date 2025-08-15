@@ -1,5 +1,4 @@
 from decimal import Decimal
-from typing import Literal
 
 from models.user import UserRole
 from pydantic import BaseModel, ConfigDict, EmailStr
@@ -23,18 +22,6 @@ class LoginResponse(UserBase):
     interests: str | None
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
-
-
-# JWT token response
-class Token(BaseModel):
-    token: str
-    token_type: Literal["bearer"] = "bearer"
-
-
-# JWT token data (payload inside JWT)
-class TokenData(BaseModel):
-    id: int
-    role: str
 
 
 class ForgetPasswordRequest(UserBase):

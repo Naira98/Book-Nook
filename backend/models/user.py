@@ -50,6 +50,9 @@ class User(Base):
         String, unique=True, nullable=True
     )
     email_verification_token: Mapped[str | None] = mapped_column(String, nullable=True)
+    stripe_session_id: Mapped[str | None] = mapped_column(
+        String(255), unique=True, nullable=True
+    )
 
     # Foreign Keys
     cart: Mapped[list[Cart]] = relationship(  # type: ignore  # noqa: F821

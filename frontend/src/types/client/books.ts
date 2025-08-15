@@ -1,4 +1,4 @@
-export type BookStatus = 'BORROW' | 'PURCHASE';
+export type BookStatus = "BORROW" | "PURCHASE";
 
 export interface Author {
   id: number;
@@ -18,7 +18,7 @@ export interface BookDetails {
 export interface Book {
   id: number;
   title: string;
-  price: number;
+  price: string;
   description: string;
   cover_img: string | null;
   author: Author;

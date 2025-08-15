@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from typing import Any, List, Optional, TypedDict
 
 from models.book import BookStatus
@@ -32,6 +33,9 @@ class ReturnOrderRequest(BaseModel):
     status: ReturnOrderStatus
     address: str
     phone_number: str
+    created_at: datetime
+    delivery_fees: Optional[Decimal]
+    courier_id: Optional[int]
     borrowed_books_ids: List[int]
 
 
@@ -68,7 +72,7 @@ class BorrowOrderBookSchema(BaseModel):
     delay_fees_per_day: float
     return_order_id: Optional[int]
     book_details: BookDetailsSchema
-    original_book_price: float
+    original_book_price: Decimal
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
@@ -76,8 +80,8 @@ class BorrowOrderBookSchema(BaseModel):
 class PurchaseOrderBookSchema(BaseModel):
     id: int
     quantity: int
-    paid_price_per_book: float
-    promo_code_discount_per_book: Optional[float]
+    paid_price_per_book: Decimal
+    promo_code_discount_per_book: Optional[Decimal]
     book_details: BookDetailsSchema
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
@@ -179,6 +183,8 @@ class UpdateOrderStatusResponse(AllOrdersResponse):
 
 
 """ TypedDict not pydantic schema """
+
+
 class BorrowBookItem(TypedDict):
     book_details_id: int
     borrowing_weeks: int
