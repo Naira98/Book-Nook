@@ -59,7 +59,6 @@ async def create_checkout_session(
 
         user.stripe_session_id = checkout_session.id
 
-        db.add(user)
         await db.commit()
         await db.refresh(user)
 
