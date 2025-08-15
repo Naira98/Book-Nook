@@ -68,7 +68,7 @@ async def read_user_cart(
                 id=cart_item.id,
                 book_details_id=cart_item.book_details_id,
                 borrowing_weeks=cart_item.borrowing_weeks,
-                borrow_fees_per_week=fees_data["boorow_fees_per_week"],
+                borrow_fees_per_week=fees_data["borrow_fees_per_week"],
                 deposit_fees=fees_data["deposit_fees"],
                 delay_fees_per_day=fees_data["delay_fees_per_day"],
                 book=cart_item.book_details.book,
