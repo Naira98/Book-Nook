@@ -63,7 +63,7 @@ const OrderDetailsPage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <MainButton
-        onClick={() => navigate("/courier/orders")}
+        onClick={() => navigate("/employee/orders")}
         className="mb-4 !w-auto px-4"
         label="Back to Orders"
       ></MainButton>

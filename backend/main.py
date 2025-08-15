@@ -14,6 +14,7 @@ from routers.order import order_router
 from routers.promo_code import promo_code_router
 from routers.wallet import wallet_router
 from routers.websocket import websocket_router
+from routers.return_order import return_order_router
 from settings import settings
 
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__))))
@@ -55,6 +56,7 @@ api_router.include_router(promo_code_router)
 api_router.include_router(order_router)
 api_router.include_router(websocket_router)
 api_router.include_router(wallet_router)
+api_router.include_router(return_order_router)
 
 
 app.include_router(api_router)

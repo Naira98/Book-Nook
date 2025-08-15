@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Annotated, List, Optional
 
+from core.websocket import webSocket_connection_manager
 from db.database import get_db
-from fastapi import APIRouter, Depends, HTTPException, status, Body
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from models.book import BookDetails
 from models.cart import Cart
 from models.order import (
@@ -11,32 +12,31 @@ from models.order import (
     BorrowOrderBook,
     Order,
     OrderStatus,
-    PurchaseOrderBook,
     PickUpType,
+    PurchaseOrderBook,
     ReturnOrder,
 )
-from core.websocket import webSocket_connection_manager
 from models.user import User, UserRole
 from schemas.order import (
     BorrowOrderBookUpdateProblemResponse,
     CreateOrderRequest,
-    OrderCreatedUpdateResponse,
-    OrderResponseSchema,
     GetAllOrdersResponse,
-    UpdateOrderStatusRequest,
+    OrderCreatedUpdateResponse,
     OrderDetailsResponseSchema,
+    OrderResponseSchema,
+    UpdateOrderStatusRequest,
 )
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 from utils.auth import get_user_via_session, get_staff_user
+from utils.cart import validate_borrowing_limit, get_user_cart
 from utils.order import (
     calculate_borrow_order_book_fees,
     calculate_purchase_order_book_fees,
     get_delivery_fees,
     get_promo_code_discount_perc,
     validate_borrow_book_and_borrowing_weeks_and_available_stock,
-    validate_borrowing_limit,
     validate_purchase_book_and_available_stock,
 )
 from utils.settings import get_settings
@@ -48,6 +48,7 @@ order_router = APIRouter(
 )
 
 
+# For Client
 @order_router.get(
     "/", response_model=List[OrderResponseSchema], status_code=status.HTTP_200_OK
 )
@@ -87,20 +88,23 @@ async def get_orders(
         )
 
 
+# For Staff
 @order_router.get(
     "/all", response_model=GetAllOrdersResponse, status_code=status.HTTP_200_OK
 )
 async def get_all_orders(
     user: Annotated[User, Depends(get_staff_user)],
-    order_status: PickUpType,
+    pickup_type: PickUpType,
     db: AsyncSession = Depends(get_db),
     courier_id: Optional[int | None] = None,
 ):
     try:
-        conditions = [Order.pick_up_type == order_status]
+        order_conditions = [Order.pickup_type == pickup_type]
+        return_order_conditions = [ReturnOrder.pickup_type == pickup_type]
 
         if courier_id is not None:
-            conditions.append(Order.courier_id == courier_id)
+            order_conditions.append(Order.courier_id == courier_id)
+            return_order_conditions.append(ReturnOrder.courier_id == courier_id)
 
         get_orders_query = (
             select(Order)
@@ -117,14 +121,13 @@ async def get_all_orders(
             .options(selectinload(ReturnOrder.borrow_order_books_details))
         )
 
-        get_orders_query = get_orders_query.where(*conditions).order_by(
+        get_orders_query = get_orders_query.where(*order_conditions).order_by(
             Order.created_at.desc()
         )
-        get_return_orders_query = get_return_orders_query.where(*conditions).order_by(
-            ReturnOrder.created_at.desc()
-        )
+        get_return_orders_query = get_return_orders_query.where(
+            *return_order_conditions
+        ).order_by(ReturnOrder.created_at.desc())
 
-        # .order_by(Order.created_at.desc())
         orders_result = await db.execute(get_orders_query)
         return_orders_result = await db.execute(get_return_orders_query)
 
@@ -156,22 +159,26 @@ async def get_all_orders(
     "/", response_model=OrderCreatedUpdateResponse, status_code=status.HTTP_201_CREATED
 )
 async def create_order(
-    cart: CreateOrderRequest,
+    order_data: CreateOrderRequest,
     user: Annotated[User, Depends(get_user_via_session)],
     db: AsyncSession = Depends(get_db),
 ):
     try:
         settings = await get_settings(db)
 
-        # Check borrowing limit
-        validate_borrowing_limit(cart, user, settings.max_num_of_borrow_books)
+        cart = await get_user_cart(user.id, db)
 
-        promo_code_discount_perc = await get_promo_code_discount_perc(cart, db)
+        # Check borrowing limit
+        borrowing_book_count = len(cart["borrow_books"])
+
+        await validate_borrowing_limit(db, user, settings.max_num_of_borrow_books)
+
+        promo_code_discount_perc = await get_promo_code_discount_perc(order_data, db)
 
         # Fetch all BookDetails and their related Book objects
-        book_details_ids = [item.book_details_id for item in cart.borrow_books] + [
-            item.book_details_id for item in cart.purchase_books
-        ]
+        book_details_ids = [
+            item["book_details_id"] for item in cart["borrow_books"]
+        ] + [item["book_details_id"] for item in cart["purchase_books"]]
 
         stmt = (
             select(BookDetails)
@@ -179,6 +186,7 @@ async def create_order(
             .where(BookDetails.id.in_(book_details_ids))
         )
         result = await db.execute(stmt)
+
         book_details_map = {
             book_details.id: book_details for book_details in result.scalars().all()
         }
@@ -188,30 +196,30 @@ async def create_order(
         total_order_value = Decimal("0.0")
 
         # Delivery fees
-        delivery_fees = get_delivery_fees(cart, settings.delivery_fees)
+        delivery_fees = get_delivery_fees(order_data, settings.delivery_fees)
         if delivery_fees is not None:
             total_order_value = total_order_value + delivery_fees
 
         # Create the main Order object
         order = Order(
-            address=cart.address,
-            phone_number=cart.phone_number,
-            pick_up_date=None,
-            pick_up_type=cart.pick_up_type,
+            address=order_data.address,
+            phone_number=order_data.phone_number,
+            pickup_date=None,
+            pickup_type=order_data.pickup_type,
             status=OrderStatus.CREATED.value,
             delivery_fees=delivery_fees,
             user_id=user.id,
-            promo_code_id=cart.promo_code_id,
+            promo_code_id=order_data.promo_code_id,
         )
         db.add(order)
 
         # Borrowed books
-        for item in cart.borrow_books:
-            book_details = book_details_map.get(item.book_details_id)
+        for item in cart["borrow_books"]:
+            book_details = book_details_map.get(item["book_details_id"])
             if not book_details:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Book details with id {item.book_details_id} not found.",
+                    detail=f"Book details with id {item['book_details_id']} not found.",
                 )
 
             validate_borrow_book_and_borrowing_weeks_and_available_stock(
@@ -221,7 +229,7 @@ async def create_order(
             # Calculate borrowing fees for each book using the updated function
             fees_data = calculate_borrow_order_book_fees(
                 book_price=book_details.book.price,
-                borrowing_weeks=item.borrowing_weeks,
+                borrowing_weeks=item["borrowing_weeks"],
                 borrow_perc=settings.borrow_perc,
                 deposit_perc=settings.deposit_perc,
                 delay_perc=settings.delay_perc,
@@ -238,7 +246,7 @@ async def create_order(
 
             # Create a single BorrowOrderBook record for each borrowed item
             borrow_book = BorrowOrderBook(
-                borrowing_weeks=item.borrowing_weeks,
+                borrowing_weeks=item["borrowing_weeks"],
                 borrow_book_problem=BorrowBookProblem.NORMAL.value,
                 deposit_fees=deposit_fees,
                 borrow_fees=borrow_fees,
@@ -248,7 +256,8 @@ async def create_order(
                 book_details_id=book_details.id,
                 order=order,
                 user_id=user.id,
-                return_date=None,
+                actual_return_date=None,
+                expected_return_date=None,
                 return_order_id=None,
             )
             borrow_order_books.append(borrow_book)
@@ -257,12 +266,12 @@ async def create_order(
             book_details.available_stock -= 1
 
         # Purchased books
-        for item in cart.purchase_books:
-            book_details = book_details_map.get(item.book_details_id)
+        for item in cart["purchase_books"]:
+            book_details = book_details_map.get(item["book_details_id"])
             if not book_details:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Book details with id {item.book_details_id} not found.",
+                    detail=f"Book details with id {item['book_details_id']} not found.",
                 )
 
             validate_purchase_book_and_available_stock(item, book_details)
@@ -279,11 +288,13 @@ async def create_order(
             ]
 
             # Add the total price (after discount) to the overall order value
-            total_order_value = total_order_value + paid_price_per_book * item.quantity
+            total_order_value = (
+                total_order_value + paid_price_per_book * item["quantity"]
+            )
 
             # Create a single PurchaseOrderBook record
             purchase_book = PurchaseOrderBook(
-                quantity=item.quantity,
+                quantity=item["quantity"],
                 paid_price_per_book=paid_price_per_book,
                 promo_code_discount_per_book=promo_code_discount_per_book,
                 order=order,
@@ -293,7 +304,7 @@ async def create_order(
             purchase_order_books.append(purchase_book)
 
             # Decrement stock
-            book_details.available_stock -= item.quantity
+            book_details.available_stock -= item["quantity"]
 
         # This ensures order.id is available to link the transaction as transaction is not a direct child to order
         await db.flush()
@@ -306,6 +317,7 @@ async def create_order(
             description=f"Payment for Order ID: {order.id}",
             order_id=order.id,
         )
+        user.current_borrowed_books += borrowing_book_count
 
         # Add all new order books to the session
         db.add_all(borrow_order_books)
@@ -316,7 +328,7 @@ async def create_order(
         # Commit the transaction
         await db.commit()
 
-        if order.pick_up_type == PickUpType.COURIER:
+        if order.pickup_type == PickUpType.COURIER:
             await webSocket_connection_manager.broadcast_to_role(
                 {"message": "order_created", "order_id": order.id}, UserRole.COURIER
             )
@@ -392,9 +404,8 @@ async def get_order_details(
         raise e
 
 
-# TODO: ensure employee or courier who update order status
 @order_router.patch(
-    "/order_status",
+    "/order-status",
     response_model=UpdateOrderStatusRequest,
     status_code=status.HTTP_200_OK,
 )
@@ -440,7 +451,13 @@ async def update_order_status(
                     detail="You are not authorized to update this order's status.",
                 )
 
-            order.pick_up_date = datetime.now()
+            order.pickup_date = datetime.now()
+
+            for book in order.borrow_order_books_details:
+                book.expected_return_date = datetime.now() + timedelta(
+                    weeks=book.borrowing_weeks
+                )
+
         elif order_Data.status == OrderStatus.PROBLEM:
             # TODO: send notification to user about the problem
             pass
@@ -525,6 +542,8 @@ async def update_borrow_order_book_status(
                 order_id=None,
             )
 
+        borrow_order_book.actual_return_date = datetime.now()
+
         borrow_order_book.borrow_book_problem = new_status
         await db.commit()
         await db.refresh(borrow_order_book)
@@ -543,6 +562,3 @@ async def update_borrow_order_book_status(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An unexpected error occurred while updating the borrow order book status: {str(e)}",
         )
-
-
-# PATCH /return_order/{order_id}  update status. order_id

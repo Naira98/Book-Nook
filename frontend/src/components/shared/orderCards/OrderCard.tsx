@@ -2,23 +2,26 @@ import { useNavigate } from "react-router-dom";
 import { MapPin, Box, User, BookOpen } from "lucide-react";
 import {
   OrderStatus,
+  PickUpType,
   ReturnOrderStatus,
   type Order,
   type changeOrderStatusRequest,
 } from "../../../types/Orders";
 import { useChangeOrderStatus } from "../../../hooks/orders/useChangeOrderStatus";
-import MainButton from "../../shared/buttons/MainButton";
+import MainButton from "../buttons/MainButton";
 
 type OrderCard = {
   getStatusIcon: (status: OrderStatus | ReturnOrderStatus) => string;
   order: Order;
   getStatusColor: (status: OrderStatus | ReturnOrderStatus) => string;
+  pickUpType: PickUpType;
 };
 
 export default function OrderCard({
   order,
   getStatusIcon,
   getStatusColor,
+  pickUpType,
 }: OrderCard) {
   const navigate = useNavigate();
   const { changeOrderStatus, isPending } = useChangeOrderStatus();
@@ -97,15 +100,11 @@ export default function OrderCard({
                 handleChangeStatus({
                   ...order,
                   order_id: order.id,
-                  status: OrderStatus.ON_THE_WAY,
+                  status:
+                    pickUpType == PickUpType.COURIER
+                      ? OrderStatus.ON_THE_WAY
+                      : OrderStatus.PICKED_UP,
                 });
-                console.log(
-                  JSON.stringify({
-                    ...order,
-                    order_id: order.id,
-                    status: OrderStatus.ON_THE_WAY,
-                  }),
-                );
               }}
               loading={isPending}
               className="h-[30px] !w-20"
@@ -114,7 +113,11 @@ export default function OrderCard({
           ) : (
             <MainButton
               onClick={() => {
-                navigate(`/order/${order.id}`);
+                navigate(
+                  pickUpType == PickUpType.COURIER
+                    ? `/return-order/${order.id}`
+                    : `/employee/orders/${order.id}`,
+                );
               }}
               className="h-[30px] !w-20 !bg-gray-200 !text-gray-700 hover:!bg-gray-50"
               label="Details"
