@@ -16,6 +16,7 @@ import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
 import BorrowBooks from "./pages/client/BorrowBooks";
 import PurchaseBooks from "./pages/client/PurchaseBooks";
+import CartPage from "./pages/client/CartPage";
 import OrderPage from "./pages/courier/OrdersPage";
 import AddAuthorPage from "./pages/employee/AddAuthorPage";
 import AddBookPage from "./pages/employee/AddBookPage";
@@ -23,7 +24,7 @@ import AddCategoryPage from "./pages/employee/AddCategoryPage";
 import BooksTablePage from "./pages/employee/BooksTablePage";
 import UpdateBookPage from "./pages/employee/UpdateBookPage";
 import { UserRole } from "./types/User";
-
+import ChechoutPage from "./pages/client/Checkout";
 import OrdersListPage from "./pages/auth/OrdersListPage";
 import CheckoutSuccess from "./pages/client/CheckoutSuccess";
 import Footer from "./pages/client/Footer";
@@ -97,6 +98,8 @@ const App = () => {
             />
             <Route path="/transactions" element={<TransactionsPage />} />
             <Route path="/checkout-success" element={<CheckoutSuccess />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<ChechoutPage />} />
           </Route>
 
           {/* EMPLOYEE-only routes */}

@@ -6,15 +6,12 @@ import type { IBookTable } from "../../types/BookTable";
 export const useAddBook = () => {
   const queryClient = useQueryClient();
 
-  const {
-    mutate: addBook,
-    isPending,
-  } = useMutation({
+  const { mutate: addBook, isPending } = useMutation({
     mutationFn: addBookApi,
     onSuccess: (newBook: IBookTable) => {
       const oldData = queryClient.getQueryData(["allBooksTable"]);
 
-      if (oldData) {
+      if (oldData != undefined) {
         queryClient.setQueryData(
           ["allBooksTable"],
           (oldData: IBookTable[] | undefined) => {

@@ -16,7 +16,7 @@ import { useGetMe } from "../../hooks/auth/useGetMe";
 import { useCreateCheckoutSession } from "../../hooks/transactions/useCreateCheckoutSession";
 import { useGetTransactions } from "../../hooks/transactions/useGetTransactions";
 import { TransactionType } from "../../types/Transactions";
-import { formatClock, formatMoeny } from "../../utils/formatting";
+import { formatClock, formatMoney } from "../../utils/formatting";
 import { groupTransactionsByDate } from "../../utils/transactions";
 
 const TransactionsPage = () => {
@@ -38,7 +38,7 @@ const TransactionsPage = () => {
       createCheckoutSession(amount);
     }
   };
-  
+
   const groupedTransactions = groupTransactionsByDate(transactions || []);
 
   const formatAmount = (amount: string, type: TransactionType) => {
@@ -47,7 +47,7 @@ const TransactionsPage = () => {
       type === TransactionType.ADDING ? "text-success" : "text-error";
     return (
       <span className={`font-semibold ${color}`}>
-        {sign} {formatMoeny(amount)} EGP
+        {sign} {formatMoney(amount)} EGP
       </span>
     );
   };
@@ -89,7 +89,7 @@ const TransactionsPage = () => {
           <div className="p-6">
             <h2 className="mb-4 text-xl font-semibold">Account Balance</h2>
             <div className="text-primary text-3xl font-bold">
-              {me!.wallet ? formatMoeny(me!.wallet) : "0.00"} EGP
+              {me!.wallet ? formatMoney(me!.wallet) : "0.00"} EGP
             </div>
             <p className="mt-2 text-gray-600">
               Available balance for transactions

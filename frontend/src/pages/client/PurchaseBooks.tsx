@@ -4,7 +4,7 @@ import type { Book } from "../../types/client/books";
 import SearchBar from "../../components/client/SearchBar";
 import BookCard from "../../components/client/BookCard";
 import { purchaseBooksDummy } from "../../data/mockData";
-import { formatMoeny } from "../../utils/formatting";
+import { formatMoney } from "../../utils/formatting";
 
 const PurchaseBooks: React.FC = () => {
   const [books, setBooks] = useState<Book[]>(purchaseBooksDummy);
@@ -72,7 +72,7 @@ const PurchaseBooks: React.FC = () => {
     const allBooks = books.length > 0 ? books : purchaseBooksDummy;
     return Object.entries(cart).reduce((total, [bookId, quantity]) => {
       const book = allBooks.find((b) => b.id === parseInt(bookId));
-      const bookPrice = book ? parseFloat(formatMoeny(book.price)) : 0;
+      const bookPrice = book ? parseFloat(formatMoney(book.price)) : 0;
       return total + bookPrice * quantity;
     }, 0);
   };
@@ -162,7 +162,7 @@ const PurchaseBooks: React.FC = () => {
                 <div className="px-4 pt-2 pb-4">
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-l text-primary font-bold">
-                      {formatMoeny(book.price)} EGP
+                      {formatMoney(book.price)} EGP
                     </span>
                     <span className="text-sm text-gray-600">
                       Available: {book.book_details[0]?.available_stock || 0}
@@ -187,7 +187,7 @@ const PurchaseBooks: React.FC = () => {
                           <Plus className="h-4 w-4" />
                         </button>
                         <span className="text-primary ml-4 text-sm font-medium">
-                          {parseFloat(formatMoeny(book.price)) * cart[book.id]}{" "}
+                          {parseFloat(formatMoney(book.price)) * cart[book.id]}{" "}
                           EGP
                         </span>
                       </div>
