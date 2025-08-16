@@ -2,7 +2,7 @@
   {
     "id": 1001,
     "title": "The Silent Witness",
-    "price": 24.99,
+    "price": 100,
     "description": "A gripping tale of a detective on the trail of a phantom killer, where every clue leads to a new dead end. The only witness is a city paralyzed by fear.",
     "cover_img": "https://picsum.photos/300/400?random=1",
     "category_id": 1008,
@@ -12,7 +12,7 @@
   {
     "id": 1002,
     "title": "Whispers of the Stars",
-    "price": 18.5,
+    "price": 150,
     "description": "An epic space opera detailing the fall of a galactic empire and the rise of a new hero from the ashes. Betrayal, honor, and ancient prophecies collide in a cosmic dance.",
     "cover_img": "https://picsum.photos/300/400?random=2",
     "category_id": 1001,
