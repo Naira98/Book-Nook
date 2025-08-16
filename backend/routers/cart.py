@@ -36,7 +36,7 @@ cart_router = APIRouter(
 
 
 @cart_router.get(
-    "/usercart",
+    "/",
     response_model=GetCartItemsResponse,
 )
 async def read_user_cart(
@@ -74,8 +74,7 @@ async def read_user_cart(
                 book=cart_item.book_details.book,
             )
 
-            for _ in range(cart_item.quantity):
-                borrow_items.append(borrow_object)
+            borrow_items.append(borrow_object)
 
         elif cart_item.book_details.status.value == "PURCHASE":
             purchase_object = PurchaseItemResponse(
