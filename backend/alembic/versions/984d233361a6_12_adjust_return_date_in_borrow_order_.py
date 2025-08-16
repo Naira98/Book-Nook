@@ -1,8 +1,8 @@
-"""update return date of borrow order book and add stripe session id to user
+"""12_adjust return date in borrow order book and add stripe session id to user
 
-Revision ID: 624c60e82aea
+Revision ID: 984d233361a6
 Revises: e78728d40358
-Create Date: 2025-08-15 12:57:11.983601
+Create Date: 2025-08-16 07:48:27.139587
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '624c60e82aea'
+revision: str = '984d233361a6'
 down_revision: Union[str, Sequence[str], None] = 'e78728d40358'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
