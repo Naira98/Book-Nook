@@ -123,8 +123,8 @@ class Order(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
-    address: Mapped[str]
-    phone_number: Mapped[str]
+    address: Mapped[str | None] = mapped_column(nullable=True)
+    phone_number: Mapped[str | None] = mapped_column(nullable=True)
     pickup_date: Mapped[datetime | None] = mapped_column(default=None, nullable=True)
     pickup_type: Mapped[PickUpType]
     status: Mapped[OrderStatus] = mapped_column(default=OrderStatus.CREATED.value)
