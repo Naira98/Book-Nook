@@ -1,135 +1,126 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Book, ShoppingCart, Clock, Star } from 'lucide-react';
-import type { Book as BookType } from '../../types/client/books';
+import { Star } from "lucide-react";
+import type { IBorrowBook, IPurchaseBook } from "../../types/Book";
+import type { AllCartItemsResponse } from "../../types/Cart";
+import { formatMoney } from "../../utils/formatting";
+import AddToCartButton from "./AddToCartButton";
+import QuantityControl from "./QuantityControl";
 
 interface BookCardProps {
-  book: BookType;
-  onBorrow?: (bookId: number) => void;
-  onPurchase?: (bookId: number) => void;
-  showActions?: boolean;
+  book: IPurchaseBook | IBorrowBook;
+  cartItems: AllCartItemsResponse;
 }
 
-const BookCard: React.FC<BookCardProps> = ({
-  book,
-  onBorrow,
-  onPurchase,
-  showActions = true,
-}) => {
-  const navigate = useNavigate();
+const BookCard = ({ book, cartItems }: BookCardProps) => {
+  const isBorrowBook = Object.hasOwn(book, "borrow_fees_per_week");
 
-  const hasBookDetails = book.book_details && book.book_details.length > 0;
-  const canBorrow = hasBookDetails && book.book_details.some(
-    detail => detail.status === 'BORROW' && detail.available_stock > 0
-  );
-  const canPurchase = hasBookDetails && book.book_details.some(
-    detail => detail.status === 'PURCHASE' && detail.available_stock > 0
-  );
+  const bookInCart = isBorrowBook
+    ? cartItems?.borrow_items.find(
+        (item) => item.book_details_id === book.book_details_id,
+      )
+    : cartItems?.purchase_items.find(
+        (item) => item.book_details_id === book.book_details_id,
+      );
 
-  const handleCardClick = () => {
-    navigate(`/books/${book.id}`);
-  };
+  const borrowBookCountInCart =
+    isBorrowBook && cartItems?.borrow_items
+      ? cartItems.borrow_items.filter(
+          (item) => item.book_details_id === book.book_details_id,
+        ).length
+      : 0;
+
+  const borrowingLimitExceeded =
+    isBorrowBook && cartItems.remaining_borrow_books_count <= 0;
 
   return (
-    <div
-      onClick={handleCardClick}
-      className="cursor-pointer bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden fade-in-up flex w-full max-w-3xl h-65 border border-gray-200"
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleCardClick();
-        }
-      }}
-    >
-      <div className="w-2/5 h-full relative">
-        {book.cover_img ? (
+    <div className="flex w-full overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:shadow-xl">
+      {/* Left Section - Book Cover */}
+      <div className="w-32 flex-shrink-0 md:w-40">
+        <div className="h-full w-full">
           <img
             src={book.cover_img}
             alt={book.title}
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover"
           />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-200">
-            <Book className="w-16 h-16 text-primary/50" />
-          </div>
-        )}
-        <div className="absolute top-2 right-2 bg-primary text-white px-2 py-1 rounded-md text-sm font-medium shadow">
-          {book.price} EGP
         </div>
       </div>
 
-      <div className="w-3/5 p-4 flex flex-col justify-between">
-        <div>
-          <h3 className="font-semibold text-lg text-gray-900 mb-1 line-clamp-2">
-            {book.title}
-          </h3>
-
-          <div className="flex items-center space-x-2 mb-1">
-            <span className="text-sm text-gray-600">by</span>
-            <span className="text-sm font-medium text-primary">{book.author.name}</span>
-          </div>
-
-          <div className="flex items-center space-x-2 mb-2">
-            <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+      {/* Middle Section - Book Details */}
+      <div className="flex flex-1 flex-col justify-between p-4 md:p-6">
+        <div className="space-y-3">
+          <div className="flex gap-2">
+            <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-700">
               {book.category.name}
             </span>
-            <div className="flex items-center space-x-1">
-              <Star className="w-4 h-4 text-yellow-400 fill-current" />
-              <span className="text-sm text-gray-600">4.5</span>
+            <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-700">
+              {book.author.name} ({book.publish_year})
+            </span>
+          </div>
+
+          <h2 className="text-xl font-bold text-gray-900 md:text-2xl">
+            {book.title}
+          </h2>
+
+          <div className="flex items-center gap-2">
+            <span className="text-gray-600">by {book.author.name}</span>
+            <span className="text-gray-400">•</span>
+            <div className="flex items-center gap-1">
+              <Star className="h-4 w-4 fill-orange-400 text-orange-400" />
+              <span className="text-sm text-gray-600">4.1</span>
             </div>
           </div>
 
-          {book.description && (
-            <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-              {book.description}
-            </p>
+          <p className="line-clamp-2 text-sm text-gray-600 md:text-base">
+            {book.description}
+          </p>
+        </div>
+      </div>
+
+      {/* Right Section - Pricing and Add to Cart/Quantity Controls */}
+      <div className="flex w-48 flex-col items-center justify-between border-l border-gray-100 p-4 md:p-6">
+        <div>
+          {isBorrowBook && (
+            <div className="flex flex-col justify-center space-y-2">
+              <div className="text-primary text-center font-semibold">
+                <span className="font-medium">Weekly: </span>
+                {formatMoney((book as IBorrowBook).borrow_fees_per_week)} EGP
+              </div>
+              <div className="text-center text-sm font-semibold text-gray-600">
+                <span className="font-medium">Deposit: </span>
+                {formatMoney((book as IBorrowBook).deposit_fees)} EGP
+              </div>
+            </div>
           )}
 
-          <div className="flex flex-wrap gap-2">
-            {canBorrow && (
-              <span className="flex items-center space-x-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                <Clock className="w-3 h-3" />
-                <span>Available for Borrow</span>
-              </span>
-            )}
-            {canPurchase && (
-              <span className="flex items-center space-x-1 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                <ShoppingCart className="w-3 h-3" />
-                <span>Available for Purchase</span>
-              </span>
-            )}
-          </div>
+          {!isBorrowBook && (
+            <div className="space-y-2">
+              <div className="text-primary font-semibold">
+                {formatMoney((book as IPurchaseBook).price)} EGP
+              </div>
+            </div>
+          )}
+
+          {bookInCart && isBorrowBook && (
+            <div className="mt-2 text-center text-sm font-semibold text-green-600">
+              In Cart!
+              <span className="ml-1">({borrowBookCountInCart})</span>
+            </div>
+          )}
         </div>
 
-        {showActions && (
-          <div className="flex gap-2 mt-3">
-            {canBorrow && onBorrow && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onBorrow(book.id);
-                }}
-                className="flex-1 bg-primary hover:bg-hover text-white px-3 py-2 rounded-md text-sm font-medium flex items-center justify-center space-x-1"
-              >
-                <Clock className="w-4 h-4" />
-                <span>Borrow</span>
-              </button>
-            )}
-            {canPurchase && onPurchase && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onPurchase(book.id);
-                }}
-                className="flex-1 bg-secondary hover:bg-yellow-500 text-white px-3 py-2 rounded-md text-sm font-medium flex items-center justify-center space-x-1"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                <span>Add to Cart</span>
-              </button>
-            )}
-          </div>
+        {isBorrowBook ? (
+          <AddToCartButton
+            book_details_id={book.book_details_id}
+            isBorrowBook={isBorrowBook}
+            borrowingLimitExceeded={borrowingLimitExceeded}
+          />
+        ) : bookInCart ? (
+          <QuantityControl item={bookInCart} />
+        ) : (
+          <AddToCartButton
+            book_details_id={book.book_details_id}
+            isBorrowBook={isBorrowBook}
+            borrowingLimitExceeded={borrowingLimitExceeded}
+          />
         )}
       </div>
     </div>

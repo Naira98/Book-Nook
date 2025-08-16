@@ -73,6 +73,9 @@ class CategoryBase(BaseModel):
 class GetBookBase(BaseModel):
     book_details_id: int
     title: str
+    description: str
+    cover_img: str
+    publish_year: int
     category: CategoryBase
     author: AuthorBase
     available_stock: int

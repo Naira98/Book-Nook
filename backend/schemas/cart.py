@@ -10,9 +10,8 @@ class CreateCartItemRequest(BaseModel):
     borrowing_weeks: int | None = None
 
 
-class CrateCartItemResponse(BaseModel):
-    book_details_id: int
-    quantity: int
+class MessageResponse(BaseModel):
+    message: str
 
 
 # This new schema correctly represents the Book model for the cart view
@@ -46,3 +45,4 @@ class GetCartItemsResponse(BaseModel):
     purchase_items: List[PurchaseItemResponse] = []
     borrow_items: List[BorrowItemResponse] = []
     delevary_fees: Decimal
+    remaining_borrow_books_count: int

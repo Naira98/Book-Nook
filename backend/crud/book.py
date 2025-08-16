@@ -51,6 +51,9 @@ async def get_borrow_books_crud(db, book_details_id: Optional[int] = None):
         book_info = {
             "book_details_id": book_details.id,
             "title": book_details.book.title,
+            "description": book_details.book.description,
+            "cover_img": book_details.book.cover_img,
+            "publish_year": book_details.book.publish_year,
             "category": {
                 "id": book_details.book.category.id,
                 "name": book_details.book.category.name,
@@ -89,6 +92,9 @@ async def get_purchase_books_crud(db, book_details_id: Optional[int] = None):
         book_info = {
             "book_details_id": book_details.id,
             "title": book_details.book.title,
+            "description": book_details.book.description,
+            "cover_img": book_details.book.cover_img,
+            "publish_year": book_details.book.publish_year,
             "category": {
                 "id": book_details.book.category.id,
                 "name": book_details.book.category.name,
@@ -99,10 +105,10 @@ async def get_purchase_books_crud(db, book_details_id: Optional[int] = None):
             },
             "available_stock": book_details.available_stock,
             "book_id": book_details.book.id,
-            "price": book_details.book.price
+            "price": book_details.book.price,
         }
         return_list.append(book_info)
-    
+
     return return_list
 
 

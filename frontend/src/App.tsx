@@ -14,8 +14,8 @@ import ForgetPassword from "./pages/auth/ForgetPassword";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
-import BorrowBooks from "./pages/client/BorrowBooks";
-import PurchaseBooks from "./pages/client/PurchaseBooks";
+import BorrowBooksPage from "./pages/client/BorrowBooksPage";
+import PurchaseBooksPage from "./pages/client/PurchaseBooksPage";
 import OrderPage from "./pages/courier/OrdersPage";
 import AddAuthorPage from "./pages/employee/AddAuthorPage";
 import AddBookPage from "./pages/employee/AddBookPage";
@@ -31,8 +31,8 @@ import TransactionsPage from "./pages/client/TransactionsPage";
 
 import CourierOrderDetailsPage from "./pages/courier/OrderDetailsPage";
 import CourierReturnOrderDetailsPage from "./pages/courier/RetrunOrderDetailsPage";
-import StaffOrdersPage from "./pages/employee/OrdersPage";
 import EmployeeOrderDetailsPage from "./pages/employee/OrderDetailsPage";
+import StaffOrdersPage from "./pages/employee/OrdersPage";
 import EmployeeReturnOrderDetailsPage from "./pages/employee/RetrunOrderDetailsPage";
 
 const App = () => {
@@ -52,24 +52,6 @@ const App = () => {
               path="/reset-password/:reset_token"
               element={<ResetPassword />}
             />
-            <Route
-              path="/borrow-books"
-              element={
-                <>
-                  <Navbar />
-                  <BorrowBooks />
-                </>
-              }
-            />
-            <Route
-              path="/purchase-books"
-              element={
-                <>
-                  <Navbar />
-                  <PurchaseBooks />
-                </>
-              }
-            />
           </Route>
 
           {/* CLIENT-only routes */}
@@ -80,7 +62,7 @@ const App = () => {
               element={
                 <>
                   <Navbar />
-                  <BorrowBooks />
+                  <BorrowBooksPage />
                   <Footer />
                 </>
               }
@@ -90,7 +72,7 @@ const App = () => {
               element={
                 <>
                   <Navbar />
-                  <PurchaseBooks />
+                  <PurchaseBooksPage />
                   <Footer />
                 </>
               }

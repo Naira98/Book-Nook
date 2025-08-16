@@ -19,14 +19,15 @@ export function useChangeOrderStatus() {
       queryClient.setQueryData(
         ["allStaffOrders"],
         (oldData: AllOrdersResponse) => {
-          if (!oldData) return oldData;
-          const newData = { ...oldData };
-          newData.orders = newData.orders.map((order) =>
-            order.id === resp.id
-              ? { ...order, status: resp.status, courier_id: resp.courier_id }
-              : order,
-          );
-          return newData;
+          if (oldData) {
+            const newData = { ...oldData };
+            newData.orders = newData.orders.map((order) =>
+              order.id === resp.id
+                ? { ...order, status: resp.status, courier_id: resp.courier_id }
+                : order,
+            );
+            return newData;
+          }
         },
       );
 
@@ -34,9 +35,7 @@ export function useChangeOrderStatus() {
         queryClient.setQueryData(
           ["order", `${resp.id}`],
           (oldData: AllOrdersResponse) => {
-            if (!oldData) return oldData;
-            const newData = { ...oldData, status: resp.status };
-            return newData;
+            if (oldData) return { ...oldData, status: resp.status };
           },
         );
       }

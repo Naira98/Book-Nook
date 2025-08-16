@@ -15,9 +15,8 @@ export const useUpdateBook = () => {
         queryClient.setQueryData(
           ["allBooksTable"],
           (oldData: IBookTable[] | undefined) => {
-            return oldData
-              ? oldData.map((b) => (b.id === book.id ? book : b))
-              : [book];
+            if (oldData)
+              return oldData.map((b) => (b.id === book.id ? book : b));
           },
         );
       }
