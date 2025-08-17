@@ -16,6 +16,7 @@ from routers.wallet import wallet_router
 from routers.websocket import websocket_router
 from routers.return_order import return_order_router
 from settings import settings
+from routers import user_interests
 
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__))))
 
@@ -60,3 +61,4 @@ api_router.include_router(return_order_router)
 
 
 app.include_router(api_router)
+app.include_router(user_interests.router)
