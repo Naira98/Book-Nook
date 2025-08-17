@@ -25,6 +25,7 @@ import BooksTablePage from "./pages/employee/BooksTablePage";
 import UpdateBookPage from "./pages/employee/UpdateBookPage";
 import { UserRole } from "./types/User";
 import ChechoutPage from "./pages/client/Checkout";
+import Interests from "./pages/client/Interests";
 import OrdersListPage from "./pages/auth/OrdersListPage";
 import CheckoutSuccess from "./pages/client/CheckoutSuccess";
 import Footer from "./pages/client/Footer";
@@ -49,6 +50,8 @@ const App = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
+            <Route path="/interests" element={<Interests />} />
+
             <Route
               path="/reset-password/:reset_token"
               element={<ResetPassword />}
