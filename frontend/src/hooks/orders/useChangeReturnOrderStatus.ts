@@ -19,18 +19,19 @@ export function useChangeReturnOrderStatus() {
       queryClient.setQueryData(
         ["allStaffOrders"],
         (oldData: AllOrdersResponse) => {
-          if (!oldData) return oldData;
-          const newData = { ...oldData };
-          newData.return_orders = newData.return_orders.map((retrunOrder) =>
-            retrunOrder.id === resp.id
-              ? {
-                  ...retrunOrder,
-                  status: resp.status,
-                  courier_id: resp.courier_id,
-                }
-              : retrunOrder,
-          );
-          return newData;
+          if (oldData != undefined) {
+            const newData = { ...oldData };
+            newData.return_orders = newData.return_orders.map((retrunOrder) =>
+              retrunOrder.id === resp.id
+                ? {
+                    ...retrunOrder,
+                    status: resp.status,
+                    courier_id: resp.courier_id,
+                  }
+                : retrunOrder,
+            );
+            return newData;
+          }
         },
       );
 

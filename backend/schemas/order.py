@@ -144,8 +144,8 @@ class OrderDetailsResponseSchema(OrderResponseSchema):
 
 class CreateOrderRequest(BaseModel):
     pickup_type: PickUpType
-    address: str
-    phone_number: str
+    address: Optional[str] = None
+    phone_number: Optional[str] = None
     promo_code_id: Optional[int] = None
 
 

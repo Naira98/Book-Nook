@@ -56,6 +56,13 @@ export enum ReturnOrderStatus {
   PROBLEM = "PROBLEM",
 }
 
+export interface CreateOrderRequest {
+  pickup_type: PickUpType;
+  address: string;
+  phone_number: string;
+  promo_code_id: number | undefined;
+}
+
 export interface Order {
   id: number;
   created_at: string;
