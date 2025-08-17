@@ -23,6 +23,7 @@ import AddCategoryPage from "./pages/employee/AddCategoryPage";
 import BooksTablePage from "./pages/employee/BooksTablePage";
 import UpdateBookPage from "./pages/employee/UpdateBookPage";
 import { UserRole } from "./types/User";
+import Interests from "./pages/client/Interests";
 
 import OrdersListPage from "./pages/auth/OrdersListPage";
 import CheckoutSuccess from "./pages/client/CheckoutSuccess";
@@ -48,6 +49,8 @@ const App = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
+            <Route path="/interests" element={<Interests />} />
+
             <Route
               path="/reset-password/:reset_token"
               element={<ResetPassword />}
