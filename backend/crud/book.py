@@ -5,6 +5,8 @@ from fastapi.responses import JSONResponse
 from models.book import Book, BookDetails, BookStatus
 from schemas.book import CreateBookRequest, EditBookRequest, UpdateStockRequest
 from fastapi import status, HTTPException
+import requests
+from langchain_core.documents import Document
 
 
 # Fetch books by partial match in title (case-insensitive)
@@ -197,3 +199,51 @@ async def get_book_details(book_details_id: int, db: AsyncSession):
     result = await db.execute(stmt)
     book = result.scalars().first()
     return book
+
+def get_all_books(db: AsyncSession):
+    stmt = (
+        select(Book)
+        .options(
+            selectinload(Book.author),
+            selectinload(Book.category),
+            selectinload(Book.book_details),
+        )
+    )
+    result = db.execute(stmt)
+    return result.scalars().all()
+
+## this will be used to fetch books from the API and convert them into documents to be used in the vector database
+def fetch_books_from_api(api_url="http://127.0.0.1:8000/api/books/"):
+    try:
+        response = requests.get(api_url, timeout=30)  # Increased timeout
+        response.raise_for_status()  # Raises error for bad status codes
+        books = response.json()  # List of book objects
+        documents = []
+        for book in books:
+            # Extract status info from book_details
+            status_info = ", ".join(
+                f"{detail['status']} (Stock: {detail['available_stock']})"
+                for detail in book["book_details"]
+            )
+            # Combine fields for embedding
+            content = (
+                f"Title: {book['title']}\n"
+                f"Description: {book['description']}\n"
+                f"Author: {book['author']['name']}\n"
+                f"Category: {book['category']['name']}\n"
+                f"Publish Year: {book['publish_year']}\n"
+                f"Status: {status_info}"
+            )
+            # Metadata for filtering/display
+            metadata = {
+                "id": book["id"],  # Book ID for updates/deletes
+                "title": book["title"],
+                "author": book["author"]["name"],
+                "category": book["category"]["name"],
+                "publish_year": book["publish_year"]
+            }
+            doc = Document(page_content=content, metadata=metadata)
+            documents.append(doc)
+        return documents
+    except requests.RequestException as e:
+        raise Exception(f"Failed to fetch books: {e}")

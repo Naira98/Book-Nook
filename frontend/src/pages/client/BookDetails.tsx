@@ -96,13 +96,6 @@ const BookDetails: React.FC = () => {
     1: 0
   };
 
-  const relatedBooks = [
-    { id: 1, title: "Such a Fun Age", author: "Kiley Reid", price: 21.4, rating: 4.5, cover: "https://via.placeholder.com/80x120" },
-    { id: 2, title: "Be Loud If It's Never Remember", author: "Author Name", price: 21.4, rating: 4.5, cover: "https://via.placeholder.com/80x120" },
-    { id: 3, title: "Electronic Basic", author: "Author Name", price: 21.4, rating: 4.5, cover: "https://via.placeholder.com/80x120" },
-    { id: 4, title: "Life of Wilds", author: "Author Name", price: 21.4, rating: 4.5, cover: "https://via.placeholder.com/80x120" }
-  ];
-
   const relatedItems = [
     { id: 1, title: "Story of Everest", author: "Henry Mortopo", price: 21.99, category: "Adventure", rating: 4.5, cover: "https://via.placeholder.com/120x160" },
     { id: 2, title: "Life of Wilds", author: "Jasmine Belle", price: 24.99, category: "Nature", rating: 4.5, cover: "https://via.placeholder.com/120x160" },

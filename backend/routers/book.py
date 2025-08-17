@@ -11,7 +11,9 @@ from crud.book import (
     update_book_image as update_book_image_crud,
     create_book_details,
     update_book_stock_crud,
-    get_book_details
+    get_book_details ,
+    get_all_books,
+
 )
 
 from schemas.book import (
@@ -129,3 +131,9 @@ async def read_book_details(book_details_id: int, db: AsyncSession = Depends(get
             detail=f"Book with id {book_details_id} not found",
         )
     return book
+
+@book_router.get("/", response_model=list[BookResponse])
+async def read_all_books(db: AsyncSession = Depends(get_db)):
+    books = await get_all_books(db=db)
+    return books
+
