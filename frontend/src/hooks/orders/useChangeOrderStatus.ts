@@ -18,7 +18,7 @@ export function useChangeOrderStatus() {
 
       queryClient.setQueryData(
         ["allStaffOrders"],
-        (oldData: AllOrdersResponse) => {
+        (oldData: AllOrdersResponse | undefined) => {
           if (oldData != undefined) {
             const newData = { ...oldData };
             newData.orders = newData.orders.map((order) =>
@@ -34,7 +34,7 @@ export function useChangeOrderStatus() {
       if (resp.status != "ON_THE_WAY") {
         queryClient.setQueryData(
           ["order", `${resp.id}`],
-          (oldData: AllOrdersResponse) => {
+          (oldData: AllOrdersResponse | undefined) => {
             if (oldData != undefined) {
               const newData = { ...oldData, status: resp.status };
               return newData;
