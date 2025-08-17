@@ -13,10 +13,11 @@ const CourierLayout = () => {
     queryClient.setQueryData(
       ["allStaffOrders"],
       (oldData: AllOrdersResponse) => {
-        if (!oldData) return oldData;
-        const newData = { ...oldData };
-        newData.orders = [order, ...oldData.orders];
-        return newData;
+        if (oldData != undefined) {
+          const newData = { ...oldData };
+          newData.orders = [order, ...oldData.orders];
+          return newData;
+        }
       },
     );
   }
@@ -25,10 +26,11 @@ const CourierLayout = () => {
     queryClient.setQueryData(
       ["allStaffOrders"],
       (oldData: AllOrdersResponse) => {
-        if (!oldData) return oldData;
-        const newData = { ...oldData };
-        newData.return_orders = [returnOrder, ...oldData.return_orders];
-        return newData;
+        if (oldData != undefined) {
+          const newData = { ...oldData };
+          newData.return_orders = [returnOrder, ...oldData.return_orders];
+          return newData;
+        }
       },
     );
   }
@@ -37,10 +39,13 @@ const CourierLayout = () => {
     queryClient.setQueryData(
       ["allStaffOrders"],
       (oldData: AllOrdersResponse) => {
-        if (!oldData) return oldData;
-        const newData = { ...oldData };
-        newData.orders = oldData.orders.filter((order) => order.id !== orderId);
-        return newData;
+        if (oldData != undefined) {
+          const newData = { ...oldData };
+          newData.orders = oldData.orders.filter(
+            (order) => order.id !== orderId,
+          );
+          return newData;
+        }
       },
     );
   }
@@ -49,12 +54,13 @@ const CourierLayout = () => {
     queryClient.setQueryData(
       ["allStaffOrders"],
       (oldData: AllOrdersResponse) => {
-        if (!oldData) return oldData;
-        const newData = { ...oldData };
-        newData.return_orders = oldData.return_orders.filter(
-          (order) => order.id !== returnOrderId,
-        );
-        return newData;
+        if (oldData != undefined) {
+          const newData = { ...oldData };
+          newData.return_orders = oldData.return_orders.filter(
+            (order) => order.id !== returnOrderId,
+          );
+          return newData;
+        }
       },
     );
   }

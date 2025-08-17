@@ -180,6 +180,13 @@ async def create_order(
 ):
     try:
         settings = await get_settings(db)
+        if order_data.pickup_type == PickUpType.COURIER and (
+            not order_data.address or not order_data.phone_number
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Address and phone number are required for courier orders.",
+            )
 
         cart = await get_user_cart(user.id, db)
 
@@ -236,7 +243,6 @@ async def create_order(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Book details with id {item['book_details_id']} not found.",
                 )
-
             validate_borrow_book_and_borrowing_weeks_and_available_stock(
                 item, book_details
             )
@@ -446,7 +452,10 @@ async def update_order_status(
             order.courier_id = staff_user.id
 
         if order_data.status == OrderStatus.PICKED_UP:
-            if staff_user.role == UserRole.COURIER and order.courier_id != staff_user.id:
+            if (
+                staff_user.role == UserRole.COURIER
+                and order.courier_id != staff_user.id
+            ):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="You are not authorized to update this order's status.",

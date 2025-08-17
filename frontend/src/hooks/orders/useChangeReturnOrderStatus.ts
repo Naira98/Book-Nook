@@ -18,8 +18,8 @@ export function useChangeReturnOrderStatus() {
 
       queryClient.setQueryData(
         ["allStaffOrders"],
-        (oldData: AllOrdersResponse) => {
-          if (oldData) {
+        (oldData: AllOrdersResponse | undefined) => {
+          if (oldData != undefined) {
             const newData = { ...oldData };
             newData.return_orders = newData.return_orders.map((retrunOrder) =>
               retrunOrder.id === resp.id

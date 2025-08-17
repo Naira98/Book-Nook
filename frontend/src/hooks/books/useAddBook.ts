@@ -11,7 +11,7 @@ export const useAddBook = () => {
     onSuccess: (newBook: IBookTable) => {
       const oldData = queryClient.getQueryData(["allBooksTable"]);
 
-      if (oldData) {
+      if (oldData != undefined) {
         queryClient.setQueryData(
           ["allBooksTable"],
           (oldData: IBookTable[] | undefined) => {

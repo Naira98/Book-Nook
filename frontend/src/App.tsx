@@ -12,10 +12,17 @@ import NotFoundPage from "./pages/NotFoundPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import ForgetPassword from "./pages/auth/ForgetPassword";
 import Login from "./pages/auth/Login";
+import OrdersListPage from "./pages/auth/OrdersListPage";
 import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
 import BorrowBooksPage from "./pages/client/BorrowBooksPage";
+import CartPage from "./pages/client/CartPage";
+import ChechoutPage from "./pages/client/CheckoutPage";
+import CheckoutSuccess from "./pages/client/CheckoutSuccess";
+import Footer from "./pages/client/Footer";
+import Interests from "./pages/client/Interests";
 import PurchaseBooksPage from "./pages/client/PurchaseBooksPage";
+import TransactionsPage from "./pages/client/TransactionsPage";
 import OrderPage from "./pages/courier/OrdersPage";
 import AddAuthorPage from "./pages/employee/AddAuthorPage";
 import AddBookPage from "./pages/employee/AddBookPage";
@@ -23,11 +30,6 @@ import AddCategoryPage from "./pages/employee/AddCategoryPage";
 import BooksTablePage from "./pages/employee/BooksTablePage";
 import UpdateBookPage from "./pages/employee/UpdateBookPage";
 import { UserRole } from "./types/User";
-
-import OrdersListPage from "./pages/auth/OrdersListPage";
-import CheckoutSuccess from "./pages/client/CheckoutSuccess";
-import Footer from "./pages/client/Footer";
-import TransactionsPage from "./pages/client/TransactionsPage";
 
 import CourierOrderDetailsPage from "./pages/courier/OrderDetailsPage";
 import CourierReturnOrderDetailsPage from "./pages/courier/RetrunOrderDetailsPage";
@@ -48,6 +50,8 @@ const App = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
+            <Route path="/interests" element={<Interests />} />
+
             <Route
               path="/reset-password/:reset_token"
               element={<ResetPassword />}
@@ -79,6 +83,8 @@ const App = () => {
             />
             <Route path="/transactions" element={<TransactionsPage />} />
             <Route path="/checkout-success" element={<CheckoutSuccess />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<ChechoutPage />} />
           </Route>
 
           {/* EMPLOYEE-only routes */}

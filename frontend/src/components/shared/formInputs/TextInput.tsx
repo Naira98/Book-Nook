@@ -59,7 +59,7 @@ export default function TextInput({
           onClick={(e) => e.stopPropagation()}
           name={name}
           id={name}
-          type={type === "password" && isPassword ? "password" : type}
+          type={type !== "password" ? type : isPassword ? "password" : "text"}
           placeholder={placeholder || ""}
           {...inputProps} // Apply the dynamically determined props
           readOnly={effectiveReadOnly} // Apply the calculated read-only state

@@ -125,7 +125,7 @@ def validate_borrow_book_and_borrowing_weeks_and_available_stock(item, book_deta
 
     # Validate borrowing weeks and stock
     # borrowing_weeks is an integer between 1 and 4
-    if not (1 <= item["borrowing_weeks"] <= 4):
+    if not (item["borrowing_weeks"] and (1 <= item["borrowing_weeks"] <= 4)):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Borrowing weeks must be between 1 and 4.",
