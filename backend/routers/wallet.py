@@ -128,7 +128,7 @@ async def payment_success(
                 await db.commit()
 
                 return RedirectResponse(
-                    url=f"{settings.APP_HOST}/checkout-success", status_code=302
+                    url=f"{settings.APP_HOST}/transaction-success", status_code=302
                 )
             except Exception as e:
                 await db.rollback()

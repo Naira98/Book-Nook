@@ -1,20 +1,27 @@
-from fastapi import HTTPException, status
-from sqlalchemy import select
-from sqlalchemy.orm import joinedload, selectinload
-from models.book import BookDetails
-from sqlalchemy.ext.asyncio import AsyncSession
-from models.order import BorrowOrderBook, ReturnOrder
-from typing import Sequence
-from schemas.order import ReturnOrderRequest
 from decimal import Decimal
 
+from fastapi import HTTPException, status
+from models.book import BookDetails
+from models.order import (
+    BorrowBookProblem,
+    BorrowOrderBook,
+    Order,
+    OrderStatus,
+    ReturnOrder,
+)
+from schemas.order import ReturnOrderRequest
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload, selectinload
 
-async def get_borrowed_books_crud(
+
+async def get_client_borrows_books_crud(
     user_id: int,
     db: AsyncSession,
-) -> Sequence[BorrowOrderBook]:
+):
     stmt = (
         select(BorrowOrderBook)
+        .join(Order, BorrowOrderBook.order_id == Order.id)
         .options(
             selectinload(BorrowOrderBook.book_details).options(
                 joinedload(BookDetails.book)
@@ -22,18 +29,32 @@ async def get_borrowed_books_crud(
         )
         .where(
             BorrowOrderBook.user_id == user_id,
-            BorrowOrderBook.return_order_id == None,  # noqa: E711
+            BorrowOrderBook.return_order_id.is_(None),
+            Order.status == OrderStatus.PICKED_UP,
+            BorrowOrderBook.borrow_book_problem == BorrowBookProblem.NORMAL,
         )
     )
     result = await db.execute(stmt)
-    borrowed_books = result.scalars().all()
-    if not borrowed_books:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No borrowed books found for this user.",
-        )
+    borrowed_books = result.scalars().unique().all()
 
-    return borrowed_books
+    serialized_books = [
+        {
+            "book_details_id": book.id,
+            "borrowing_weeks": book.borrowing_weeks,
+            "expected_return_date": book.expected_return_date,
+            "deposit_fees": book.deposit_fees,
+            "borrow_fees": book.borrow_fees,
+            "delay_fees_per_day": book.delay_fees_per_day,
+            "book": {
+                "id": book.book_details.book.id,
+                "title": book.book_details.book.title,
+                "cover_img": book.book_details.book.cover_img,
+            },
+        }
+        for book in borrowed_books
+    ]
+
+    return serialized_books
 
 
 async def create_return_order_crud(

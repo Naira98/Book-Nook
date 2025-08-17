@@ -20,7 +20,7 @@ import BorrowBooksPage from "./pages/client/BorrowBooksPage";
 import CartPage from "./pages/client/CartPage";
 import ChechoutPage from "./pages/client/CheckoutPage";
 import CheckoutSuccess from "./pages/client/CheckoutSuccess";
-import CurrentLoansPage from "./pages/client/CurrentLoansPage";
+import CurrentBorrowsPage from "./pages/client/CurrentBorrowsPage";
 import Footer from "./pages/client/Footer";
 import Interests from "./pages/client/Interests";
 import OrdersPage from "./pages/client/OrdersPage";
@@ -38,7 +38,6 @@ import StaffOrdersPage from "./pages/employee/OrdersPage";
 import EmployeeReturnOrderDetailsPage from "./pages/employee/RetrunOrderDetailsPage";
 import UpdateBookPage from "./pages/employee/UpdateBookPage";
 import { UserRole } from "./types/User";
-
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -110,9 +109,8 @@ const App = () => {
             <Route path="/" element={<ClientWithSidebarLayout />}>
               <Route path="/transactions" element={<TransactionsPage />} />
               <Route path="/orders-history" element={<OrdersPage />} />
-              <Route path="/current-loans" element={<CurrentLoansPage />} />
+              <Route path="/current-borrows" element={<CurrentBorrowsPage />} />
             </Route>
-
             <Route path="/transaction-success" element={<CheckoutSuccess />} />
           </Route>
 

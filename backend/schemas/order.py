@@ -41,23 +41,14 @@ class ReturnOrderRequest(BaseModel):
     borrowed_books_ids: List[int]
 
 
-class BorrowedBooksResponse(BaseModel):
-    id: int
+class ClientBorrowsResponse(BaseModel):
+    book_details_id: int
     borrowing_weeks: int
-    actual_return_date: Optional[datetime]
-    expected_return_date: Optional[datetime]
+    expected_return_date: datetime
+    deposit_fees: Decimal
+    borrow_fees: Decimal
+    delay_fees_per_day: Decimal
     book: BookSchema
-
-    @model_validator(mode="before")
-    @classmethod
-    def prepare_data(cls, data: Any):
-        return {
-            "id": data.id,
-            "borrowing_weeks": data.borrowing_weeks,
-            "actual_return_date": data.actual_return_date,
-            "expected_return_date": data.expected_return_date,
-            "book": data.book_details.book,
-        }
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -170,9 +161,9 @@ class BorrowOrderBookUpdateProblemResponse(OrderCeatedUpdateResponseBase):
 class AllOrdersResponseBase(BaseModel):
     id: int
     created_at: datetime
-    address: str
+    address: str | None
     pickup_type: PickUpType
-    phone_number: str
+    phone_number: str | None
     user: GetAllOrdersUserResponse
     number_of_books: int = 0
     courier_id: Optional[int]
@@ -202,6 +193,11 @@ class AllOrdersResponse(AllOrdersResponseBase):
         }
 
 
+class UpdateOrderStatusRequest(BaseModel):
+    order_id: int
+    status: OrderStatus
+
+
 class ReturnOrderResponse(AllOrdersResponseBase):
     status: ReturnOrderStatus
 
@@ -228,10 +224,6 @@ class GetAllOrdersResponse(BaseModel):
     return_orders: list[ReturnOrderResponse]
 
 
-class UpdateOrderStatusRequest(AllOrdersResponse):
-    pass
-
-
 class UpdateReturnOrderStatusRequest(AllOrdersResponseBase):
     status: ReturnOrderStatus
     borrow_order_books_details: Optional[list[BorrowOrderBookSchema] | None] = None
@@ -255,10 +247,6 @@ class UpdateReturnOrderStatusRequest(AllOrdersResponseBase):
         }
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
-
-
-class UpdateOrderStatusResponse(AllOrdersResponse):
-    model_config = ConfigDict(from_attributes=True)
 
 
 """ TypedDict not pydantic schema """

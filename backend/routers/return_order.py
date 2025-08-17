@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Annotated, List
 
-from crud.order import create_return_order_crud, get_borrowed_books_crud
+from crud.order import create_return_order_crud, get_client_borrows_books_crud
 from db.database import get_db
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from models.book import BookDetails
@@ -14,7 +14,7 @@ from models.order import (
 )
 from models.user import User, UserRole
 from schemas.order import (
-    BorrowedBooksResponse,
+    ClientBorrowsResponse,
     ReturnOrderRequest,
     UpdateReturnOrderStatusRequest,
 )
@@ -25,7 +25,7 @@ from utils.auth import get_staff_user, get_user_via_session
 from utils.order import (
     validate_borrowed_books,
     validate_return_order_for_courier,
-    validate_return_order_for_employee
+    validate_return_order_for_employee,
 )
 from utils.settings import get_settings
 from utils.socket import (
@@ -47,8 +47,8 @@ async def create_return_order(
     user: User = Depends(get_user_via_session),
     db: AsyncSession = Depends(get_db),
 ):
-    borrowed_books = await get_borrowed_books_crud(user.id, db)
-    db_borrowed_books_ids = [book.id for book in borrowed_books]
+    borrowed_books = await get_client_borrows_books_crud(user.id, db)
+    db_borrowed_books_ids = [book["id"] for book in borrowed_books]
 
     validate_borrowed_books(return_return_order_data, db_borrowed_books_ids)
 
@@ -60,8 +60,8 @@ async def create_return_order(
 
     for book_id in return_return_order_data.borrowed_books_ids:
         for book in borrowed_books:
-            if book.id == book_id:
-                book.return_order = return_order
+            if book["id"] == book_id:
+                book["return_order"] = return_order
                 break
 
     await db.commit()
@@ -72,12 +72,12 @@ async def create_return_order(
     return return_order
 
 
-@return_order_router.get("/borrowed-books", response_model=List[BorrowedBooksResponse])
-async def get_borrowed_books(
+@return_order_router.get("/client-borrows", response_model=List[ClientBorrowsResponse])
+async def get_client_borrows(
     user: User = Depends(get_user_via_session), db: AsyncSession = Depends(get_db)
 ):
-    borrowed_books = await get_borrowed_books_crud(user.id, db)
-    return borrowed_books
+    client_borrows = await get_client_borrows_books_crud(user.id, db)
+    return client_borrows
 
 
 @return_order_router.patch(
@@ -112,12 +112,12 @@ async def update_return_order_status(
             )
 
         if staff_user.role == UserRole.COURIER:
-            validate_return_order_for_courier(return_order_data, db_return_order, staff_user)
+            validate_return_order_for_courier(
+                return_order_data, db_return_order, staff_user
+            )
 
         if staff_user.role == UserRole.EMPLOYEE:
-            validate_return_order_for_employee(
-                return_order_data, db_return_order
-            )
+            validate_return_order_for_employee(return_order_data, db_return_order)
 
         if return_order_data.status == ReturnOrderStatus.ON_THE_WAY.value:
             db_return_order.courier_id = staff_user.id
