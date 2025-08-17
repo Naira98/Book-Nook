@@ -1,19 +1,15 @@
-const UserStatus = {
-  Activated: 1,
-  Deactivated: 2,
-  Blocked: 3,
-} as const;
+export enum UserStatus {
+  ACTIVATED = "ACTIVATED",
+  DEACTIVATED = "DEACTIVATED",
+  BLOCKED = "BLOCKED",
+}
 
-export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus];
-
-const UserRole = {
-  Manager: 1,
-  Client: 2,
-  Employee: 3,
-  Courier: 4,
-} as const;
-
-export type UserRole = (typeof UserRole)[keyof typeof UserRole];
+export enum UserRole {
+  MANAGER = "MANAGER",
+  CLIENT = "CLIENT",
+  EMPLOYEE = "EMPLOYEE",
+  COURIER = "COURIER",
+}
 
 export interface IUser {
   id: number;
@@ -21,7 +17,7 @@ export interface IUser {
   first_name: string;
   last_name: string;
   phone_number: string;
-  wallet: number;
+  wallet: string;
   role: UserRole;
   interests: string | null;
 }

@@ -1,5 +1,5 @@
 from typing import Optional, Sequence
-
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from models.settings import PromoCode
@@ -40,3 +40,12 @@ async def update_promo_code(
         await db.refresh(existing_promo_code)
 
     return existing_promo_code
+
+
+async def apply_promo_code(code: str, db: AsyncSession):
+    promo_code_data = await db.execute(select(PromoCode).where(PromoCode.code == code))
+    promo_code_data = promo_code_data.scalars().first()
+    if not promo_code_data or not promo_code_data.is_active:
+        raise HTTPException(status_code=404, detail="Promo code not found")
+    else:
+        return promo_code_data

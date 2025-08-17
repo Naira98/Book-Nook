@@ -53,12 +53,20 @@ const LoginPage = () => {
             }) => (
               <form onSubmit={handleSubmit}>
                 {formData.map((item, index) => (
-                  <TextInput
-                    key={index}
-                    name={item.name}
-                    type={item.type}
-                    placeholder={item.placeholder}
-                  />
+                  <Field name={item.name} key={index}>
+                    {({ input, meta }) => (
+                      <TextInput
+                        name={item.name}
+                        type={item.type}
+                        placeholder={item.placeholder}
+                        value={input.value}
+                        onChange={input.onChange}
+                        error={
+                          meta.touched && meta.error ? meta.error : undefined
+                        }
+                      />
+                    )}
+                  </Field>
                 ))}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">

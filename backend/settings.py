@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "Book Nook API"
     VERSION: str = "1.0.0"
     APP_HOST: str = "http://localhost"
+    SERVER_DOMAIN: str = "http://localhost/api"
 
     # Database settings
     DATABASE_URL: str | None = os.getenv("SQLALCHEMY_DATABASE_URL")
@@ -42,6 +43,9 @@ class Settings(BaseSettings):
     CLOUDINARY_CLOUD_NAME: str | None = os.getenv("CLOUDINARY_CLOUD_NAME")
     CLOUDINARY_API_KEY: str | None = os.getenv("CLOUDINARY_API_KEY")
     CLOUDINARY_API_SECRET: str | None = os.getenv("CLOUDINARY_API_SECRET")
+
+    # Stripe Configuration
+    STRIPE_SECRET_KEY: str | None = os.getenv("STRIPE_SECRET_KEY")
 
 
 settings = Settings()

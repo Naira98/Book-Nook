@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-const OrdersPage = () => {
+const OrdersList = () => {
   const [orders, setOrders] = useState([
     {
       order: {
@@ -52,14 +53,6 @@ const OrdersPage = () => {
     if (filter === "all") return true;
     return order.order_type === filter;
   });
-
-  const updateOrderStatus = (orderId, newStatus) => {
-    setOrders(orders.map(order => 
-      order.order.id === orderId 
-        ? { ...order, order: { ...order.order, status: newStatus } } 
-        : order
-    ));
-  };
 
   return (
     <div className="container mx-auto px-4 py-8" style={{ backgroundColor: 'var(--color-background)' }}>
@@ -140,24 +133,13 @@ const OrdersPage = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button 
-                        onClick={() => updateOrderStatus(item.order.id, 'shipped')}
-                        disabled={item.order.status !== 'pending'}
-                        className={`px-3 py-1 rounded-md text-xs ${item.order.status !== 'pending' ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'text-white hover:bg-blue-700'}`}
-                        style={{ backgroundColor: item.order.status === 'pending' ? 'var(--color-primary)' : '' }}
-                      >
-                        Ship
-                      </button>
-                      <button 
-                        onClick={() => updateOrderStatus(item.order.id, 'delivered')}
-                        disabled={item.order.status !== 'shipped'}
-                        className={`px-3 py-1 rounded-md text-xs ${item.order.status !== 'shipped' ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'text-white hover:bg-green-700'}`}
-                        style={{ backgroundColor: item.order.status === 'shipped' ? 'var(--color-secondary)' : '' }}
-                      >
-                        Deliver
-                      </button>
-                    </div>
+                    <Link 
+                      to={`/orders/${item.order.id}`}
+                      className="px-3 py-1 rounded-md text-xs text-white hover:bg-blue-700"
+                      style={{ backgroundColor: 'var(--color-primary)' }}
+                    >
+                      View Details
+                    </Link>
                   </td>
                 </tr>
               ))}
@@ -175,4 +157,4 @@ const OrdersPage = () => {
   );
 };
 
-export default OrdersPage;
+export default OrdersList;

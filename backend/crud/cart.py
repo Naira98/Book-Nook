@@ -1,12 +1,16 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 from models.cart import Cart
 from models.book import Book, BookDetails
+from schemas.cart import CreateCartItemRequest
+from utils.settings import get_settings
+from utils.cart import validate_borrowing_limit
+from models.user import User
+from fastapi import HTTPException, status
 
 
-async def display_cart( db: AsyncSession,user_id: int ):
-
+async def display_cart(db: AsyncSession, user_id: int):
     stmt = (
         select(Cart)
         .where(Cart.user_id == user_id)
@@ -21,41 +25,112 @@ async def display_cart( db: AsyncSession,user_id: int ):
     cart_items = result.scalars().all()
     return cart_items
 
-async def add_to_cart(db: AsyncSession, user_id: int, book_details_id: int, quantity: int):
 
-    existing_item = await db.execute(
-        select(Cart).where(
-            Cart.user_id == user_id,
-            Cart.book_details_id == book_details_id
+async def add_to_cart_crud(
+    db: AsyncSession,
+    user: User,
+    cart_item_data: CreateCartItemRequest,
+    book_details: BookDetails,
+):
+    if book_details.status.value == "BORROW":
+        settings = await get_settings(db)
+        await validate_borrowing_limit(db, user, settings.max_num_of_borrow_books)
+        cart_item = Cart(
+            user_id=user.id,
+            book_details_id=cart_item_data.book_details_id,
+            quantity=1,
+            borrowing_weeks=cart_item_data.borrowing_weeks,
         )
-    )
-    existing_item = existing_item.scalars().first()
-
-    if existing_item:
-        existing_item.quantity = quantity
-        await db.commit()
-        await db.refresh(existing_item)
-        return existing_item
-    else:
-        cart_item = Cart(user_id=user_id, book_details_id=book_details_id, quantity=quantity)
         db.add(cart_item)
-        await db.commit()
-        await db.refresh(cart_item)
-        return cart_item    
+        try:
+            await db.commit()
+            await db.refresh(cart_item)
+            return cart_item
+        except Exception as e:
+            await db.rollback()
+            raise e
 
-
-
-async def delete_cart_item(db: AsyncSession, user_id: int, book_details_id: int):
-    cart_item = await db.execute(
-        select(Cart).where(
-            Cart.user_id == user_id,
-            Cart.book_details_id == book_details_id
+    elif book_details.status.value == "PURCHASE":
+        existing_item = await db.execute(
+            select(Cart).where(
+                Cart.user_id == user.id,
+                Cart.book_details_id == cart_item_data.book_details_id,
+            )
         )
-    )    
+        existing_item = existing_item.scalars().first()
+        if existing_item:
+            if (
+                existing_item.quantity + cart_item_data.quantity
+                > book_details.available_stock
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Cannot add {cart_item_data.quantity} more. Only {book_details.available_stock - existing_item.quantity} left in stock.",
+                )
+            existing_item.quantity += cart_item_data.quantity
+            await db.commit()
+            await db.refresh(existing_item)
+            return existing_item
+        else:
+            cart_item = Cart(
+                user_id=user.id,
+                book_details_id=cart_item_data.book_details_id,
+                quantity=cart_item_data.quantity,
+            )
+            db.add(cart_item)
+            await db.commit()
+            await db.refresh(cart_item)
+            return cart_item
+
+
+async def delete_cart_item_crud(db: AsyncSession, user_id: int, cart_item_id: int):
+    cart_item = await db.execute(
+        select(Cart)
+        .options(joinedload(Cart.book_details))
+        .where(Cart.user_id == user_id, Cart.id == cart_item_id)
+    )
     cart_item = cart_item.scalars().first()
-    if cart_item:
+    if cart_item is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Cart item with id {cart_item_id} not found for this user.",
+        )
+    else:
         await db.delete(cart_item)
         await db.commit()
-        return True
-    return False
-    
+    return cart_item
+
+
+async def get_cart_item(db: AsyncSession, user_id: int, cart_item_id: int):
+    cart_item = await db.execute(
+        select(Cart)
+        .options(joinedload(Cart.book_details))
+        .where(Cart.user_id == user_id, Cart.id == cart_item_id)
+    )
+    cart_item = cart_item.scalars().first()
+    if not cart_item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Cart item with id {cart_item_id} not found.",
+        )
+    return cart_item
+
+
+async def update_cart_item_crud(
+    db: AsyncSession,
+    cart_item_data: Cart,
+    quantity: int | None,
+    borrowing_weeks: int | None,
+):
+    if (
+        cart_item_data.book_details.status.value == "BORROW"
+        and borrowing_weeks is not None
+    ):
+        cart_item_data.borrowing_weeks = borrowing_weeks
+    elif (
+        cart_item_data.book_details.status.value == "PURCHASE" and quantity is not None
+    ):
+        cart_item_data.quantity = quantity
+    await db.commit()
+    await db.refresh(cart_item_data)
+    return cart_item_data

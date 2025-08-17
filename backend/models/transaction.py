@@ -22,17 +22,14 @@ class Transaction(Base):
     __tablename__ = "transactions"
     __table_args__ = (Index("ix_transactions_user_id", "user_id"),)
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     transaction_type: Mapped[TransactionType] = mapped_column(String, nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(
-        String, nullable=True
+    description: Mapped[str] = mapped_column(
+        String
     )  # e.g., "Order payment", "Wallet top-up"
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), onupdate=func.now(), nullable=True
     )
 
     # Foreign Keys

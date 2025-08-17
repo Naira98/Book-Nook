@@ -4,7 +4,33 @@
   --color-background: #dfe8ef;
   --color-primary: #0b3460;
   --color-hover: #0d4a8f;
-  --color-secondary: #f9a806;
+  --color-secondary: #f2b63d;
+
+  /* --color-primary: #34d399;  emerald-400 */
+  /* --color-primary: #22D3EE; cyan-400 */
+  /* --color-primary: #38bdf8; sky-400 */
+  /* --color-primary: oklch(75% 0.183 55.934); /orange-400
+  --color-secondary: #f1f5f9; slate-100
+  --color-text: #082f49; sky-950 */
+
+  --color-success: #34d399; /* green-400 */
+  --color-error: #f87171; /* red-400 */
+}
+
+.btn-sky {
+  @apply inline-flex cursor-pointer items-center gap-2 rounded-lg border border-sky-800 p-2 text-sm text-sky-800 shadow hover:bg-slate-50 md:px-4 md:py-2 md:text-base;
+}
+
+.btn-filter {
+  @apply cursor-pointer rounded-lg border-2 px-3 py-1.5 text-xs whitespace-nowrap shadow-sm transition-all duration-200;
+}
+
+.btn-filter-active {
+  @apply border-sky-200 bg-slate-50 font-medium text-sky-800;
+}
+
+.btn-filter-inactive {
+  @apply border-gray-200 bg-white text-gray-700 hover:border-sky-100 hover:bg-slate-50;
 }
 
 /* Keyframe animations for page elements */

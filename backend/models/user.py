@@ -5,7 +5,7 @@ from decimal import Decimal
 from enum import Enum
 
 from db.base import Base
-from sqlalchemy import DateTime, Numeric, String
+from sqlalchemy import DateTime, Numeric, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -30,6 +30,7 @@ class UserRole(Enum):
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = (UniqueConstraint("stripe_session_id", name="uq_user_stripe_session_id"),)
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     first_name: Mapped[str] = mapped_column(String(25))
@@ -50,12 +51,15 @@ class User(Base):
         String, unique=True, nullable=True
     )
     email_verification_token: Mapped[str | None] = mapped_column(String, nullable=True)
+    stripe_session_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # Foreign Keys
     cart: Mapped[list[Cart]] = relationship(  # type: ignore  # noqa: F821
         back_populates="user", foreign_keys="[Cart.user_id]"
     )
-    orders: Mapped[list[Order]] = relationship(back_populates="user")  # type: ignore  # noqa: F821
+    orders: Mapped[list[Order]] = relationship(
+        back_populates="user", foreign_keys="[Order.user_id]"
+    )  # type: ignore  # noqa: F821
 
     # Explicitly specify foreign_keys for return_orders relationship
     return_orders: Mapped[list[ReturnOrder]] = relationship(  # type: ignore # noqa: F821
@@ -63,7 +67,12 @@ class User(Base):
     )
 
     # Explicitly specify foreign_keys for courier_orders relationship
-    courier_orders: Mapped[list[ReturnOrder]] = relationship(  # type: ignore # noqa: F821
+    courier_orders: Mapped[list[Order]] = relationship(  # type: ignore # noqa: F821
+        back_populates="courier", foreign_keys="[Order.courier_id]"
+    )
+
+    # Explicitly specify foreign_keys for courier_return_orders relationship
+    courier_return_orders: Mapped[list[ReturnOrder]] = relationship(  # type: ignore # noqa: F821
         back_populates="courier", foreign_keys="[ReturnOrder.courier_id]"
     )
     notifications: Mapped[list[Notification]] = relationship(  # type: ignore # noqa: F821

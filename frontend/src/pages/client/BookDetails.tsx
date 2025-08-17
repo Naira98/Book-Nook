@@ -84,7 +84,7 @@ const BookDetails: React.FC = () => {
   }
 
   // Mock data for the design
-  const originalPrice = book.price * 1.66; // 40% discount
+  // const originalPrice = book.price * 1.66; // 40% discount
   const rating = 4.5;
   const reviewCount = 127;
   const overallRating = 4.7;

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 from core.websocket import webSocket_connection_manager
-from utils.auth import get_user
+from utils.auth import get_user_via_session
 from schemas.auth import LoginResponse
 
 
@@ -9,7 +9,7 @@ websocket_router = APIRouter(tags=["WebSocket"])
 
 @websocket_router.websocket("/ws")
 async def websocket_endpoint(
-    websocket: WebSocket, user: LoginResponse = Depends(get_user)
+    websocket: WebSocket, user: LoginResponse = Depends(get_user_via_session)
 ):
     await webSocket_connection_manager.connect(websocket, user.id, user.role)
     try:
@@ -20,5 +20,4 @@ async def websocket_endpoint(
         # This is an expected exception when the client closes the connection.
         pass
     finally:
-        print("Client disconnected ✨✨")
         webSocket_connection_manager.disconnect(user.id, user.role)

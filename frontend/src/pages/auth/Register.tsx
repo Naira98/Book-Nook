@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Form } from "react-final-form";
+import { Field, Form } from "react-final-form";
 import { Link } from "react-router-dom";
 import AuthLayout from "../../components/auth/AuthLayout";
 import MainButton from "../../components/shared/buttons/MainButton";
@@ -84,13 +84,21 @@ export default function Register() {
                   <form onSubmit={handleSubmit}>
                     <div className="flex flex-wrap gap-x-5">
                       {RegisterformData.map((item, index) => (
-                        <TextInput
-                          key={index}
-                          name={item.name}
-                          type={item.type}
-                          placeholder={item.placeholder}
-                          containerClassName={item.containerClassName}
-                        />
+                        <Field name={item.name} key={index}>
+                          {({ input, meta }) => (
+                            <TextInput
+                              {...input}
+                              type={item.type}
+                              placeholder={item.placeholder}
+                              containerClassName={item.containerClassName}
+                              error={
+                                meta.touched && meta.error
+                                  ? meta.error
+                                  : undefined
+                              }
+                            />
+                          )}
+                        </Field>
                       ))}
                     </div>
 

@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import apiReq from "../../services/apiReq";
 import type { LoginFormData } from "../../types/auth";
 import type { IUser } from "../../types/User";
+import { getHomePath } from "../../utils/getHomePath";
 
 export function useLogin() {
   const queryClient = useQueryClient();
@@ -15,7 +16,7 @@ export function useLogin() {
     },
     onSuccess: (user: IUser) => {
       queryClient.setQueryData(["me"], user);
-      navigate("/", { replace: true });
+      navigate(getHomePath(user.role), { replace: true });
     },
     onError: (err) => {
       console.log(err);

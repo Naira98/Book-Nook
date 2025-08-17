@@ -43,7 +43,10 @@ class BorrowOrderBook(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     borrowing_weeks: Mapped[int]
-    return_date: Mapped[datetime | None] = mapped_column(
+    actual_return_date: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    expected_return_date: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
     borrow_book_problem: Mapped[BorrowBookProblem] = mapped_column(
@@ -120,10 +123,10 @@ class Order(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
-    address: Mapped[str]
-    phone_number: Mapped[str]
-    pick_up_date: Mapped[datetime | None] = mapped_column(default=None, nullable=True)
-    pick_up_type: Mapped[PickUpType]
+    address: Mapped[str | None] = mapped_column(nullable=True)
+    phone_number: Mapped[str | None] = mapped_column(nullable=True)
+    pickup_date: Mapped[datetime | None] = mapped_column(default=None, nullable=True)
+    pickup_type: Mapped[PickUpType]
     status: Mapped[OrderStatus] = mapped_column(default=OrderStatus.CREATED.value)
     delivery_fees: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
 
@@ -132,15 +135,21 @@ class Order(Base):
     promo_code_id: Mapped[int | None] = mapped_column(
         ForeignKey("promo_codes.id"), nullable=True
     )
+    courier_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
 
     # Relationships
-    user: Mapped[User] = relationship(back_populates="orders")  # type: ignore  # noqa: F821
-    promo_code: Mapped[PromoCode | None] = relationship(back_populates="orders")  # type: ignore # noqa: F821
+    user: Mapped[User] = relationship(back_populates="orders", foreign_keys=[user_id])  # type: ignore  # noqa: F821
+    promo_code: Mapped[PromoCode | None] = relationship(  # type: ignore # noqa: F821
+        back_populates="orders", foreign_keys=[promo_code_id]
+    )
     borrow_order_books_details: Mapped[list[BorrowOrderBook]] = relationship(
         back_populates="order"
     )
     purchase_order_books_details: Mapped[list[PurchaseOrderBook]] = relationship(
         back_populates="order"
+    )
+    courier: Mapped[User] = relationship(  # noqa: F821 # type: ignore
+        back_populates="courier_orders", foreign_keys=[courier_id]
     )
     transactions: Mapped[list[Transaction]] = relationship(back_populates="order")  # type: ignore  # noqa: F821
 
@@ -151,7 +160,7 @@ class ReturnOrder(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     address: Mapped[str]
     phone_number: Mapped[str]
-    pick_up_type: Mapped[PickUpType]
+    pickup_type: Mapped[PickUpType]
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -162,7 +171,7 @@ class ReturnOrder(Base):
 
     # Foreign Keys
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    courier_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    courier_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
 
     # Relationships
     borrow_order_books_details: Mapped[list[BorrowOrderBook]] = relationship(
@@ -174,5 +183,5 @@ class ReturnOrder(Base):
     )
     # Explicitly specify foreign_keys for the 'courier' relationship
     courier: Mapped[User] = relationship(  # noqa: F821 # type: ignore
-        back_populates="courier_orders", foreign_keys=[courier_id]
+        back_populates="courier_return_orders", foreign_keys=[courier_id]
     )

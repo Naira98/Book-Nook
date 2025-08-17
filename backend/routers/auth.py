@@ -10,7 +10,7 @@ from core.auth import (
 from db.database import get_db
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response, status
 from fastapi.responses import JSONResponse
-from jose import ExpiredSignatureError, JWTError # type: ignore
+from jose import ExpiredSignatureError, JWTError  # type: ignore
 from models.session import Session
 from models.user import User, UserRole, UserStatus
 from nanoid import generate  # type: ignore
@@ -28,12 +28,19 @@ from settings import settings
 from sqlalchemy import delete, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-from utils.auth import get_user_by_email
+from utils.auth import get_user_by_email, get_user_via_session
 
 auth_router = APIRouter(
     prefix="/auth",
     tags=["Auth"],
 )
+
+
+@auth_router.get("/me", response_model=LoginResponse)
+async def get_current_user(
+    user: str = Depends(get_user_via_session),
+):
+    return user
 
 
 @auth_router.post("/register", response_model=SuccessMessage)
@@ -309,7 +316,6 @@ async def reset_password(rfp: ResetForegetPassword, db: AsyncSession = Depends(g
             status_code=status.HTTP_404_NOT_FOUND,
             content={"message": "User not found"},
         )
-
 
     hashed_password = get_password_hash(rfp.new_password)
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Form } from "react-final-form";
+import { Field, Form } from "react-final-form";
 import AuthLayout from "../../components/auth/AuthLayout";
 import MainButton from "../../components/shared/buttons/MainButton";
 import TextInput from "../../components/shared/formInputs/TextInput";
@@ -69,18 +69,24 @@ const ForgetPassword = () => {
                   hasValidationErrors,
                 }) => (
                   <form onSubmit={handleSubmit} className="space-y-6">
-                    <>
-                      <TextInput name="email" placeholder="Enter your email" />
-                      <div className="mt-12">
-                        <MainButton
-                          disabled={
-                            submitting || pristine || hasValidationErrors
+                    <Field name="email">
+                      {({ input, meta }) => (
+                        <TextInput
+                          {...input}
+                          placeholder="Enter your email"
+                          error={
+                            meta.touched && meta.error ? meta.error : undefined
                           }
-                          loading={isPending}
-                          label="Send emai"
                         />
-                      </div>
-                    </>
+                      )}
+                    </Field>
+                    <div className="mt-12">
+                      <MainButton
+                        disabled={submitting || pristine || hasValidationErrors}
+                        loading={isPending}
+                        label="Send email"
+                      />
+                    </div>
                   </form>
                 )}
               />
@@ -88,7 +94,7 @@ const ForgetPassword = () => {
           </>
         ) : (
           <>
-            <div className="flex w-full flex-col items-center justify-center overflow-auto p-6 md:w-1/2 lg:p-8 gap-4">
+            <div className="flex w-full flex-col items-center justify-center gap-4 overflow-auto p-6 md:w-1/2 lg:p-8">
               <p className="text-center">
                 We've sent a verification link to your email address. <br />
                 Please check your inbox.
