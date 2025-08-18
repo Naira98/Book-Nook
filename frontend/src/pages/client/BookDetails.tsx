@@ -1,15 +1,15 @@
 import { Minus, Plus, ShoppingCart, Star } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useBook } from "../../hooks/useBook";
 
-const BookDetails: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+const BookDetails = () => {
+  const { bookId } = useParams<{ bookId: string }>();
+  console.log("Book ID from params:", bookId);
   const navigate = useNavigate();
-  // const [isFavorite, setIsFavorite] = useState(false);
   const [quantity, setQuantity] = useState(1);
 
-  const { book, isLoading, error, purchaseMutation } = useBook(id);
+  const { book, isLoading, error, purchaseMutation } = useBook(bookId);
 
   const handlePurchase = () => {
     if (!book) return;
