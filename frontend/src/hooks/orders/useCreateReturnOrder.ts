@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import apiReq from "../../services/apiReq";
-import type { IUser } from "../../types/User";
 import type { PickUpType } from "../../types/Orders";
+import type { IUser } from "../../types/User";
 
 interface CreateReturnOrderRequest {
   pickup_type: PickUpType;
@@ -22,6 +22,7 @@ export const useCreateReturnOrder = () => {
     onSuccess: () => {
       toast("Return order created successfully", { type: "success" });
       queryClient.invalidateQueries({ queryKey: ["clientBorrows", userId] });
+      queryClient.invalidateQueries({ queryKey: ["me"] });
     },
     onError: (error) => {
       console.log(error);
