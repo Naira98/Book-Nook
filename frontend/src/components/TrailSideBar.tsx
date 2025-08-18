@@ -30,14 +30,14 @@ const TrailSideBar = ({ navItems }: SidebarProps) => {
                 className={clsx(
                   "flex items-center justify-center rounded-lg p-1.5 text-base transition-all md:justify-start md:px-1 md:py-1.5 lg:px-3 lg:py-2",
                   isActive
-                    ? "bg-secondary text-primary md:border-l-2 lg:border-l-3"
-                    : "hover:bg-secondary",
+                    ? "bg-accent text-secondary md:border-l-2 lg:border-l-3"
+                    : "hover:bg-accent",
                 )}
               >
                 <span
                   className={clsx(
                     "text-xl md:text-base lg:text-xl",
-                    isActive && "text-primary",
+                    isActive && "text-secondary",
                   )}
                 >
                   {item.icon}
@@ -50,12 +50,12 @@ const TrailSideBar = ({ navItems }: SidebarProps) => {
           })}
         </nav>
 
-        <div className="border-secondary border-t">
+        <div className="border-accent border-t">
           <div className="flex flex-col items-start gap-y-1 md:gap-y-2">
             <div className="mt-2 hidden w-full cursor-default items-center px-2 md:flex lg:px-3">
               <User className="h-5 w-5 md:h-6 md:w-6 lg:h-6 lg:w-6" />
               <span className="ml-2 flex flex-col lg:ml-3">
-                <span className="text-primary line-clamp-1 text-xs md:text-xs lg:text-sm">
+                <span className="text-secondary line-clamp-1 text-xs md:text-xs lg:text-sm">
                   {me!.first_name} {me!.last_name}
                 </span>
                 <span className="line-clamp-1 text-xs md:text-xs lg:text-sm">
@@ -67,7 +67,7 @@ const TrailSideBar = ({ navItems }: SidebarProps) => {
             <div
               className={clsx(
                 "flex w-full items-center justify-center rounded-md p-1.5 text-sm transition-all md:justify-start md:px-1 md:py-1.5 lg:px-3 lg:py-2",
-                "hover:bg-secondary cursor-pointer",
+                "hover:bg-accent cursor-pointer",
               )}
               role="button"
               tabIndex={0}

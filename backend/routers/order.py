@@ -18,13 +18,14 @@ from models.order import (
 )
 from models.user import User, UserRole
 from schemas.order import (
+    AllOrdersResponse,
     BorrowOrderBookUpdateProblemResponse,
     CreateOrderRequest,
     GetAllOrdersResponse,
+    UpdateOrderStatusRequest,
     OrderCreatedUpdateResponse,
     OrderDetailsResponseSchema,
     OrderResponseSchema,
-    UpdateOrderStatusRequest,
 )
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -413,7 +414,7 @@ async def get_order_details(
 
 @order_router.patch(
     "/order-status",
-    response_model=UpdateOrderStatusRequest,
+    response_model=AllOrdersResponse,
     status_code=status.HTTP_200_OK,
 )
 async def update_order_status(
@@ -424,7 +425,7 @@ async def update_order_status(
     try:
         query = (
             select(Order)
-            .where(Order.id == order_data.id)
+            .where(Order.id == order_data.order_id)
             .options(joinedload(Order.user))
             .options(
                 selectinload(Order.borrow_order_books_details),
@@ -437,12 +438,9 @@ async def update_order_status(
         if not order:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Order with id {order_data.id} not found.",
+                detail=f"Order with id {order_data.order_id} not found.",
             )
-        if (
-            order_data.status == OrderStatus.ON_THE_WAY
-            and order_data.courier_id is None
-        ):
+        if order_data.status == OrderStatus.ON_THE_WAY and order.courier_id is None:
             if staff_user.role != UserRole.COURIER:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
@@ -541,6 +539,8 @@ async def update_borrow_order_book_status(
             # TODO: if promocode applied, should it be considered in the fees?     no deposit returned
             # TODO: if it's lost => wallet can be negative
 
+            borrow_order_book.user.current_borrowed_books -= 1
+
             plenty_fees = borrow_order_book.original_book_price - (
                 borrow_order_book.deposit_fees + borrow_order_book.borrow_fees
             )
@@ -556,7 +556,6 @@ async def update_borrow_order_book_status(
 
         borrow_order_book.borrow_book_problem = new_status
         await db.commit()
-        await db.refresh(borrow_order_book)
 
         return {
             "message": f"Borrow order book status updated successfully to {new_status.value}",

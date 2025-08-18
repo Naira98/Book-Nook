@@ -30,38 +30,6 @@ class BookDetailsSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
 
-class ReturnOrderRequest(BaseModel):
-    pickup_type: PickUpType
-    status: ReturnOrderStatus
-    address: str
-    phone_number: str
-    created_at: datetime
-    delivery_fees: Optional[Decimal]
-    courier_id: Optional[int]
-    borrowed_books_ids: List[int]
-
-
-class BorrowedBooksResponse(BaseModel):
-    id: int
-    borrowing_weeks: int
-    actual_return_date: Optional[datetime]
-    expected_return_date: Optional[datetime]
-    book: BookSchema
-
-    @model_validator(mode="before")
-    @classmethod
-    def prepare_data(cls, data: Any):
-        return {
-            "id": data.id,
-            "borrowing_weeks": data.borrowing_weeks,
-            "actual_return_date": data.actual_return_date,
-            "expected_return_date": data.expected_return_date,
-            "book": data.book_details.book,
-        }
-
-    model_config = ConfigDict(from_attributes=True)
-
-
 class BorrowOrderBookSchema(BaseModel):
     id: int
     borrowing_weeks: int
@@ -92,12 +60,12 @@ class PurchaseOrderBookSchema(BaseModel):
 class OrderResponseSchema(BaseModel):
     id: int
     created_at: datetime
-    address: str
+    address: Optional[str]
     pickup_date: Optional[datetime]
     pickup_type: PickUpType
     delivery_fees: Optional[Decimal]
     promo_code_id: Optional[int]
-    phone_number: str
+    phone_number: Optional[str]
     status: OrderStatus
     user_id: int
     borrow_order_books_details: List[BorrowOrderBookSchema]
@@ -170,9 +138,9 @@ class BorrowOrderBookUpdateProblemResponse(OrderCeatedUpdateResponseBase):
 class AllOrdersResponseBase(BaseModel):
     id: int
     created_at: datetime
-    address: str
+    address: Optional[str]
     pickup_type: PickUpType
-    phone_number: str
+    phone_number: Optional[str]
     user: GetAllOrdersUserResponse
     number_of_books: int = 0
     courier_id: Optional[int]
@@ -202,6 +170,11 @@ class AllOrdersResponse(AllOrdersResponseBase):
         }
 
 
+class UpdateOrderStatusRequest(BaseModel):
+    order_id: int
+    status: OrderStatus
+
+
 class ReturnOrderResponse(AllOrdersResponseBase):
     status: ReturnOrderStatus
 
@@ -228,10 +201,6 @@ class GetAllOrdersResponse(BaseModel):
     return_orders: list[ReturnOrderResponse]
 
 
-class UpdateOrderStatusRequest(AllOrdersResponse):
-    pass
-
-
 class UpdateReturnOrderStatusRequest(AllOrdersResponseBase):
     status: ReturnOrderStatus
     borrow_order_books_details: Optional[list[BorrowOrderBookSchema] | None] = None
@@ -255,10 +224,6 @@ class UpdateReturnOrderStatusRequest(AllOrdersResponseBase):
         }
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
-
-
-class UpdateOrderStatusResponse(AllOrdersResponse):
-    model_config = ConfigDict(from_attributes=True)
 
 
 """ TypedDict not pydantic schema """
