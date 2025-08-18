@@ -30,7 +30,7 @@ import OrdersListPage from "./pages/auth/OrdersListPage";
 import CheckoutSuccess from "./pages/client/CheckoutSuccess";
 import Footer from "./pages/client/Footer";
 import TransactionsPage from "./pages/client/TransactionsPage";
-
+import BookDetails from "./pages/client/BookDetails";
 import CourierOrderDetailsPage from "./pages/courier/OrderDetailsPage";
 import CourierReturnOrderDetailsPage from "./pages/courier/RetrunOrderDetailsPage";
 import StaffOrdersPage from "./pages/employee/OrdersPage";
@@ -96,6 +96,15 @@ const App = () => {
                   <Navbar />
                   <PurchaseBooks />
                   <Footer />
+                </>
+              }
+            />
+                     <Route
+              path="/book/:bookId"
+              element={
+                <>
+                  <Navbar />
+                  <BookDetails />
                 </>
               }
             />

@@ -10,7 +10,7 @@ export const useGetBookDetailsForUpdate = (bookId: string) => {
   } = useQuery<IBookDetailsForUpdate>({
     queryKey: ["bookDetailsForUpdate", bookId],
     queryFn: async () => {
-      return await apiReq("GET", `/books/${bookId}/details`);
+      return await apiReq("GET", `/books/update_details/${bookId}`);
     },
   });
 

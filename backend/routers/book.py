@@ -12,7 +12,7 @@ from crud.book import (
     create_book_details,
     get_book_details ,
     get_all_books,
-     create_category_crud,
+    create_category_crud,
     get_author_by_id,
     get_authors_crud,
     get_book_details_for_update_crud,
@@ -96,8 +96,8 @@ async def get_books_table(
     return await get_books_table_crud(db)
 
 
-@book_router.get("/{book_id}/details", response_model=BookDetailsForUpdateResponse)
-async def get_book_details(book_id: int, db: AsyncSession = Depends(get_db)):
+@book_router.get("/update_details/{book_id}", response_model=BookDetailsForUpdateResponse)
+async def get_book_details_for_update(book_id: int, db: AsyncSession = Depends(get_db)):
     return await get_book_details_for_update_crud(db, book_id=book_id)
 
 
@@ -194,7 +194,8 @@ async def update_book(
 
 @book_router.get("/{book_details_id}", response_model=BookResponse)
 async def read_book_details(book_details_id: int, db: AsyncSession = Depends(get_db)):
-    book = await get_book_details(book_details_id=book_details_id, db=db)
+    print(f"Fetching book details for ID:################# {book_details_id}",    "🔍🔍🔍")
+    book = await get_book_details(book_details_id, db)
     if book is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

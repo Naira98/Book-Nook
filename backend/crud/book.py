@@ -315,6 +315,7 @@ async def update_book_crud(book_id: int, book_data: UpdateBookData, db: AsyncSes
 
 
 async def get_book_details(book_details_id: int, db: AsyncSession):
+    print(f"Fetching book details for ID: {book_details_id}",    "🔍🔍🔍")
     stmt =(
         select(Book)
         .where(Book.book_details.any(BookDetails.id == book_details_id))
