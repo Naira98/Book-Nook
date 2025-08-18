@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import apiReq from "../../services/apiReq";
 import { toast } from "react-toastify";
+import apiReq from "../../services/apiReq";
 import type { IUser } from "../../types/User";
 
 interface MarkBookAsLostRequest {
@@ -19,6 +19,7 @@ export const useMarkBookAsLost = () => {
     onSuccess: () => {
       toast("Book marked as lost", { type: "success" });
       queryClient.invalidateQueries({ queryKey: ["clientBorrows", userId] });
+      queryClient.invalidateQueries({ queryKey: ["me"] });
     },
     onError: (error) => {
       console.error("Error marking book as lost:", error);

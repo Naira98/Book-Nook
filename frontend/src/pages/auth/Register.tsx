@@ -36,18 +36,18 @@ export default function Register() {
   const validate = (values: RegisterFormData) => {
     const errors: Partial<RegisterFormData> = {};
 
-    if (!values.firstName) errors.firstName = "First Name is required";
-    if (!values.lastName) errors.lastName = "Last Name is required";
+    if (!values.first_name) errors.first_name = "First Name is required";
+    if (!values.last_name) errors.last_name = "Last Name is required";
     if (!values.email) {
       errors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
       errors.email = "Invalid email address";
     }
-    if (!values.nationalId) {
-      errors.nationalId = "National ID is required";
+    if (!values.national_id) {
+      errors.national_id = "National ID is required";
     }
-    if (!values.phoneNumber) {
-      errors.phoneNumber = "Phone Number is required";
+    if (!values.phone_number) {
+      errors.phone_number = "Phone Number is required";
     }
     if (!values.password) errors.password = "Password is required";
     if (!values.confirmPassword) {
@@ -156,13 +156,13 @@ export default function Register() {
 
 const RegisterformData = [
   {
-    name: "firstName",
+    name: "first_name",
     type: "text",
     placeholder: "First Name",
     containerClassName: "!w-full sm:!w-[calc(50%-10px)]",
   },
   {
-    name: "lastName",
+    name: "last_name",
     type: "text",
     placeholder: "Last Name",
     containerClassName: "!w-full sm:!w-[calc(50%-10px)]",
@@ -173,13 +173,13 @@ const RegisterformData = [
     placeholder: "Email Address",
   },
   {
-    name: "nationalId",
+    name: "national_id",
     type: "text",
     placeholder: "National ID",
     containerClassName: "!w-full sm:!w-[calc(50%-10px)]",
   },
   {
-    name: "phoneNumber",
+    name: "phone_number",
     type: "text",
     placeholder: "Phone Number",
     containerClassName: "!w-full sm:!w-[calc(50%-10px)]",
