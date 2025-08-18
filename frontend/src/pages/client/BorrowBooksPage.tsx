@@ -1,8 +1,8 @@
 import { Clock } from "lucide-react";
-import BookCard from "../../components/client/BookCard";
 import Spinner from "../../components/shared/Spinner";
 import { useGetBorrowBooks } from "../../hooks/books/useGetBorrowBooks";
 import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
+import HorizontalBookCard from "../../components/client/HorizontalBookCard";
 
 const BorrowBooksPage = () => {
   const { borrowBooks, isPending: isPendingGettingBooks } = useGetBorrowBooks();
@@ -38,7 +38,7 @@ const BorrowBooksPage = () => {
         {borrowBooks && borrowBooks.length > 0 ? (
           <div className="flex flex-col gap-4">
             {borrowBooks.map((book) => (
-              <BookCard
+              <HorizontalBookCard
                 book={book}
                 cartItems={cartItems}
                 key={book.book_details_id}

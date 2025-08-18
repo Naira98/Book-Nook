@@ -14,6 +14,7 @@ class BookBase(BaseModel):
     price: Decimal
     description: str
     cover_img: str | None = None
+    publish_year: int
 
 
 class CreateAuthorCategoryRequest(BaseModel):
@@ -92,8 +93,6 @@ class PurchaseBookResponse(GetBookBase):
 
 
 """ Employee-only schema for book management """
-
-
 class BookTableSchema(BaseModel):
     id: int
     title: str

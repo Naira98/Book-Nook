@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Field, Form } from "react-final-form";
 import { Link } from "react-router-dom";
+import image from "../../assets/register.svg";
 import AuthLayout from "../../components/auth/AuthLayout";
 import MainButton from "../../components/shared/buttons/MainButton";
 import TextInput from "../../components/shared/formInputs/TextInput";
 import { useRegister } from "../../hooks/auth/useRegister";
 import type { RegisterFormData } from "../../types/auth";
-import image from "../../assets/register.svg";
 
 export default function Register() {
   const [resendCountdown, setResendCountdown] = useState<number>(30);

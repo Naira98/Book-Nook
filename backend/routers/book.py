@@ -7,8 +7,10 @@ from crud.book import (
     create_book,
     create_book_details,
     create_category_crud,
+    get_all_books,
     get_author_by_id,
     get_authors_crud,
+    get_book_details,
     get_book_details_for_update_crud,
     get_books_table_crud,
     get_borrow_books_crud,
@@ -19,7 +21,15 @@ from crud.book import (
     update_book_crud,
 )
 from db.database import get_db
-from fastapi import APIRouter, Depends, File, Form, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    UploadFile,
+    status,
+)
 from fastapi.responses import JSONResponse
 from schemas.book import (
     AuthorCategorySchema,
@@ -117,8 +127,10 @@ async def get_books_table(
     return await get_books_table_crud(db)
 
 
-@book_router.get("/{book_id}/details", response_model=BookDetailsForUpdateResponse)
-async def get_book_details(book_id: int, db: AsyncSession = Depends(get_db)):
+@book_router.get(
+    "/update_details/{book_id}", response_model=BookDetailsForUpdateResponse
+)
+async def get_book_details_for_update(book_id: int, db: AsyncSession = Depends(get_db)):
     return await get_book_details_for_update_crud(db, book_id=book_id)
 
 
@@ -206,10 +218,26 @@ async def update_book(
         "purchase_available_stock": purchase_available_stock,
         "borrow_available_stock": borrow_available_stock,
     }
-
     if secure_url:
         book_data_dict["cover_img"] = secure_url
 
     book_data = UpdateBookData(**book_data_dict)
 
     return await update_book_crud(book_id, book_data, db)
+
+
+@book_router.get("/{book_details_id}", response_model=BookResponse)
+async def read_book_details(book_details_id: int, db: AsyncSession = Depends(get_db)):
+    book = await get_book_details(book_details_id, db)
+    if book is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Book with id {book_details_id} not found",
+        )
+    return book
+
+
+@book_router.get("/", response_model=list[BookResponse])
+async def read_all_books(db: AsyncSession = Depends(get_db)):
+    books = await get_all_books(db=db)
+    return books

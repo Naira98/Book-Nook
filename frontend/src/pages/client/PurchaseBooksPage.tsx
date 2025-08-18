@@ -1,6 +1,6 @@
 import { Clock } from "lucide-react";
 import React from "react";
-import BookCard from "../../components/client/BookCard";
+import HorizontalBookCard from "../../components/client/HorizontalBookCard";
 import Spinner from "../../components/shared/Spinner";
 import { useGetPurchaseBooks } from "../../hooks/books/useGetPruchaseBooks";
 import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
@@ -43,7 +43,7 @@ const PurchaseBooksPage: React.FC = () => {
         {purchaseBooks && purchaseBooks.length > 0 ? (
           <div className="flex flex-col gap-4">
             {purchaseBooks.map((book) => (
-              <BookCard
+              <HorizontalBookCard
                 book={book}
                 cartItems={cartItems}
                 key={book.book_details_id}

@@ -2,11 +2,11 @@ import { AlertTriangle, BookOpen, Calendar, CheckCircle } from "lucide-react";
 import { useMemo, useState } from "react";
 import BorrowedBookItem from "../../components/client/BorrowedBookItem";
 import ReturnOrderForm from "../../components/client/ReturnOrderForm";
+import SummaryCard from "../../components/client/SummaryCard";
 import MainButton from "../../components/shared/buttons/MainButton";
 import Spinner from "../../components/shared/Spinner";
 import { useGetClientBorrows } from "../../hooks/orders/useGetClientBorrows";
 import { formatMoney } from "../../utils/formatting";
-import SummaryCard from "../../components/client/SummaryCard";
 
 const CurrentBorrowsPage = () => {
   const { clientBorrows, isPending } = useGetClientBorrows();

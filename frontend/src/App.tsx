@@ -16,6 +16,7 @@ import Login from "./pages/auth/Login";
 import OrdersListPage from "./pages/auth/OrdersListPage";
 import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
+import BookDetails from "./pages/client/BookDetails";
 import BorrowBooksPage from "./pages/client/BorrowBooksPage";
 import CartPage from "./pages/client/CartPage";
 import ChechoutPage from "./pages/client/CheckoutPage";
@@ -99,6 +100,15 @@ const App = () => {
                   <Navbar />
                   <PurchaseBooksPage />
                   <Footer />
+                </>
+              }
+            />
+            <Route
+              path="/book/:bookId"
+              element={
+                <>
+                  <Navbar />
+                  <BookDetails />
                 </>
               }
             />
