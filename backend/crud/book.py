@@ -1,21 +1,20 @@
+import requests
 from fastapi import HTTPException, status
+from langchain_core.documents import Document
 from models.book import Author, Book, BookDetails, BookStatus, Category
 from schemas.book import (
     BookDetailsForUpdateResponse,
+    BookResponse,
     BookTableSchema,
     CreateAuthorCategoryRequest,
     CreateBookRequest,
     UpdateBookData,
-    BookResponse,
 )
+from settings import settings
 from sqlalchemy import insert, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload, contains_eager, contains_eager, joinedload
-from models.book import Book, BookDetails, BookStatus
-from schemas.book import CreateBookRequest
-import requests
-from langchain_core.documents import Document
+from sqlalchemy.orm import contains_eager, joinedload, selectinload, Session
 
 
 async def get_authors_crud(db):
@@ -330,7 +329,19 @@ async def get_book_details(book_details_id: int, db: AsyncSession):
     book = result.scalars().first()
     return book
 
-def get_all_books(db: AsyncSession):
+async def get_all_books(db: AsyncSession):
+    stmt = (
+        select(Book)
+        .options(
+            selectinload(Book.author),
+            selectinload(Book.category),
+            selectinload(Book.book_details),
+        )
+    )
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+def get_all_books_sync(db: Session):
     stmt = (
         select(Book)
         .options(
@@ -344,7 +355,7 @@ def get_all_books(db: AsyncSession):
     
 
 ## this will be used to fetch books from the API and convert them into documents to be used in the vector database
-def fetch_books_from_api(api_url="http://127.0.0.1:8000/api/books/"):
+def fetch_books_from_api(api_url=f"{settings.SERVER_DOMAIN}/books/"):
     try:
         response = requests.get(api_url, timeout=30)  # Increased timeout
         response.raise_for_status()  # Raises error for bad status codes

@@ -10,6 +10,12 @@ RUN apk add --no-cache \
     libffi-dev \
     && rm -rf /var/cache/apk/*
 
+# Install Rust and Cargo for packages like tiktoken
+# RUN apk add --no-cache \
+#     rust \
+#     cargo \
+#     && rm -rf /var/cache/apk/*
+
 COPY requirements.txt .
 
 RUN pip install -r requirements.txt
