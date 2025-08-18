@@ -30,29 +30,6 @@ class BookDetailsSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
 
-class ReturnOrderRequest(BaseModel):
-    pickup_type: PickUpType
-    status: ReturnOrderStatus
-    address: str
-    phone_number: str
-    created_at: datetime
-    delivery_fees: Optional[Decimal]
-    courier_id: Optional[int]
-    borrowed_books_ids: List[int]
-
-
-class ClientBorrowsResponse(BaseModel):
-    book_details_id: int
-    borrowing_weeks: int
-    expected_return_date: datetime
-    deposit_fees: Decimal
-    borrow_fees: Decimal
-    delay_fees_per_day: Decimal
-    book: BookSchema
-
-    model_config = ConfigDict(from_attributes=True)
-
-
 class BorrowOrderBookSchema(BaseModel):
     id: int
     borrowing_weeks: int
@@ -83,12 +60,12 @@ class PurchaseOrderBookSchema(BaseModel):
 class OrderResponseSchema(BaseModel):
     id: int
     created_at: datetime
-    address: str
+    address: Optional[str]
     pickup_date: Optional[datetime]
     pickup_type: PickUpType
     delivery_fees: Optional[Decimal]
     promo_code_id: Optional[int]
-    phone_number: str
+    phone_number: Optional[str]
     status: OrderStatus
     user_id: int
     borrow_order_books_details: List[BorrowOrderBookSchema]
@@ -161,9 +138,9 @@ class BorrowOrderBookUpdateProblemResponse(OrderCeatedUpdateResponseBase):
 class AllOrdersResponseBase(BaseModel):
     id: int
     created_at: datetime
-    address: str | None
+    address: Optional[str]
     pickup_type: PickUpType
-    phone_number: str | None
+    phone_number: Optional[str]
     user: GetAllOrdersUserResponse
     number_of_books: int = 0
     courier_id: Optional[int]

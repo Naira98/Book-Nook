@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Annotated, List
 
-from crud.order import create_return_order_crud, get_client_borrows_books_crud
 from db.database import get_db
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from models.book import BookDetails
@@ -14,62 +13,31 @@ from models.order import (
 )
 from models.user import User, UserRole
 from schemas.order import (
-    ClientBorrowsResponse,
-    ReturnOrderRequest,
     UpdateReturnOrderStatusRequest,
 )
+from schemas.return_order import ClientBorrowsResponse, ReturnOrderRequest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 from utils.auth import get_staff_user, get_user_via_session
 from utils.order import (
-    validate_borrowed_books,
     validate_return_order_for_courier,
     validate_return_order_for_employee,
 )
-from utils.settings import get_settings
 from utils.socket import (
     send_courier_return_order,
-    send_created_return_order,
     send_updated_return_order,
 )
 from utils.wallet import add_to_wallet, pay_from_wallet
+from crud.return_orders import (
+    create_return_order_crud,
+    get_client_borrows_books_crud,
+)
 
 return_order_router = APIRouter(
     prefix="/return-order",
     tags=["Return Order"],
 )
-
-
-@return_order_router.post("/")
-async def create_return_order(
-    return_return_order_data: ReturnOrderRequest,
-    user: User = Depends(get_user_via_session),
-    db: AsyncSession = Depends(get_db),
-):
-    borrowed_books = await get_client_borrows_books_crud(user.id, db)
-    db_borrowed_books_ids = [book["id"] for book in borrowed_books]
-
-    validate_borrowed_books(return_return_order_data, db_borrowed_books_ids)
-
-    settings = await get_settings(db)
-
-    return_order = await create_return_order_crud(
-        user.id, return_return_order_data, settings.delivery_fees, db
-    )
-
-    for book_id in return_return_order_data.borrowed_books_ids:
-        for book in borrowed_books:
-            if book["id"] == book_id:
-                book["return_order"] = return_order
-                break
-
-    await db.commit()
-    await db.refresh(return_order)
-    await send_created_return_order(
-        return_order, return_return_order_data.borrowed_books_ids
-    )
-    return return_order
 
 
 @return_order_router.get("/client-borrows", response_model=List[ClientBorrowsResponse])
@@ -78,6 +46,19 @@ async def get_client_borrows(
 ):
     client_borrows = await get_client_borrows_books_crud(user.id, db)
     return client_borrows
+
+
+@return_order_router.post("/", status_code=status.HTTP_201_CREATED)
+async def create_return_order(
+    return_return_order_data: ReturnOrderRequest,
+    user: User = Depends(get_user_via_session),
+    db: AsyncSession = Depends(get_db),
+):
+    retrun_order = await create_return_order_crud(user, return_return_order_data, db)
+    return {
+        "message": "Return order created successfully",
+        "return_order_id": retrun_order.id,
+    }
 
 
 @return_order_router.patch(
@@ -126,7 +107,6 @@ async def update_return_order_status(
             return_order_data.status == ReturnOrderStatus.DONE.value
             and return_order_data.borrow_order_books_details is not None
         ):
-            # set new borrow_book_problem in db_return_order
             for db_book in db_return_order.borrow_order_books_details:
                 for new_book in return_order_data.borrow_order_books_details:
                     if db_book.id == new_book.id:
@@ -138,33 +118,31 @@ async def update_return_order_status(
             now_utc = datetime.now(timezone.utc)
 
             for book in db_return_order.borrow_order_books_details:
+                book.actual_return_date = now_utc
+                db_return_order.user.current_borrowed_books -= 1
+
                 if book.expected_return_date is None:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail=f"Book with id {book.id} has not been picked up yet.",
                     )
 
-                if book.borrow_book_problem == BorrowBookProblem.NORMAL:
+                if book.borrow_book_problem == BorrowBookProblem.NORMAL.value:
                     if (
                         book.expected_return_date
                         and book.expected_return_date < now_utc
                     ):
-                        amount_to_withdraw += (
-                            now_utc - book.expected_return_date
-                        ).days * book.delay_fees_per_day
+                        days_overdue = (now_utc - book.expected_return_date).days
+                        amount_to_withdraw += days_overdue * book.delay_fees_per_day
                     else:
                         amount_to_add += book.deposit_fees
-                elif book.borrow_book_problem == BorrowBookProblem.LOST:
-                    if book.promo_code_discount is not None:
-                        amount_to_withdraw += (
-                            book.original_book_price
-                            - book.promo_code_discount
-                            - book.deposit_fees
-                        )
-                    else:
-                        amount_to_withdraw += (
-                            book.original_book_price - book.deposit_fees
-                        )
+
+                elif book.borrow_book_problem == BorrowBookProblem.LOST.value:
+                    book_price_after_discount = book.original_book_price
+                    if book.promo_code_discount:
+                        book_price_after_discount -= book.promo_code_discount
+
+                    amount_to_withdraw += book_price_after_discount - book.deposit_fees
 
             # This after for loop
             if amount_to_add > 0:
@@ -180,7 +158,7 @@ async def update_return_order_status(
                     db=db,
                     user=db_return_order.user,
                     amount=amount_to_withdraw,
-                    description=f"Fees for Return Order ID: {db_return_order.id}",
+                    description=f"Penalty fees for Return Order ID: {db_return_order.id}",
                     order_id=db_return_order.id,
                     apply_negative_balance=True,
                 )

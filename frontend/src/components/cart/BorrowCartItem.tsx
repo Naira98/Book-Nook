@@ -1,6 +1,7 @@
 import type { AllCartItemsResponse, BorrowItem } from "../../types/Cart";
 import { Minus, Plus, Trash2 } from "lucide-react";
-import { formatMoney, performDecimalOperation } from "../../utils/formatting";
+import { formatMoney } from "../../utils/formatting";
+import { performDecimalOperation } from "../../utils/performDecimalOperation";
 import { useUpdateCartItem } from "../../hooks/cart/useUpdateCartItem";
 import { useQueryClient } from "@tanstack/react-query";
 import Spinner from "../shared/Spinner";

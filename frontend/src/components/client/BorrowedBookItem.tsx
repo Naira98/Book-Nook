@@ -1,6 +1,6 @@
 import { Calendar, AlertTriangle, CheckCircle } from "lucide-react";
 import type { IClientBorrows } from "../../types/ReturnOrder";
-import { formatMoney } from "../../utils/formatting";
+import { formatDate, formatMoney } from "../../utils/formatting";
 import { useMarkBookAsLost } from "../../hooks/orders/useMarkBookAsLost";
 
 interface BorrowedBookItemProps {
@@ -110,9 +110,7 @@ const BorrowedBookItem = ({
           {/* Return Date */}
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <Calendar className="h-4 w-4" />
-            <span>
-              Expected return: {expectedReturnDate.toLocaleDateString()}
-            </span>
+            <span>Expected return: {formatDate(expectedReturnDate)}</span>
           </div>
 
           {/* Pricing Details */}
