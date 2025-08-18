@@ -1,4 +1,4 @@
-import { CheckCircle, ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/logo_without_sharshora.svg";
 

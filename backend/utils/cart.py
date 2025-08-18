@@ -22,13 +22,10 @@ async def validate_book_details(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Borrowing weeks are required for borrowable books.",
         )
-    elif (
-        book_details.status.value == "PURCHASE"
-        and cart_item_data.borrowing_weeks is not None
-    ):
+    elif book_details.status.value == "PURCHASE" and cart_item_data.quantity <= 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Borrowing weeks are not applicable for purchaseable books.",
+            detail="Quantity must be greater than 0 for purchaseable books.",
         )
     return book_details
 
@@ -101,15 +98,10 @@ def validate_update_cart_item(
                 detail="Borrowing weeks must be between 1 and 4.",
             )
     elif cart_item.book_details.status.value == "PURCHASE":
-        if borrowing_weeks is not None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Borrowing weeks are not applicable for purchaseable books.",
-            )
         if quantity is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Quantity is required for purchaseable books.",
+                detail="Quantity must be greater than 0 for purchaseable books.",
             )
         if (
             quantity is not None
@@ -120,8 +112,6 @@ def validate_update_cart_item(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid quantity or not enough stock for book with id {cart_item.book_details.id}.",
             )
-
-    pass
 
 
 async def get_user_cart(user_id: int, db: AsyncSession) -> UserCart:

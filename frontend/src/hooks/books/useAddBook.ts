@@ -15,7 +15,7 @@ export const useAddBook = () => {
         queryClient.setQueryData(
           ["allBooksTable"],
           (oldData: IBookTable[] | undefined) => {
-            return oldData ? [...oldData, newBook] : [newBook];
+            if (oldData) return [...oldData, newBook];
           },
         );
       }

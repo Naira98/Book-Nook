@@ -11,7 +11,7 @@ export interface Category {
 }
 
 export interface BookDetails {
-  book_details_id: number
+  id: number;
   status: BookStatus;
   available_stock: number;
 }

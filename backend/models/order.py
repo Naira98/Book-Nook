@@ -151,15 +151,14 @@ class Order(Base):
     courier: Mapped[User] = relationship(  # noqa: F821 # type: ignore
         back_populates="courier_orders", foreign_keys=[courier_id]
     )
-    transactions: Mapped[list[Transaction]] = relationship(back_populates="order")  # type: ignore  # noqa: F821
 
 
 class ReturnOrder(Base):
     __tablename__ = "return_orders"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    address: Mapped[str]
-    phone_number: Mapped[str]
+    address: Mapped[str | None] = mapped_column(nullable=True)
+    phone_number: Mapped[str | None] = mapped_column(nullable=True)
     pickup_type: Mapped[PickUpType]
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

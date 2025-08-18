@@ -1,9 +1,10 @@
 from typing import Optional, Sequence
+
 from fastapi import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 from models.settings import PromoCode
 from schemas.promo_code import PromoCodeCreate, PromoCodeUpdate
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def get_promo_codes(db: AsyncSession) -> Sequence[PromoCode]:

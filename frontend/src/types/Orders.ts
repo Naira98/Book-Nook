@@ -94,7 +94,6 @@ export interface ReturnOrder {
 export type changeOrderStatusRequest = {
   order_id: number;
   status: OrderStatus;
-  courier_id: number | null;
 };
 
 export type changeRetrunOrderStatusRequest = {

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import requests
 from fastapi import HTTPException, status
 from langchain_core.documents import Document
@@ -14,7 +16,103 @@ from settings import settings
 from sqlalchemy import insert, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import contains_eager, joinedload, selectinload, Session
+from sqlalchemy.orm import Session, joinedload, selectinload
+from utils.order import calculate_borrow_order_book_fees
+from utils.settings import get_settings
+
+
+async def get_borrow_books_crud(db, book_details_id: Optional[int] = None):
+    query = (
+        select(BookDetails)
+        .where(BookDetails.status == BookStatus.BORROW)
+        .options(
+            selectinload(BookDetails.book).selectinload(Book.author),
+            selectinload(BookDetails.book).selectinload(Book.category),
+        )
+    )
+
+    if book_details_id:
+        query = query.where(BookDetails.id == book_details_id)
+
+    books_for_borrowing = await db.execute(query)
+
+    settings = await get_settings(db)
+
+    result_list = []
+    for book_details in books_for_borrowing.scalars():
+        # Calculate fees for each book
+        fees = calculate_borrow_order_book_fees(
+            book_price=book_details.book.price,
+            borrowing_weeks=1,
+            borrow_perc=settings.borrow_perc,
+            deposit_perc=settings.deposit_perc,
+            delay_perc=settings.delay_perc,
+            min_borrow_fee=settings.min_borrow_fee,
+            promo_code_perc=None,
+        )
+
+        book_info = {
+            "book_details_id": book_details.id,
+            "title": book_details.book.title,
+            "description": book_details.book.description,
+            "cover_img": book_details.book.cover_img,
+            "publish_year": book_details.book.publish_year,
+            "category": {
+                "id": book_details.book.category.id,
+                "name": book_details.book.category.name,
+            },
+            "author": {
+                "id": book_details.book.author.id,
+                "name": book_details.book.author.name,
+            },
+            "available_stock": book_details.available_stock,
+            "book_id": book_details.book.id,
+            "borrow_fees_per_week": fees["borrow_fees_per_week"],
+            "deposit_fees": fees["deposit_fees"],
+        }
+        result_list.append(book_info)
+
+    return result_list
+
+
+async def get_purchase_books_crud(db, book_details_id: Optional[int] = None):
+    query = (
+        select(BookDetails)
+        .where(BookDetails.status == BookStatus.PURCHASE)
+        .options(
+            selectinload(BookDetails.book).selectinload(Book.author),
+            selectinload(BookDetails.book).selectinload(Book.category),
+        )
+    )
+
+    if book_details_id:
+        query = query.where(BookDetails.id == book_details_id)
+
+    books_for_purchase = await db.execute(query)
+
+    return_list = []
+    for book_details in books_for_purchase.scalars():
+        book_info = {
+            "book_details_id": book_details.id,
+            "title": book_details.book.title,
+            "description": book_details.book.description,
+            "cover_img": book_details.book.cover_img,
+            "publish_year": book_details.book.publish_year,
+            "category": {
+                "id": book_details.book.category.id,
+                "name": book_details.book.category.name,
+            },
+            "author": {
+                "id": book_details.book.author.id,
+                "name": book_details.book.author.name,
+            },
+            "available_stock": book_details.available_stock,
+            "book_id": book_details.book.id,
+            "price": book_details.book.price,
+        }
+        return_list.append(book_info)
+
+    return return_list
 
 
 async def get_authors_crud(db):
@@ -104,38 +202,6 @@ async def create_category_crud(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Failed to create category due to a database integrity error.",
         )
-
-
-async def search_books_by_title(db: AsyncSession, title: str):
-    stmt = (
-        select(Book)
-        .where(Book.title.ilike(f"%{title}%"))
-        .options(
-            selectinload(Book.author),
-            selectinload(Book.category),
-            selectinload(Book.book_details),
-        )
-    )
-    result = await db.execute(stmt)
-    books = result.scalars().all()
-    return books
-
-
-# Fetch books based on their status in BookDetails (e.g., 'borrow', 'purchase').
-async def get_books_by_status(db: AsyncSession, status: BookStatus):
-    stmt = (
-        select(Book)
-        .join(Book.book_details)
-        .where(BookDetails.status == status)
-        .options(
-            selectinload(Book.author),
-            selectinload(Book.category),
-            contains_eager(Book.book_details),
-        )
-    )
-    result = await db.execute(stmt)
-    books = result.unique().scalars().all()
-    return books
 
 
 async def is_book_exists(db: AsyncSession, title: str, author_id: int):
@@ -262,6 +328,7 @@ async def get_books_table_crud(db):
         )
     return book_table_data
 
+
 async def update_book_crud(book_id: int, book_data: UpdateBookData, db: AsyncSession):
     update_data = book_data.model_dump(exclude_unset=True)
 
@@ -314,45 +381,40 @@ async def update_book_crud(book_id: int, book_data: UpdateBookData, db: AsyncSes
 
 
 async def get_book_details(book_details_id: int, db: AsyncSession):
-    print(f"Fetching book details for ID: {book_details_id}",    "🔍🔍🔍")
-    stmt =(
+    print(f"Fetching book details for ID: {book_details_id}", "🔍🔍🔍")
+    stmt = (
         select(Book)
         .where(Book.book_details.any(BookDetails.id == book_details_id))
         .options(
             selectinload(Book.author),
             selectinload(Book.category),
             selectinload(Book.book_details),
-            
         )
     )
     result = await db.execute(stmt)
     book = result.scalars().first()
     return book
 
+
 async def get_all_books(db: AsyncSession):
-    stmt = (
-        select(Book)
-        .options(
-            selectinload(Book.author),
-            selectinload(Book.category),
-            selectinload(Book.book_details),
-        )
+    stmt = select(Book).options(
+        selectinload(Book.author),
+        selectinload(Book.category),
+        selectinload(Book.book_details),
     )
     result = await db.execute(stmt)
     return result.scalars().all()
 
+
 def get_all_books_sync(db: Session):
-    stmt = (
-        select(Book)
-        .options(
-            selectinload(Book.author),
-            selectinload(Book.category),
-            selectinload(Book.book_details),
-        )
+    stmt = select(Book).options(
+        selectinload(Book.author),
+        selectinload(Book.category),
+        selectinload(Book.book_details),
     )
     result = db.execute(stmt)
     return result.scalars().all()
-    
+
 
 ## this will be used to fetch books from the API and convert them into documents to be used in the vector database
 def fetch_books_from_api(api_url=f"{settings.SERVER_DOMAIN}/books/"):
@@ -382,11 +444,10 @@ def fetch_books_from_api(api_url=f"{settings.SERVER_DOMAIN}/books/"):
                 "title": book["title"],
                 "author": book["author"]["name"],
                 "category": book["category"]["name"],
-                "publish_year": book["publish_year"]
+                "publish_year": book["publish_year"],
             }
             doc = Document(page_content=content, metadata=metadata)
             documents.append(doc)
         return documents
     except requests.RequestException as e:
         raise Exception(f"Failed to fetch books: {e}")
-

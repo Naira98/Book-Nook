@@ -115,7 +115,7 @@ export default function OrderCard({
               onClick={() => {
                 navigate(
                   pickUpType == PickUpType.COURIER
-                    ? `/return-order/${order.id}`
+                    ? `/order/${order.id}`
                     : `/employee/orders/${order.id}`,
                 );
               }}

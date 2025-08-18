@@ -3,7 +3,7 @@
     "id": 1,
     "deposit_perc": 30,
     "borrow_perc": 10,
-    "delay_perc": 15,
+    "delay_perc": 3,
     "delivery_fees": 20,
     "min_borrow_fee": 5,
     "max_num_of_borrow_books": 3

@@ -38,7 +38,6 @@ const OrderDetailsPage = () => {
     if (!me) return;
     const payload: changeOrderStatusRequest = {
       ...order,
-      courier_id: me.id,
       order_id: order.id,
       status: newStatus,
     };

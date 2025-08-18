@@ -18,7 +18,7 @@ export function useChangeReturnOrderStatus() {
 
       queryClient.setQueryData(
         ["allStaffOrders"],
-        (oldData: AllOrdersResponse) => {
+        (oldData: AllOrdersResponse | undefined) => {
           if (oldData != undefined) {
             const newData = { ...oldData };
             newData.return_orders = newData.return_orders.map((retrunOrder) =>
@@ -39,9 +39,7 @@ export function useChangeReturnOrderStatus() {
         queryClient.setQueryData(
           ["returnOrder", `${resp.id}`],
           (oldData: AllOrdersResponse) => {
-            console.log("new REtrun order", resp);
-            const newData = { ...oldData, status: resp.status };
-            return newData;
+            if (oldData) return { ...oldData, status: resp.status };
           },
         );
       }
