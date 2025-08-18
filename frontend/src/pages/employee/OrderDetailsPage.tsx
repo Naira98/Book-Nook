@@ -1,9 +1,9 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useGetOrder } from "../../hooks/orders/useGetOrder";
-import { useChangeOrderStatus } from "../../hooks/orders/useChangeOrderStatus";
-import { OrderStatus, type changeOrderStatusRequest } from "../../types/Orders";
+import { useNavigate, useParams } from "react-router-dom";
 import MainButton from "../../components/shared/buttons/MainButton";
 import { useGetMe } from "../../hooks/auth/useGetMe";
+import { useChangeOrderStatus } from "../../hooks/orders/useChangeOrderStatus";
+import { useGetOrder } from "../../hooks/orders/useGetOrder";
+import { OrderStatus, type changeOrderStatusRequest } from "../../types/Orders";
 
 const OrderDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,7 +38,6 @@ const OrderDetailsPage = () => {
     if (!me) return;
     const payload: changeOrderStatusRequest = {
       ...order,
-      courier_id: me.id,
       order_id: order.id,
       status: newStatus,
     };

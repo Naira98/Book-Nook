@@ -5,11 +5,11 @@ from typing import Any, List, Optional, TypedDict
 from models.book import BookStatus
 from models.order import (
     BorrowBookProblem,
+    Order,
     OrderStatus,
     PickUpType,
-    ReturnOrderStatus,
-    Order,
     ReturnOrder,
+    ReturnOrderStatus,
 )
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -91,6 +91,11 @@ class OrderDetailsResponseSchema(OrderResponseSchema):
     @model_validator(mode="before")
     @classmethod
     def prepare_data(cls, data: Order):
+        number_of_purchase_books = 0
+
+        for book in data.purchase_order_books_details:
+            number_of_purchase_books += book.quantity
+
         return {
             "id": data.id,
             "created_at": data.created_at,
@@ -106,7 +111,7 @@ class OrderDetailsResponseSchema(OrderResponseSchema):
             "purchase_order_books_details": data.purchase_order_books_details,
             "user": data.user,
             "number_of_books": len(data.borrow_order_books_details)
-            + len(data.purchase_order_books_details),
+            + number_of_purchase_books,
         }
 
 
@@ -155,6 +160,11 @@ class AllOrdersResponse(AllOrdersResponseBase):
     def prepare_data(cls, data: Any):
         if not isinstance(data, Order):
             return data
+        number_of_purchase_books = 0
+
+        for book in data.purchase_order_books_details:
+            number_of_purchase_books += book.quantity
+
         return {
             "id": data.id,
             "created_at": data.created_at,
@@ -163,7 +173,7 @@ class AllOrdersResponse(AllOrdersResponseBase):
             "phone_number": data.phone_number,
             "user": data.user,
             "number_of_books": len(data.borrow_order_books_details)
-            + len(data.purchase_order_books_details),
+            + number_of_purchase_books,
             "courier_id": data.courier_id,
             "pickup_date": data.pickup_date,
             "status": data.status,
