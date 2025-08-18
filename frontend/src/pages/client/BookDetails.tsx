@@ -1,18 +1,16 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import {
-  ArrowLeft,
-  ShoppingCart,
-  Star,
-  Heart,
-  Plus,
   Minus,
-  ChevronRight
+  Plus,
+  ShoppingCart,
+  Star
 } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useBook } from '../../hooks/useBook';
 
 const BookDetails: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { bookId } = useParams<{ bookId: string }>();
+  console.log('Book ID from params:', bookId);
   const navigate = useNavigate();
   // const [isFavorite, setIsFavorite] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -27,7 +25,7 @@ const BookDetails: React.FC = () => {
     canPurchase,
     isError,
     isFetching
-  } = useBook(id);
+  } = useBook(bookId);
 
   const handleBorrow = () => {
     if (!book) return;
@@ -95,6 +93,13 @@ const BookDetails: React.FC = () => {
     2: 0,
     1: 0
   };
+
+  const relatedBooks = [
+    { id: 1, title: "Such a Fun Age", author: "Kiley Reid", price: 21.4, rating: 4.5, cover: "https://via.placeholder.com/80x120" },
+    { id: 2, title: "Be Loud If It's Never Remember", author: "Author Name", price: 21.4, rating: 4.5, cover: "https://via.placeholder.com/80x120" },
+    { id: 3, title: "Electronic Basic", author: "Author Name", price: 21.4, rating: 4.5, cover: "https://via.placeholder.com/80x120" },
+    { id: 4, title: "Life of Wilds", author: "Author Name", price: 21.4, rating: 4.5, cover: "https://via.placeholder.com/80x120" }
+  ];
 
   const relatedItems = [
     { id: 1, title: "Story of Everest", author: "Henry Mortopo", price: 21.99, category: "Adventure", rating: 4.5, cover: "https://via.placeholder.com/120x160" },
