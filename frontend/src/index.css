@@ -10,10 +10,10 @@
   /* --color-primary: #22D3EE; cyan-400 */
   /* --color-primary: #38bdf8; sky-400 */
 
-  --color-primary: #082f49; /* sky-950 */
+  --color-primary: #012e4a;
   --color-secondary: #fb923c; /* orange-400 */
-  --color-accent: #f1f5f9; /* slate-100 */ 
-  
+  --color-accent: #036280;
+  --color-layout: #4f536c;
   --color-success: #34d399; /* green-400 */
   --color-error: #f87171; /* red-400 */
 }
