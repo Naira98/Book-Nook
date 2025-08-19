@@ -29,11 +29,11 @@ const AddToCartButton = ({
   const buttonClasses = `
     mt-4 flex items-center gap-2 rounded-lg px-4 py-2 font-semibold text-white
     transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none
-    disabled:cursor-not-allowed disabled:opacity-50
+    disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer
     ${
       isBorrowBook
-        ? "bg-secondary"
-        : "bg-purple-600 hover:bg-purple-700 focus:ring-purple-500"
+        ? "bg-secondary hover:bg-orange-500 focus:ring-secondary" // Use secondary for borrow, slightly darker on hover
+        : "bg-primary hover:bg-hover focus:ring-primary" // Use primary for purchase, hover with defined hover color
     }
   `;
 
@@ -64,9 +64,9 @@ const AddToCartButton = ({
 
       {/* Tooltip message */}
       {isBorrowBook && borrowingLimitExceeded && showTooltip && (
-        <div className="absolute -top-5 left-1/2 z-10 -translate-x-1/2 rounded-lg bg-gray-800 px-3 py-1 text-xs whitespace-nowrap text-white shadow-lg">
+        <div className="bg-layout absolute -top-5 left-1/2 z-10 -translate-x-1/2 rounded-lg px-3 py-1 text-xs whitespace-nowrap text-white shadow-lg">
           Borrowing limit exceeded!
-          <div className="absolute bottom-[-4px] left-1/2 h-0 w-0 -translate-x-1/2 border-t-4 border-r-4 border-l-4 border-t-gray-800 border-r-transparent border-l-transparent"></div>
+          <div className="border-t-layout absolute bottom-[-4px] left-1/2 h-0 w-0 -translate-x-1/2 border-t-4 border-r-4 border-l-4 border-r-transparent border-l-transparent"></div>
         </div>
       )}
     </div>
