@@ -78,6 +78,7 @@ const QuantityControl = ({ item }: QuantityControlProps) => {
 
   return (
     <div className="mt-4 flex items-center justify-center gap-2">
+      {/* Minus Button / Delete Button */}
       <button
         onClick={
           isDeleteButton
@@ -85,11 +86,11 @@ const QuantityControl = ({ item }: QuantityControlProps) => {
             : () => onUpdateQuantity(currentQuantity - 1)
         }
         disabled={isDisabled}
-        className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-200 ${
+        className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
           isDeleteButton
-            ? "bg-red-500 text-white hover:bg-red-600"
-            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-        } disabled:cursor-not-allowed disabled:opacity-50`}
+            ? "bg-error focus:ring-error text-white hover:bg-red-500"
+            : "bg-accent text-layout focus:ring-primary hover:bg-slate-200"
+        }`}
       >
         {isDeleteButton ? (
           <Trash2 className="h-4 w-4" />
@@ -97,14 +98,18 @@ const QuantityControl = ({ item }: QuantityControlProps) => {
           <Minus className="h-4 w-4" />
         )}
       </button>
-      <span className="text-lg font-semibold text-gray-900">
+
+      {/* Quantity Display */}
+      <span className="text-primary text-lg font-semibold">
         {currentQuantity}
       </span>
+
+      {/* Plus Button */}
       <button
         onClick={() => onUpdateQuantity(currentQuantity + 1)}
         disabled={isPendingUpdatingCartItem}
         className={
-          "flex h-8 w-8 items-center justify-center rounded-lg bg-purple-600 text-white hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+          "bg-primary hover:bg-hover focus:ring-primary flex h-8 w-8 items-center justify-center rounded-lg text-white transition-colors duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         }
       >
         <Plus className="h-4 w-4" />
