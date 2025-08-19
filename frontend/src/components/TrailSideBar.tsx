@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { LogOut, User } from "lucide-react";
 import type { ReactNode } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import logo from "../assets/logo_without_sharshora.svg";
 import { useGetMe } from "../hooks/auth/useGetMe";
 import { useLogout } from "../hooks/auth/useLogout";
@@ -17,9 +17,11 @@ const TrailSideBar = ({ navItems }: SidebarProps) => {
 
   return (
     <aside className="text-text flex h-screen w-16 flex-col gap-8 border-r-1 border-slate-100 bg-white p-8 transition-all duration-300 md:w-48 lg:w-64">
-      <div className="flex justify-center">
-        <img src={logo} alt="logo" className="mb-4 w-20 lg:w-32" />
-      </div>
+      <Link to={"/"}>
+        <div className="flex justify-center">
+          <img src={logo} alt="logo" className="mb-4 w-20 lg:w-32" />
+        </div>
+      </Link>
 
       <div className="flex flex-1 flex-col justify-between">
         <nav className="flex flex-col space-y-4">
