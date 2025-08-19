@@ -38,6 +38,8 @@ import StaffOrdersPage from "./pages/employee/OrdersPage";
 import EmployeeReturnOrderDetailsPage from "./pages/employee/RetrunOrderDetailsPage";
 import UpdateBookPage from "./pages/employee/UpdateBookPage";
 import { UserRole } from "./types/User";
+import PromoCodesPage from "./pages/employee/PromoCodesPage";
+import CreatePromoCodePage from "./pages/employee/CreatePromoCodePage";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -149,6 +151,8 @@ const App = () => {
                 path="/employee/return-orders/:id"
                 element={<EmployeeReturnOrderDetailsPage />}
               />
+              <Route path="/employee/promo-codes" element={<PromoCodesPage />} />
+              <Route path="/employee/promo-codes/create" element={<CreatePromoCodePage />} />
             </Route>
           </Route>
 

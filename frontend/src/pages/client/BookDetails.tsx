@@ -158,7 +158,7 @@ const BookDetails: React.FC = () => {
                 className="cursor-pointer transition-transform duration-200 hover:scale-105"
                 onClick={() => handleRelatedBookClick(relatedBook)}
               >
-                <BookCard book={relatedBook} showActions={false} onBorrow={() => {}} onPurchase={() => {}} />
+                {/* <BookCard book={relatedBook} showActions={false} onBorrow={() => {}} onPurchase={() => {}} /> */}
               </div>
             ))
           ) : (
