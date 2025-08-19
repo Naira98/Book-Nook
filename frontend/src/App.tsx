@@ -2,10 +2,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import Navbar from "./components/Navbar";
 import GuestOnlyRoute from "./components/authorization/GuestOnlyRoute";
 import RoleBasedRoute from "./components/authorization/RoleBasedRoute";
 import CourierLayout from "./components/courier/CourierLayout";
+import ClientWithNavbarLayout from "./components/layouts/ClientWithNavbarLayout";
 import ClientWithSidebarLayout from "./components/layouts/ClientWithSidebarLayout";
 import EmployeeLayout from "./components/staff/EmployeeLayout";
 import Home from "./pages/Home";
@@ -22,7 +22,6 @@ import CartPage from "./pages/client/CartPage";
 import ChechoutPage from "./pages/client/CheckoutPage";
 import CheckoutSuccess from "./pages/client/CheckoutSuccess";
 import CurrentBorrowsPage from "./pages/client/CurrentBorrowsPage";
-import Footer from "./pages/client/Footer";
 import Interests from "./pages/client/Interests";
 import OrdersPage from "./pages/client/OrdersPage";
 import PurchaseBooksPage from "./pages/client/PurchaseBooksPage";
@@ -61,59 +60,16 @@ const App = () => {
             />
           </Route>
 
-          {/* <Route
-            path="/borrow-books"
-            element={
-              <>
-                <Navbar />
-                <BorrowBooks />
-              </>
-            }
-          />
-          <Route
-            path="/purchase-books"
-            element={
-              <>
-                <Navbar />
-                <PurchaseBooks />
-              </>
-            }
-          /> */}
-
           {/* CLIENT-only routes */}
           <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}>
-            <Route path="/" element={<Home />} />
-            <Route
-              path="/borrow-books"
-              element={
-                <>
-                  <Navbar />
-                  <BorrowBooksPage />
-                  <Footer />
-                </>
-              }
-            />
-            <Route
-              path="/purchase-books"
-              element={
-                <>
-                  <Navbar />
-                  <PurchaseBooksPage />
-                  <Footer />
-                </>
-              }
-            />
-            <Route
-              path="/book/:bookId"
-              element={
-                <>
-                  <Navbar />
-                  <BookDetails />
-                </>
-              }
-            />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<ChechoutPage />} />
+            <Route path="/" element={<ClientWithNavbarLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/borrow-books" element={<BorrowBooksPage />} />
+              <Route path="/purchase-books" element={<PurchaseBooksPage />} />
+              <Route path="/book/:bookId" element={<BookDetails />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<ChechoutPage />} />
+            </Route>
 
             {/* Client pages with sidebar */}
             <Route path="/" element={<ClientWithSidebarLayout />}>
