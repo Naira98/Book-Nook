@@ -79,3 +79,8 @@ class EmailVerificationRequest(BaseModel):
     token: str
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
+
+
+class LogoutResponse(BaseModel):
+    success: bool
+    message: str
