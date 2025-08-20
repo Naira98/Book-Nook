@@ -93,7 +93,7 @@ const HorizontalBookCard = ({ book, cartItems }: BookCardProps) => {
       <div className="border-accent flex w-60 flex-col items-center justify-between border-l p-4 md:p-6">
         <div>
           {isBorrowBook && (
-            <div className="flex flex-col justify-center space-y-2">
+            <div className="flex cursor-default flex-col justify-center space-y-2">
               <div className="text-primary text-center font-semibold">
                 <span className="font-medium">Weekly: </span>
                 {formatMoney((book as IBorrowBook).borrow_fees_per_week)} EGP
@@ -106,7 +106,7 @@ const HorizontalBookCard = ({ book, cartItems }: BookCardProps) => {
           )}
 
           {!isBorrowBook && (
-            <div className="space-y-2">
+            <div className="cursor-default space-y-2">
               <div className="text-primary font-semibold">
                 <span className="font-medium">Price: </span>
                 {formatMoney((book as IPurchaseBook).price)} EGP
@@ -115,7 +115,7 @@ const HorizontalBookCard = ({ book, cartItems }: BookCardProps) => {
           )}
 
           {bookInCart && isBorrowBook && (
-            <div className="text-success mt-2 text-center text-sm font-semibold">
+            <div className="text-success mt-2 cursor-default text-center text-sm font-semibold">
               In Cart!
               <span className="ml-1">({borrowBookCountInCart})</span>
             </div>

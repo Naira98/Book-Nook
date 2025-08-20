@@ -1,8 +1,8 @@
 import clsx from "clsx";
-import { CheckSquare, ChevronDown, Square } from "lucide-react";
+import { CheckSquare, ChevronDown, Square, X } from "lucide-react";
 import { useState } from "react";
-import { useGetCategories } from "../../hooks/books/useGetCategories";
 import { useGetAuthors } from "../../hooks/books/useGetAuthors";
+import { useGetCategories } from "../../hooks/books/useGetCategories";
 import Spinner from "../shared/Spinner";
 
 interface FilteringSectionProps {
@@ -10,6 +10,8 @@ interface FilteringSectionProps {
   setSelectedCategoryIds: React.Dispatch<React.SetStateAction<number[]>>;
   selectedAuthorIds: number[];
   setSelectedAuthorIds: React.Dispatch<React.SetStateAction<number[]>>;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 const FilteringSection = ({
@@ -17,6 +19,8 @@ const FilteringSection = ({
   setSelectedCategoryIds,
   selectedAuthorIds,
   setSelectedAuthorIds,
+  isOpen,
+  onClose,
 }: FilteringSectionProps) => {
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(true);
   const [isAuthorsOpen, setIsAuthorsOpen] = useState(true);
@@ -40,8 +44,30 @@ const FilteringSection = ({
   if (isLoading) return <Spinner />;
 
   return (
-    <aside className="border-accent sticky top-0 w-[20%] border-r-1">
-      <div className="py-4">
+    <>
+      {/* Overlay for small screens when sidebar is open */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-gray-900/20 backdrop-blur-xs lg:hidden"
+          onClick={onClose}
+        ></div>
+      )}
+
+      <aside
+        className={clsx(
+          "fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out",
+          "lg:static lg:translate-x-0 lg:w-[20%] lg:border-r-1 border-accent lg:shadow-none", // Styles for large screens
+          { "-translate-x-full": !isOpen }, // Hide on small screens when not open
+        )}
+      >
+        <div className="py-4 px-4">
+          {/* Close button for small screens */}
+          <div className="mb-4 flex justify-end lg:hidden">
+            <button onClick={onClose} className="text-gray-600 cursor-pointer hover:text-gray-900">
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+
         <h2 className="mb-4 text-lg font-semibold text-gray-900">Filter</h2>
 
         {/* Categories */}
@@ -52,7 +78,6 @@ const FilteringSection = ({
             className={clsx(
               "mb-2 flex w-full items-center justify-between pr-4 text-left text-sm font-medium text-gray-600",
             )}
-            aria-expanded={isCategoriesOpen}
           >
             <span>Categories</span>
 
@@ -83,11 +108,10 @@ const FilteringSection = ({
                           category.id,
                         )
                       }
-                      aria-pressed={isSelected}
                       className="flex w-full items-center gap-2 rounded px-1 py-1 text-left text-sm text-gray-800 hover:bg-gray-50"
                     >
                       {isSelected ? (
-                        <CheckSquare className="h-4 w-4 text-[var(--color-primary)]" />
+                        <CheckSquare className="text-primary h-4 w-4" />
                       ) : (
                         <Square className="h-4 w-4 text-gray-400" />
                       )}
@@ -106,7 +130,6 @@ const FilteringSection = ({
             type="button"
             onClick={() => setIsAuthorsOpen((prev) => !prev)}
             className="mb-2 flex w-full items-center justify-between pr-4 text-left text-sm font-medium text-gray-600"
-            aria-expanded={isAuthorsOpen}
           >
             <span>Authors</span>
             <ChevronDown
@@ -136,7 +159,6 @@ const FilteringSection = ({
                           author.id,
                         )
                       }
-                      aria-pressed={isSelected}
                       className="flex w-full items-center gap-2 rounded px-1 py-1 text-left text-sm text-gray-800 hover:bg-gray-50"
                     >
                       {isSelected ? (
@@ -154,6 +176,7 @@ const FilteringSection = ({
         </div>
       </div>
     </aside>
+    </>
   );
 };
 

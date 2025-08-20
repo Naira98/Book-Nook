@@ -1,4 +1,4 @@
-import { Clock } from "lucide-react";
+import { Clock, Filter } from "lucide-react";
 import { useEffect, useState } from "react";
 import FilteringSection from "../../components/client/FilteringSection";
 import HorizontalBookCard from "../../components/client/HorizontalBookCard";
@@ -17,7 +17,7 @@ const PurchaseBooksPage = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const [selectedAuthorIds, setSelectedAuthorIds] = useState<number[]>([]);
-
+  const [isFilterSidebarOpen, setIsFilterSidebarOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
 
@@ -53,18 +53,27 @@ const PurchaseBooksPage = () => {
   return (
     <div className="min-h-screen font-sans">
       <div className="container mx-auto py-8">
-        <div className="flex gap-6">
+        <div className="flex gap-6 lg:flex-row">
           {/* Left: Filters */}
           <FilteringSection
             selectedCategoryIds={selectedCategoryIds}
             setSelectedCategoryIds={setSelectedCategoryIds}
             selectedAuthorIds={selectedAuthorIds}
             setSelectedAuthorIds={setSelectedAuthorIds}
+            isOpen={isFilterSidebarOpen}
+            onClose={() => setIsFilterSidebarOpen(false)}
           />
 
           {/* Right: Content */}
-          <section className="w-[80%]">
-            <div className="mb-4">
+          <section className="w-full lg:w-[80%]">
+            <div className="mb-4 flex items-center gap-4">
+              <button
+                onClick={() => setIsFilterSidebarOpen(true)}
+                className="rounded-md bg-white p-2 shadow-sm lg:hidden"
+                aria-label="Open filters"
+              >
+                <Filter className="h-5 w-5 text-gray-600" />
+              </button>
               <SearchBar
                 placeholder="Search purchase books..."
                 searchTerm={searchTerm}
