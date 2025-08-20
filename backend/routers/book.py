@@ -7,35 +7,79 @@ from crud.book import (
     create_book,
     create_book_details,
     create_category_crud,
+    get_all_books,
     get_author_by_id,
     get_authors_crud,
+    get_book_details,
     get_book_details_for_update_crud,
     get_books_table_crud,
+    get_borrow_books_crud,
     get_categories_crud,
     get_category_by_id,
+    get_purchase_books_crud,
     is_book_exists,
-    search_books_by_title,
     update_book_crud,
 )
-from crud.book import (
-    get_books_by_status as get_books,
-)
 from db.database import get_db
-from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    UploadFile,
+    status,
+)
 from fastapi.responses import JSONResponse
 from schemas.book import (
     AuthorCategorySchema,
     BookDetailsForUpdateResponse,
     BookResponse,
-    BookStatus,
     BookTableSchema,
+    BorrowBookResponse,
     CreateAuthorCategoryRequest,
     CreateBookRequest,
+    PurchaseBookResponse,
     UpdateBookData,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
+from utils.auth import get_user_id_via_session
 
 book_router = APIRouter(prefix="/books", tags=["Books"])
+
+
+@book_router.get("/borrow", response_model=List[BorrowBookResponse])
+async def get_borrow_books(
+    db: AsyncSession = Depends(get_db), _=Depends(get_user_id_via_session)
+):
+    return await get_borrow_books_crud(db)
+
+
+@book_router.get("/borrow/{book_details_id}", response_model=List[BorrowBookResponse])
+async def get_borrow_book_details(
+    book_details_id: int,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(get_user_id_via_session),
+):
+    return await get_borrow_books_crud(db, book_details_id)
+
+
+@book_router.get("/purchase", response_model=List[PurchaseBookResponse])
+async def get_purchase_books(
+    db: AsyncSession = Depends(get_db), _=Depends(get_user_id_via_session)
+):
+    return await get_purchase_books_crud(db)
+
+
+@book_router.get(
+    "/purchase/{book_details_id}", response_model=List[PurchaseBookResponse]
+)
+async def get_purchase_book_details(
+    book_details_id: int,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(get_user_id_via_session),
+):
+    return await get_purchase_books_crud(db, book_details_id)
 
 
 @book_router.get("/authors", response_model=List[AuthorCategorySchema])
@@ -47,18 +91,6 @@ async def get_authors(db: AsyncSession = Depends(get_db)):
 async def get_categories(db: AsyncSession = Depends(get_db)):
     return await get_categories_crud(db)
 
-
-@book_router.get("/search/", response_model=list[BookResponse])
-async def search_books(
-    title: str = Query(..., min_length=1),
-    db: AsyncSession = Depends(get_db),
-):
-    return await search_books_by_title(db, title)
-
-
-@book_router.get("/status/{status}", response_model=list[BookResponse])
-async def get_books_by_status(status: BookStatus, db: AsyncSession = Depends(get_db)):
-    return await get_books(db, status)
 
 
 """ Employee-only endpoints for book management """
@@ -95,8 +127,10 @@ async def get_books_table(
     return await get_books_table_crud(db)
 
 
-@book_router.get("/{book_id}/details", response_model=BookDetailsForUpdateResponse)
-async def get_book_details(book_id: int, db: AsyncSession = Depends(get_db)):
+@book_router.get(
+    "/update_details/{book_id}", response_model=BookDetailsForUpdateResponse
+)
+async def get_book_details_for_update(book_id: int, db: AsyncSession = Depends(get_db)):
     return await get_book_details_for_update_crud(db, book_id=book_id)
 
 
@@ -184,10 +218,26 @@ async def update_book(
         "purchase_available_stock": purchase_available_stock,
         "borrow_available_stock": borrow_available_stock,
     }
-
     if secure_url:
         book_data_dict["cover_img"] = secure_url
 
     book_data = UpdateBookData(**book_data_dict)
 
     return await update_book_crud(book_id, book_data, db)
+
+
+@book_router.get("/{book_details_id}", response_model=BookResponse)
+async def read_book_details(book_details_id: int, db: AsyncSession = Depends(get_db)):
+    book = await get_book_details(book_details_id, db)
+    if book is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Book with id {book_details_id} not found",
+        )
+    return book
+
+
+@book_router.get("/", response_model=list[BookResponse])
+async def read_all_books(db: AsyncSession = Depends(get_db)):
+    books = await get_all_books(db=db)
+    return books

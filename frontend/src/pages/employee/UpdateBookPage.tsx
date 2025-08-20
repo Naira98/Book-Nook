@@ -6,7 +6,7 @@ import Dropzone from "../../components/shared/formInputs/Dropzone";
 import SelectInput from "../../components/shared/formInputs/SelectInput";
 import TextInput from "../../components/shared/formInputs/TextInput";
 import { useGetAuthors } from "../../hooks/books/useGetAuthors";
-import { useGetBookDetailsForUpdate } from "../../hooks/books/useGetBookDetalsForUpdate";
+import { useGetBookDetailsForUpdate } from "../../hooks/books/useGetBookDetailsForUpdate";
 import { useGetCategories } from "../../hooks/books/useGetCategories";
 import { useUpdateBook } from "../../hooks/books/useUpdateBook";
 import type { IUpdateBookData } from "../../types/staff/staffBookTypes";

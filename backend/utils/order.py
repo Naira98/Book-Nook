@@ -58,7 +58,7 @@ def calculate_borrow_order_book_fees(
         borrow_fees = original_borrowing_fees - promo_code_discount
 
     return {
-        "boorow_fees_per_week": base_borrow_fee_per_week,
+        "borrow_fees_per_week": base_borrow_fee_per_week,
         "borrow_fees": borrow_fees.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
         "deposit_fees": deposit_fees.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
         "delay_fees_per_day": delay_fees_per_day.quantize(
@@ -125,7 +125,6 @@ def validate_borrow_book_and_borrowing_weeks_and_available_stock(item, book_deta
 
     # Validate borrowing weeks and stock
     # borrowing_weeks is an integer between 1 and 4
-    print(item, "🔥🔥")
     if not (item["borrowing_weeks"] and (1 <= item["borrowing_weeks"] <= 4)):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

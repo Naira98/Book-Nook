@@ -1,8 +1,8 @@
+import { Facebook, Instagram, Mail, MapPin, Phone, Twitter } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Mail, Phone, Facebook, Instagram, Twitter } from 'lucide-react';
-import logo from '../../assets/dark-bg-logo.svg';
 import mapImage from '../../assets/africa.svg';
+import logo from '../../assets/light-bg-logo.svg';
 
 const Footer: React.FC = () => {
   return (

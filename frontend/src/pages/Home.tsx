@@ -282,7 +282,7 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background font-sans">
+    <div className="min-h-screen  font-sans">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <HeroSlider />

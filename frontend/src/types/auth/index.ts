@@ -4,11 +4,11 @@ export interface LoginFormData {
 }
 
 export interface RegisterFormData {
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  nationalId: string;
-  phoneNumber: string;
+  national_id: string;
+  phone_number: string;
   password: string;
   confirmPassword: string;
 }

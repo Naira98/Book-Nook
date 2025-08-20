@@ -10,7 +10,7 @@ export const useGetCartItems = (staleTime = 1000 * 60 * 5) => {
     isPending,
     error,
   } = useQuery<AllCartItemsResponse>({
-    queryKey: ["cartItems", me?.id],
+    queryKey: ["cartItems", me!.id],
     queryFn: async () => {
       return await apiReq("GET", "/cart");
     },

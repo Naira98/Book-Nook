@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     # Database settings
     DATABASE_URL: str | None = os.getenv("SQLALCHEMY_DATABASE_URL")
 
+    # OpenAI settings for RAG system
+    OPENAI_API_KEY: str | None = os.getenv("OPENAI_API_KEY")
+
     # Session settings
     SESSION_EXPIRE_MINUTES: int = 60 * 24 * 30 * 6  # 6 months
 

@@ -8,7 +8,15 @@ from core.auth import (
     verify_password,
 )
 from db.database import get_db
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Response,
+    status,
+    Cookie,
+)
 from fastapi.responses import JSONResponse
 from jose import ExpiredSignatureError, JWTError  # type: ignore
 from models.session import Session
@@ -330,4 +338,31 @@ async def reset_password(rfp: ResetForegetPassword, db: AsyncSession = Depends(g
         "success": True,
         "status_code": status.HTTP_200_OK,
         "message": "Password Rest Successfull!",
+    }
+
+
+# Logout endpoint
+@auth_router.post("/logout", response_model=SuccessMessage)
+async def logout(
+    response: Response,
+    db: AsyncSession = Depends(get_db),
+    session_token: str | None = Cookie(default=None),
+):
+    if not session_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No active session found",
+        )
+
+    # Delete session from DB
+    await db.execute(delete(Session).where(Session.session == session_token))
+    await db.commit()
+
+    # Clear cookie
+    response.delete_cookie("session_token")
+
+    return {
+        "success": True,
+        "status_code": status.HTTP_200_OK,
+        "message": "Logged out successfully",
     }

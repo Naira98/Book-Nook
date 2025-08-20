@@ -1,26 +1,26 @@
-import { useState, useEffect, useRef, type MouseEvent } from "react";
+import Decimal from "decimal.js";
+import type { FormApi } from "final-form";
 import {
-  Truck,
-  Store,
-  Tag,
-  ShoppingCart,
   Loader2,
   PackageX,
+  ShoppingCart,
+  Store,
+  Tag,
+  Truck,
 } from "lucide-react";
-import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
-import Decimal from "decimal.js";
-import { useApplyPromoCode } from "../../hooks/cart/useApplyPromoCode";
-import type { PromoCodeData } from "../../types/promoCode";
-import MainButton from "../../components/shared/buttons/MainButton";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Field, Form } from "react-final-form";
+import { toast } from "react-toastify";
+import MainButton from "../../components/shared/buttons/MainButton";
 import TextInput from "../../components/shared/formInputs/TextInput";
 import { useGetMe } from "../../hooks/auth/useGetMe";
-import { getPosition } from "../../utils/getUserPosition";
-import { toast } from "react-toastify";
+import { useApplyPromoCode } from "../../hooks/cart/useApplyPromoCode";
+import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 import { useGetAddress } from "../../hooks/cart/useGetUserAddress";
-import type { FormApi } from "final-form";
 import { useCreateOrder } from "../../hooks/orders/useCreateOrder";
 import { PickUpType } from "../../types/Orders";
+import type { PromoCodeData } from "../../types/promoCode";
+import { getPosition } from "../../utils/getUserPosition";
 
 type Prices = {
   purchase_total: Decimal;

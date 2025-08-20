@@ -1,12 +1,16 @@
-from models.order import Order, ReturnOrder
 from core.websocket import webSocket_connection_manager
+from models.order import Order, PickUpType, ReturnOrder
 from models.user import UserRole
-from models.order import PickUpType
 
 
 async def send_created_order(
     order: Order, borrow_order_books: list, purchase_order_books: list
 ):
+    number_of_purchase_books = 0
+
+    for book in purchase_order_books:
+        number_of_purchase_books += book.quantity
+
     new_order_object = {
         "id": order.id,
         "created_at": order.created_at.isoformat(),
@@ -17,7 +21,7 @@ async def send_created_order(
             "first_name": order.user.first_name,
             "last_name": order.user.last_name,
         },
-        "number_of_books": len(borrow_order_books) + len(purchase_order_books),
+        "number_of_books": len(borrow_order_books) + number_of_purchase_books,
         "courier_id": order.courier_id,
         "pickup_date": order.pickup_date,
         "status": order.status,

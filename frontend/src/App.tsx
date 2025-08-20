@@ -2,22 +2,33 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import Navbar from "./components/Navbar";
 import GuestOnlyRoute from "./components/authorization/GuestOnlyRoute";
 import RoleBasedRoute from "./components/authorization/RoleBasedRoute";
 import CourierLayout from "./components/courier/CourierLayout";
+import ClientWithNavbarLayout from "./components/layouts/ClientWithNavbarLayout";
+import ClientWithSidebarLayout from "./components/layouts/ClientWithSidebarLayout";
 import EmployeeLayout from "./components/staff/EmployeeLayout";
 import Home from "./pages/Home";
 import NotFoundPage from "./pages/NotFoundPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import ForgetPassword from "./pages/auth/ForgetPassword";
 import Login from "./pages/auth/Login";
+import OrdersListPage from "./pages/auth/OrdersListPage";
 import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
-import BorrowBooks from "./pages/client/BorrowBooks";
-import PurchaseBooks from "./pages/client/PurchaseBooks";
+import BookDetails from "./pages/client/BookDetails";
+import BorrowBooksPage from "./pages/client/BorrowBooksPage";
 import CartPage from "./pages/client/CartPage";
+import ChechoutPage from "./pages/client/CheckoutPage";
+import CheckoutSuccess from "./pages/client/CheckoutSuccess";
+import CurrentBorrowsPage from "./pages/client/CurrentBorrowsPage";
+import Interests from "./pages/client/Interests";
+import OrdersPage from "./pages/client/OrdersPage";
+import PurchaseBooksPage from "./pages/client/PurchaseBooksPage";
+import TransactionsPage from "./pages/client/TransactionsPage";
+import CourierOrderDetailsPage from "./pages/courier/OrderDetailsPage";
 import OrderPage from "./pages/courier/OrdersPage";
+import CourierReturnOrderDetailsPage from "./pages/courier/RetrunOrderDetailsPage";
 import AddAuthorPage from "./pages/employee/AddAuthorPage";
 import AddBookPage from "./pages/employee/AddBookPage";
 import AddCategoryPage from "./pages/employee/AddCategoryPage";
@@ -35,7 +46,10 @@ import CourierOrderDetailsPage from "./pages/courier/OrderDetailsPage";
 import CourierReturnOrderDetailsPage from "./pages/courier/RetrunOrderDetailsPage";
 import StaffOrdersPage from "./pages/employee/OrdersPage";
 import EmployeeOrderDetailsPage from "./pages/employee/OrderDetailsPage";
+import StaffOrdersPage from "./pages/employee/OrdersPage";
 import EmployeeReturnOrderDetailsPage from "./pages/employee/RetrunOrderDetailsPage";
+import UpdateBookPage from "./pages/employee/UpdateBookPage";
+import { UserRole } from "./types/User";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -56,53 +70,26 @@ const App = () => {
               path="/reset-password/:reset_token"
               element={<ResetPassword />}
             />
-            <Route
-              path="/borrow-books"
-              element={
-                <>
-                  <Navbar />
-                  <BorrowBooks />
-                </>
-              }
-            />
-            <Route
-              path="/purchase-books"
-              element={
-                <>
-                  <Navbar />
-                  <PurchaseBooks />
-                </>
-              }
-            />
           </Route>
 
           {/* CLIENT-only routes */}
           <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}>
-            <Route path="/" element={<Home />} />
-            <Route
-              path="/borrow-books"
-              element={
-                <>
-                  <Navbar />
-                  <BorrowBooks />
-                  <Footer />
-                </>
-              }
-            />
-            <Route
-              path="/purchase-books"
-              element={
-                <>
-                  <Navbar />
-                  <PurchaseBooks />
-                  <Footer />
-                </>
-              }
-            />
-            <Route path="/transactions" element={<TransactionsPage />} />
-            <Route path="/checkout-success" element={<CheckoutSuccess />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<ChechoutPage />} />
+            <Route path="/" element={<ClientWithNavbarLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/borrow-books" element={<BorrowBooksPage />} />
+              <Route path="/purchase-books" element={<PurchaseBooksPage />} />
+              <Route path="/book/:bookId" element={<BookDetails />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<ChechoutPage />} />
+            </Route>
+
+            {/* Client pages with sidebar */}
+            <Route path="/" element={<ClientWithSidebarLayout />}>
+              <Route path="/transactions" element={<TransactionsPage />} />
+              <Route path="/orders-history" element={<OrdersPage />} />
+              <Route path="/current-borrows" element={<CurrentBorrowsPage />} />
+            </Route>
+            <Route path="/transaction-success" element={<CheckoutSuccess />} />
           </Route>
 
           {/* EMPLOYEE-only routes */}
