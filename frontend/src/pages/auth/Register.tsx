@@ -106,8 +106,9 @@ export default function Register() {
                       <MainButton
                         disabled={submitting || pristine || hasValidationErrors}
                         loading={isPending}
-                        label="Register"
-                      />
+                      >
+                        Register
+                      </MainButton>
                     </div>
                   </form>
                 )}
@@ -133,7 +134,7 @@ export default function Register() {
                 Please check your inbox.
               </p>
               {resendCountdown == 0 ? (
-                <MainButton onClick={onResend} label="Re-send email" />
+                <MainButton onClick={onResend}>Re-send email</MainButton>
               ) : (
                 <p className="text-sm text-gray-500">
                   You can re-send the email in {resendCountdown} seconds.

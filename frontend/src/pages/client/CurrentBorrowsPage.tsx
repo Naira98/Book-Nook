@@ -212,8 +212,9 @@ const CurrentBorrowsPage = () => {
             <MainButton
               onClick={handleCreateReturnOrder}
               className="flex items-center space-x-2"
-              label="Create Return Order"
-            ></MainButton>
+            >
+              Create Return Order
+            </MainButton>
           </div>
         )}
       </div>
