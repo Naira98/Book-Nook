@@ -30,7 +30,7 @@ import OrdersListPage from "./pages/auth/OrdersListPage";
 import CheckoutSuccess from "./pages/client/CheckoutSuccess";
 import Footer from "./pages/client/Footer";
 import TransactionsPage from "./pages/client/TransactionsPage";
-
+import AddNewUser from './pages/manager/addNewUser';
 import CourierOrderDetailsPage from "./pages/courier/OrderDetailsPage";
 import CourierReturnOrderDetailsPage from "./pages/courier/RetrunOrderDetailsPage";
 import StaffOrdersPage from "./pages/employee/OrdersPage";
@@ -159,7 +159,9 @@ const App = () => {
           {/* MANAGER-only routes */}
           <Route
             element={<RoleBasedRoute allowedRoles={[UserRole.MANAGER]} />}
-          ></Route>
+          >
+            <Route path="/add-new-user" element={<AddNewUser />} />
+          </Route>
 
           {/* Unauthorized route */}
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
