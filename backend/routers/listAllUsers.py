@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from sqlalchemy import select
 from db.database import get_db
-from models.user import User
+from models.user import User, UserRole
 from schemas.listAllUsers import UserOut
 from typing import List
-from utils.only_manager import manager_required
+from utils.auth import manager_required
 
 getUsers = APIRouter(prefix="/users", tags=["Users"])
 
@@ -16,7 +16,7 @@ async def list_users(
     current_user: User = Depends(manager_required),  # restrict here
 ):  
     users = await db.execute(
-        User.__table__.select()
+        select(User).where(User.role != UserRole.MANAGER)  # Exclude managers if needed
     )
     print("Listing all users")
     return users.scalars().all()
