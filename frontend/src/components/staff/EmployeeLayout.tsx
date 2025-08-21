@@ -13,7 +13,7 @@ import Sidebar from "./Sidebar";
 
 const navItems = [
   { to: "/staff/books", label: "Books", icon: <LibraryBig /> },
-  { to: "/employee/orders", label: "Orders", icon: <Package /> },
+  { to: "/staff/orders", label: "Orders", icon: <Package /> },
 ];
 
 const EmployeeLayout = () => {
