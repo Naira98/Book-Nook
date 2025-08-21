@@ -46,6 +46,10 @@
       transform: translateX(0);
     }
   }
+
+  --color-success: #4ade80; /* green-600 */
+  --color-error: #dc2626; /* red-600 */
+
 }
 
 .btn-sky {
