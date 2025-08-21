@@ -61,8 +61,9 @@ const EmployeeOrderDetailsPage = () => {
       <MainButton
         onClick={() => navigate("/staff/orders")}
         className="mb-4 !w-auto px-4"
-        label="Back to Orders"
-      />
+      >
+        Back to Orders
+      </MainButton>
 
       <OrderInfo order={order} isOrder={true} />
 
@@ -112,9 +113,10 @@ const EmployeeOrderDetailsPage = () => {
             <MainButton
               onClick={getNextAction}
               loading={isUpdatingStatus}
-              className="!w-[160px]" // Maintain a consistent width for better alignment
-              label={getActionButtonLabel()}
-            />
+              className="!w-[160px]"
+            >
+              {getActionButtonLabel()}
+            </MainButton>
           </div>
         )}
     </div>

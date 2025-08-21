@@ -1,13 +1,13 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import MainButton from "../../components/shared/buttons/MainButton";
+import OrderInfo from "../../components/staff/OrderInfo";
+import { useGetMe } from "../../hooks/auth/useGetMe";
+import { useChangeReturnOrderStatus } from "../../hooks/orders/useChangeReturnOrderStatus";
+import { useGetReturnOrder } from "../../hooks/orders/useGetReturnOrder";
 import {
   ReturnOrderStatus,
   type changeRetrunOrderStatusRequest,
 } from "../../types/Orders";
-import MainButton from "../../components/shared/buttons/MainButton";
-import { useGetMe } from "../../hooks/auth/useGetMe";
-import { useGetReturnOrder } from "../../hooks/orders/useGetReturnOrder";
-import { useChangeReturnOrderStatus } from "../../hooks/orders/useChangeReturnOrderStatus";
-import OrderInfo from "../../components/staff/OrderInfo";
 
 const EmployeeReturnOrderDetailsPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -68,8 +68,9 @@ const EmployeeReturnOrderDetailsPage = () => {
       <MainButton
         onClick={() => navigate("/staff/orders")}
         className="mb-4 !w-auto px-4"
-        label="Back to Orders"
-      ></MainButton>
+      >
+        Back to Orders
+      </MainButton>
 
       <OrderInfo order={returnOrder} isOrder={false} />
 
@@ -116,29 +117,19 @@ const EmployeeReturnOrderDetailsPage = () => {
         </div>
       </div>
       {returnOrder.status !== "PROBLEM" && returnOrder.status !== "DONE" && (
-        <div className="flex justify-end space-x-4">
-          <MainButton
-            onClick={() => {
-              handleStatusChange(ReturnOrderStatus.PROBLEM);
-            }}
-            loading={isUpdatingStatus}
-            className="!w-[150px] bg-red-600 hover:bg-red-700"
-            label="Report Problem"
-          />
-
+        <div className="flex justify-end">
           <MainButton
             onClick={getNextAction}
             loading={isUpdatingStatus}
             className="!w-[160px]"
-            label={
-              returnOrder.status === "CREATED" ||
-              returnOrder.status === "PICKED_UP"
-                ? "Approve Pickup"
-                : returnOrder.status === "CHECKING"
-                  ? "Done"
-                  : "Order Completed"
-            }
-          />
+          >
+            {returnOrder.status === "CREATED" ||
+            returnOrder.status === "PICKED_UP"
+              ? "Approve Pickup"
+              : returnOrder.status === "CHECKING"
+                ? "Done"
+                : "Order Completed"}
+          </MainButton>
         </div>
       )}
     </div>

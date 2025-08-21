@@ -9,9 +9,6 @@ export function useUpdateCartItem() {
     mutationFn: async (values: UpdateCartItemRequest) => {
       return await apiReq("PATCH", "/cart", values);
     },
-    onSuccess: () => {
-      toast("Book updated successfully!", { type: "success" });
-    },
     onError: (err) => {
       toast(err.message, { type: "error" });
     },

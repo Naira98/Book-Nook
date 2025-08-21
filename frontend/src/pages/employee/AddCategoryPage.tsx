@@ -61,8 +61,9 @@ const AddCategoryPage = () => {
               <MainButton
                 disabled={submitting || pristine || hasValidationErrors}
                 loading={isPending}
-                label="Add Category"
-              />
+              >
+                Add Category
+              </MainButton>
             </div>
           </form>
         )}

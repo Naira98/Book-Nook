@@ -23,9 +23,6 @@ export const useAddCartItem = () => {
       if (cartItems) {
         queryClient.invalidateQueries({ queryKey: ["cartItems", userId] });
       }
-      toast("Book added to cart successfully!", {
-        type: "success",
-      });
     },
     onError: (err) => {
       console.error(err);
