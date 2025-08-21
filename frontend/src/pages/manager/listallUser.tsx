@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useGetUsers } from "../../hooks/manager/useGetUsers"; // ✅ import your hook
+import { useGetUsers } from "../../hooks/manager/useGetUsers"; 
 import type { IUser } from "../../types/User";
-import  type {UserRole}from "../../types/User"; // ✅ import UserRole type
-
+import  type {UserRole}from "../../types/User"; 
 const UsersList = () => {
-  const { users, isPending } = useGetUsers(); // ✅ fetch users from backend
+  const { users, isPending } = useGetUsers(); 
   const [filter, setFilter] = useState<"all" | "employee" | "courier">("all");
 
   // ✅ safely handle loading + no users
@@ -27,7 +26,7 @@ const UsersList = () => {
 
   const filteredUsers = users.filter((user: IUser) => {
     if (filter === "all") return true;
-    return user.role === filter;
+    // return user.role === filter;
   });
 
   return (
