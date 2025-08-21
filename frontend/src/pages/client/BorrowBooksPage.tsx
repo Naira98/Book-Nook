@@ -1,49 +1,46 @@
 import { Clock, Filter } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import FilteringSection from "../../components/client/FilteringSection";
 import HorizontalBookCard from "../../components/client/HorizontalBookCard";
 import Pagination from "../../components/shared/pagination/Pagination";
 import SearchBar from "../../components/shared/SearchBar";
 import Spinner from "../../components/shared/Spinner";
+
+// Update the import to use the new hook with filters
 import { useGetBorrowBooks } from "../../hooks/books/useGetBorrowBooks";
 import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
-import { useFilterBooks } from "../../utils/useFilterBook";
 
 const BorrowBooksPage = () => {
-  const { borrowBooks, isPending: isPendingGettingBooks } = useGetBorrowBooks();
-  const { cartItems, isPending: isPendingGettingCartItems } = useGetCartItems();
+  // State for user input (search, filters, page)
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const [selectedAuthorIds, setSelectedAuthorIds] = useState<number[]>([]);
-  const [isFilterSidebarOpen, setIsFilterSidebarOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 5;
+  const [isFilterSidebarOpen, setIsFilterSidebarOpen] = useState(false);
+
+  // Define a fixed limit for items per page
+  const PAGE_LIMIT = 10;
+
+  // Build the filter object to pass to the hook
+  const filters = {
+    search: searchTerm || undefined, // Pass undefined if empty to avoid querying an empty string
+    authors_ids: selectedAuthorIds.join(",") || undefined, // Convert array to comma-separated string
+    categories_ids: selectedCategoryIds.join(",") || undefined, // Convert array to comma-separated string
+    page: currentPage,
+    limit: PAGE_LIMIT,
+  };
+
+  // Call the new hook with the filters object
+  const {
+    books,
+    pagination,
+    isPending: isPendingGettingBooks,
+  } = useGetBorrowBooks(filters);
+
+  // Fetch cart items as before
+  const { cartItems, isPending: isPendingGettingCartItems } = useGetCartItems();
 
   const isLoading = isPendingGettingBooks || isPendingGettingCartItems;
-
-  const filteredBooks = useFilterBooks(
-    borrowBooks,
-    searchTerm,
-    selectedCategoryIds,
-    selectedAuthorIds,
-  );
-
-  // Reset to first page when filters or search change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, selectedCategoryIds, selectedAuthorIds, borrowBooks]);
-
-  const totalPages = Math.max(
-    1,
-    Math.ceil((filteredBooks?.length ?? 0) / pageSize),
-  );
-
-  useEffect(() => {
-    if (currentPage > totalPages) setCurrentPage(totalPages);
-  }, [totalPages, currentPage]);
-
-  const startIndex = (currentPage - 1) * pageSize;
-  const pagedBooks = filteredBooks.slice(startIndex, startIndex + pageSize);
 
   if (isLoading) return <Spinner />;
 
@@ -76,13 +73,19 @@ const BorrowBooksPage = () => {
               <SearchBar
                 placeholder="Search borrow books..."
                 searchTerm={searchTerm}
-                handleSearchChange={(e) => setSearchTerm(e.target.value)}
+                // When search changes, reset to the first page
+                handleSearchChange={(e) => {
+                  console.log("Search term changed:", e);
+
+                  setSearchTerm(e);
+                  setCurrentPage(1);
+                }}
               />
             </div>
 
-            {filteredBooks && filteredBooks.length > 0 ? (
+            {books && books.length > 0 ? (
               <div className="flex flex-col gap-4">
-                {pagedBooks.map((book) => (
+                {books.map((book) => (
                   <HorizontalBookCard
                     book={book}
                     cartItems={cartItems}
@@ -90,8 +93,8 @@ const BorrowBooksPage = () => {
                   />
                 ))}
                 <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
+                  currentPage={pagination?.page || 1}
+                  totalPages={pagination?.pages || 1}
                   onPageChange={setCurrentPage}
                 />
               </div>

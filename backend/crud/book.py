@@ -13,7 +13,7 @@ from schemas.book import (
     UpdateBookData,
 )
 from settings import settings
-from sqlalchemy import insert, select, update
+from sqlalchemy import func, insert, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, joinedload, selectinload
@@ -21,21 +21,75 @@ from utils.order import calculate_borrow_order_book_fees
 from utils.settings import get_settings
 
 
-async def get_borrow_books_crud(db, book_details_id: Optional[int] = None):
-    query = (
+from typing import Optional
+
+from sqlalchemy import select, func, or_
+from sqlalchemy.orm import selectinload
+
+
+async def get_borrow_books_crud(
+    db,
+    search: Optional[str] = None,
+    authors_ids: Optional[str] = None,
+    categories_ids: Optional[str] = None,
+    page: int = 1,
+    limit: int = 10,
+    book_details_id: Optional[int] = None,
+):
+    # 1. Join with all necessary tables upfront
+    base_query = (
         select(BookDetails)
         .where(BookDetails.status == BookStatus.BORROW)
-        .options(
+        .join(BookDetails.book)
+        .join(Book.author)
+        .join(Book.category)
+    )
+
+    # 2. Apply filters based on optional arguments
+    if book_details_id:
+        base_query = base_query.where(BookDetails.id == book_details_id)
+
+    if search:
+        base_query = base_query.filter(
+            Book.title.ilike(f"%{search}%"),
+        )
+
+    if authors_ids:
+        # Split the string of IDs and convert to a list of integers
+        author_ids_list = [int(id_str.strip()) for id_str in authors_ids.split(",")]
+        # Filter by author ID
+        base_query = base_query.where(Author.id.in_(author_ids_list))
+
+    if categories_ids:
+        # Split the string of IDs and convert to a list of integers
+        category_ids_list = [
+            int(id_str.strip()) for id_str in categories_ids.split(",")
+        ]
+        # Filter by category ID
+        base_query = base_query.where(Category.id.in_(category_ids_list))
+
+    # --- 3. Calculate pagination parameters and retrieve the data. ---
+
+    # Get the total count of items that match the filters.
+    count_query = select(func.count()).select_from(base_query.subquery())
+    total_count = (await db.execute(count_query)).scalar()
+
+    # Calculate offset for pagination
+    offset = (page - 1) * limit
+
+    # Construct the final query with eager loading, limit, and offset
+    query = (
+        base_query.options(
             selectinload(BookDetails.book).selectinload(Book.author),
             selectinload(BookDetails.book).selectinload(Book.category),
         )
+        .limit(limit)
+        .offset(offset)
     )
-
-    if book_details_id:
-        query = query.where(BookDetails.id == book_details_id)
 
     books_for_borrowing = await db.execute(query)
 
+    # Fetch settings for fee calculation
     settings = await get_settings(db)
 
     result_list = []
@@ -72,26 +126,95 @@ async def get_borrow_books_crud(db, book_details_id: Optional[int] = None):
         }
         result_list.append(book_info)
 
-    return result_list
+    # Return a dictionary with the list of books and pagination metadata
+    return {
+        "items": result_list,
+        "total": total_count,
+        "page": page,
+        "limit": limit,
+        "pages": (total_count + limit - 1) // limit if total_count > 0 else 0,
+    }
 
 
-async def get_purchase_books_crud(db, book_details_id: Optional[int] = None):
-    query = (
+async def get_purchase_books_crud(
+    db,
+    search: Optional[str] = None,
+    authors_ids: Optional[str] = None,
+    categories_ids: Optional[str] = None,
+    page: int = 1,
+    limit: int = 10,
+    book_details_id: Optional[int] = None,
+):
+    """
+    Retrieves purchase books with pagination, search, and filters for authors and categories by their IDs.
+
+    Args:
+        db: The database session.
+        search: Optional search query to filter by book title or author name.
+        authors_ids: Comma-separated string of author IDs to filter by (e.g., "1, 2, 3").
+        categories_ids: Comma-separated string of category IDs to filter by (e.g., "10, 11").
+        page: The page number for pagination (starts from 1).
+        limit: The maximum number of results per page.
+        book_details_id: Optional ID of a specific book detail to retrieve.
+
+    Returns:
+        A dictionary containing the list of books and pagination metadata.
+    """
+    # 1. Join with all necessary tables upfront to ensure all fields are accessible for filtering
+    #    and the final response schema.
+    base_query = (
         select(BookDetails)
         .where(BookDetails.status == BookStatus.PURCHASE)
-        .options(
+        .join(BookDetails.book)
+        .join(Book.author)
+        .join(Book.category)
+    )
+
+    # Apply specific book details ID filter if provided
+    if book_details_id:
+        base_query = base_query.where(BookDetails.id == book_details_id)
+
+    # 2. If a search query is provided, filter the results with it.
+    if search:
+        base_query = base_query.filter(
+            or_(Book.title.ilike(f"%{search}%"), Author.name.ilike(f"%{search}%"))
+        )
+
+    # 3. If author or category IDs are provided, include them in the conditions.
+    if authors_ids:
+        author_ids_list = [int(id_str.strip()) for id_str in authors_ids.split(",")]
+        base_query = base_query.where(Author.id.in_(author_ids_list))
+
+    if categories_ids:
+        category_ids_list = [
+            int(id_str.strip()) for id_str in categories_ids.split(",")
+        ]
+        base_query = base_query.where(Category.id.in_(category_ids_list))
+
+    # --- Step 4: Calculate pagination parameters and retrieve the data. ---
+
+    # Get the total count of items that match the filters.
+    count_query = select(func.count()).select_from(base_query.subquery())
+    total_count = (await db.execute(count_query)).scalar()
+
+    # Calculate offset for pagination
+    offset = (page - 1) * limit
+
+    # Construct the final query with eager loading, limit, and offset
+    query = (
+        base_query.options(
             selectinload(BookDetails.book).selectinload(Book.author),
             selectinload(BookDetails.book).selectinload(Book.category),
         )
+        .limit(limit)
+        .offset(offset)
     )
-
-    if book_details_id:
-        query = query.where(BookDetails.id == book_details_id)
 
     books_for_purchase = await db.execute(query)
 
     return_list = []
     for book_details in books_for_purchase.scalars():
+        # Map the ORM object to the required response schema
         book_info = {
             "book_details_id": book_details.id,
             "title": book_details.book.title,
@@ -112,7 +235,14 @@ async def get_purchase_books_crud(db, book_details_id: Optional[int] = None):
         }
         return_list.append(book_info)
 
-    return return_list
+    # Return a dictionary with the list of books and pagination metadata
+    return {
+        "items": return_list,
+        "total": total_count,
+        "page": page,
+        "limit": limit,
+        "pages": (total_count + limit - 1) // limit if total_count > 0 else 0,
+    }
 
 
 async def get_authors_crud(db):

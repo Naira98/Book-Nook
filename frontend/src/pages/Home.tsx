@@ -7,18 +7,26 @@ import PromoCodeDiscount from "../components/home/PromoCodeDiscount";
 import HomeSlider from "../components/shared/HomeSlider";
 import { useGetBorrowBooks } from "../hooks/books/useGetBorrowBooks";
 import OurServices from "../components/home/OurServices";
+import { useGetPurchaseBooks } from "../hooks/books/useGetPruchaseBooks";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
-  const { borrowBooks } = useGetBorrowBooks();
+  const { books: borrowBooks } = useGetBorrowBooks();
+  const { books: purchaseBooks } = useGetPurchaseBooks();
+  const navigate = useNavigate();
   return (
     <>
       <HeroSection />
 
       <HomeSlider title="Available Borrow Books" to="/borrow-books">
         {borrowBooks?.map((book) => (
-          <SwiperSlide>
+          <SwiperSlide
+            onClick={() => {
+              navigate(`/book/${book.book_details_id}`);
+            }}
+          >
             <div className="mb-4 aspect-3/4 h-full w-full">
-              <img src={book.cover_img} className="w-full" />
+              <img src={book.cover_img} className="h-full w-full" />
             </div>
             <p className="text-sm text-gray-700">{book.author.name}</p>
             <p className="text-primary text-lg">{book.title}</p>
@@ -34,16 +42,18 @@ export default function Home() {
         to="/purchase-books"
         // containerClassName="mb-16"
       >
-        {borrowBooks?.map((book) => (
-          <SwiperSlide>
+        {purchaseBooks?.map((book) => (
+          <SwiperSlide
+            onClick={() => {
+              navigate(`/book/${book.book_details_id}`);
+            }}
+          >
             <div className="mb-4 aspect-3/4 h-full w-full">
-              <img src={book.cover_img} className="w-full" />
+              <img src={book.cover_img} className="h-full w-full" />
             </div>
             <p className="text-sm text-gray-700">{book.author.name}</p>
             <p className="text-primary text-lg">{book.title}</p>
-            <p className="text-secondary">
-              {book.borrow_fees_per_week} Egp / Week{" "}
-            </p>
+            <p className="text-secondary">{book.price} Egp </p>
           </SwiperSlide>
         ))}
       </HomeSlider>
