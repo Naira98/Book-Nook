@@ -21,4 +21,5 @@ export interface IUser {
   role: UserRole;
   national_id: string;
   interests: string | null;
+  status: UserStatus;
 }

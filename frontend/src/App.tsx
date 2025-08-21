@@ -31,6 +31,7 @@ import CheckoutSuccess from "./pages/client/CheckoutSuccess";
 import Footer from "./pages/client/Footer";
 import TransactionsPage from "./pages/client/TransactionsPage";
 import AddNewUser from './pages/manager/addNewUser';
+import UsersList from './pages/manager/listallUser';
 import CourierOrderDetailsPage from "./pages/courier/OrderDetailsPage";
 import CourierReturnOrderDetailsPage from "./pages/courier/RetrunOrderDetailsPage";
 import StaffOrdersPage from "./pages/employee/OrdersPage";
@@ -162,6 +163,7 @@ const App = () => {
           >
             <Route path="/add-new-user" element={<AddNewUser />} />
           </Route>
+          <Route path="list-all-users" element={<UsersList />} />
 
           {/* Unauthorized route */}
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
