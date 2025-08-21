@@ -64,36 +64,6 @@ const BookDetails = () => {
   const reviewCount = 127;
   const overallRating = 4.7;
 
-  const relatedItems = [
-    {
-      id: 1,
-      title: "Story of Everest",
-      author: "Henry Mortopo",
-      price: 21.99,
-      category: "Adventure",
-      rating: 4.5,
-      cover: "https://via.placeholder.com/120x160",
-    },
-    {
-      id: 2,
-      title: "Life of Wilds",
-      author: "Jasmine Belle",
-      price: 24.99,
-      category: "Nature",
-      rating: 4.5,
-      cover: "https://via.placeholder.com/120x160",
-    },
-    {
-      id: 3,
-      title: "So You Want To Talk About Race",
-      author: "Ijeoma Oluo",
-      price: 15.63,
-      category: "Biography",
-      rating: 4.5,
-      cover: "https://via.placeholder.com/120x160",
-    },
-  ];
-
   return (
     <div className="bg-background min-h-screen">
       {/* Main Content */}
@@ -267,51 +237,6 @@ const BookDetails = () => {
                 View reviews
               </button>
             </div> */}
-          </div>
-        </div>
-
-      {/* Related Books Section */}
-      <div className="w-full md:w-1/4 flex-shrink-0 bg-white rounded-xl shadow-lg p-6 overflow-y-auto scrollbar-hide">
-        <h2 className="text-lg font-bold text-primary mb-4 pb-2 border-b">
-          Related Books
-        </h2>
-        <div className="flex flex-col gap-4">
-          {relatedBooks.length > 0 ? (
-            relatedBooks.map((relatedBook) => (
-              <div
-                key={relatedBook.id}
-                className="cursor-pointer transition-transform duration-200 hover:scale-105"
-                onClick={() => handleRelatedBookClick(relatedBook)}
-              >
-                {/* <BookCard book={relatedBook} showActions={false} onBorrow={() => {}} onPurchase={() => {}} /> */}
-        {/* Related Items Section */}
-        <div className="rounded-lg bg-white p-8 shadow-sm">
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-primary text-2xl font-bold">Related Items</h2>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {relatedItems.map((item) => (
-              <div key={item.id} className="relative">
-                <img
-                  src={item.cover}
-                  alt={item.title}
-                  className="mb-3 h-40 w-full rounded-lg object-cover"
-                />
-                <div className="absolute top-2 left-2">
-                  <span className="bg-secondary rounded px-2 py-1 text-xs text-white">
-                    {item.category}
-                  </span>
-                </div>
-                <div className="mb-1 flex items-center space-x-1">
-                  <Star className="text-secondary h-4 w-4 fill-current" />
-                  <span className="text-sm">{item.rating}</span>
-                </div>
-                <h3 className="text-primary mb-1 font-medium">{item.title}</h3>
-                <p className="text-primary mb-2 text-sm">{item.author}</p>
-                <p className="text-primary font-bold">${item.price}</p>
-              </div>
-            ))}
           </div>
         </div>
       </div>
