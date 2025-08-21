@@ -8,8 +8,8 @@ const Navbar = () => {
   const { logout } = useLogout();
 
   return (
-    <div>
-      <nav className="border-accent flex items-center justify-between border-b-1 px-6 py-3 shadow-sm">
+    <nav className="border-accent border-b-1 py-3 shadow-sm">
+      <div className="container mx-auto flex items-center justify-between">
         <Link to="/">
           <img src={logo} alt="logo" className="w-20" />
         </Link>
@@ -34,7 +34,7 @@ const Navbar = () => {
           >
             Purchase Books
           </NavLink>
-          
+
           <NavLink
             to="/cart"
             className={({ isActive }) =>
@@ -63,8 +63,8 @@ const Navbar = () => {
             <LogOut />
           </button>
         </div>
-      </nav>
-    </div>
+      </div>
+    </nav>
   );
 };
 

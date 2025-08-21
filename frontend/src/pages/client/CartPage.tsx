@@ -149,15 +149,17 @@ const CheckoutPage = () => {
             onClick={() => {
               navigaion("/checkout");
             }}
-            label="Back"
-          />
+          >
+            Back
+          </MainButton>
           <MainButton
             className="!w-[150px]"
             onClick={() => {
               navigaion("/checkout");
             }}
-            label="Checkout"
-          />
+          >
+            Checkout
+          </MainButton>
         </div>
       </div>
     </div>

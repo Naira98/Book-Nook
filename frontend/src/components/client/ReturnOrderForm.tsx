@@ -163,11 +163,9 @@ const ReturnOrderForm = ({
             >
               Cancel
             </button>
-            <MainButton
-              disabled={isPending}
-              className="px-6 py-2"
-              label="Create Return Order"
-            ></MainButton>
+            <MainButton disabled={isPending} className="px-6 py-2">
+              Create Return Order
+            </MainButton>
           </div>
         </form>
       </div>

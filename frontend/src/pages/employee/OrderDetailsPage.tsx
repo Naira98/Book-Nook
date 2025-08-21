@@ -64,8 +64,9 @@ const OrderDetailsPage = () => {
       <MainButton
         onClick={() => navigate("/employee/orders")}
         className="mb-4 !w-auto px-4"
-        label="Back to Orders"
-      ></MainButton>
+      >
+        Back to Orders
+      </MainButton>
 
       <div className="mb-6 overflow-hidden rounded-lg bg-white p-6 shadow-md">
         <h2 className="text-primary mb-4 text-xl font-bold">
@@ -201,21 +202,21 @@ const OrderDetailsPage = () => {
             }}
             loading={isUpdatingStatus}
             className="!w-[150px] bg-red-600 hover:bg-red-700"
-            label="Report Problem"
-          />
+          >
+            Report Problem
+          </MainButton>
           {order.status !== "PICKED_UP" && (
             <MainButton
               onClick={getNextAction}
               loading={isUpdatingStatus}
               className="!w-[160px]"
-              label={
-                order.status === "CREATED"
-                  ? "On The Way"
-                  : order.status === "ON_THE_WAY"
-                    ? "Picked Up"
-                    : "Order Completed"
-              }
-            />
+            >
+              {order.status === "CREATED"
+                ? "On The Way"
+                : order.status === "ON_THE_WAY"
+                  ? "Picked Up"
+                  : "Order Completed"}
+            </MainButton>
           )}
         </div>
       )}

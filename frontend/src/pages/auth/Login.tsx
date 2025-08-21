@@ -96,8 +96,9 @@ const LoginPage = () => {
                   <MainButton
                     disabled={submitting || pristine || hasValidationErrors}
                     loading={isPending}
-                    label="Login"
-                  />
+                  >
+                    Login
+                  </MainButton>
                 </div>
                 <div className="mt-5 text-center">
                   <p className="text-primary text-sm">

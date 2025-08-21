@@ -121,7 +121,7 @@ export default function CheckoutPage() {
         );
     }
 
-    // Calculate Delivary
+    // Calculate Delivery
     if (pickupType === "COURIER") {
       newPrices.delivery = newPrices.delivery.plus(
         new Decimal(cartItems.delevary_fees || 0),
@@ -405,9 +405,10 @@ export default function CheckoutPage() {
                     <MainButton
                       loading={isAddressPending}
                       onClick={getUserAddress}
-                      label="Locate me"
                       className="!w-[120px] rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                    />
+                    >
+                      Locate me
+                    </MainButton>
                   </div>
                 </div>
               )}
@@ -429,8 +430,9 @@ export default function CheckoutPage() {
                     disabled={!promoCode}
                     onClick={applyPromoCodeHandler}
                     className="!w-[120px] rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                    label="Apply"
-                  />
+                  >
+                    Apply
+                  </MainButton>
                 </div>
                 {promoCodeObject?.id && (
                   <p className="text-sm text-green-600">Promo code applied!</p>
@@ -456,11 +458,9 @@ export default function CheckoutPage() {
               </div>
 
               {/* Submit */}
-              <MainButton
-                disabled={submitting}
-                onClick={handleSubmit}
-                label="Confirm Order"
-              />
+              <MainButton disabled={submitting} onClick={handleSubmit}>
+                Confirm Order
+              </MainButton>
             </form>
           );
         }}

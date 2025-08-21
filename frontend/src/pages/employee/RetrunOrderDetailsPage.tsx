@@ -1,12 +1,12 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import MainButton from "../../components/shared/buttons/MainButton";
+import { useGetMe } from "../../hooks/auth/useGetMe";
+import { useChangeReturnOrderStatus } from "../../hooks/orders/useChangeReturnOrderStatus";
+import { useGetReturnOrder } from "../../hooks/orders/useGetReturnOrder";
 import {
   ReturnOrderStatus,
   type changeRetrunOrderStatusRequest,
 } from "../../types/Orders";
-import MainButton from "../../components/shared/buttons/MainButton";
-import { useGetMe } from "../../hooks/auth/useGetMe";
-import { useGetReturnOrder } from "../../hooks/orders/useGetReturnOrder";
-import { useChangeReturnOrderStatus } from "../../hooks/orders/useChangeReturnOrderStatus";
 
 const ReturnOrderDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -67,8 +67,9 @@ const ReturnOrderDetailsPage = () => {
       <MainButton
         onClick={() => navigate("/employee/orders")}
         className="mb-4 !w-auto px-4"
-        label="Back to Orders"
-      ></MainButton>
+      >
+        Back to Orders
+      </MainButton>
 
       <div className="mb-6 overflow-hidden rounded-lg bg-white p-6 shadow-md">
         <h2 className="text-primary mb-4 text-xl font-bold">
@@ -191,22 +192,22 @@ const ReturnOrderDetailsPage = () => {
             }}
             loading={isUpdatingStatus}
             className="!w-[150px] bg-red-600 hover:bg-red-700"
-            label="Report Problem"
-          />
+          >
+            Report Problem
+          </MainButton>
           {returnOrder.status !== "DONE" && (
             <MainButton
               onClick={getNextAction}
               loading={isUpdatingStatus}
               className="!w-[160px]"
-              label={
-                returnOrder.status === "CREATED" ||
-                returnOrder.status === "PICKED_UP"
-                  ? "Checking"
-                  : returnOrder.status === "CHECKING"
-                    ? "Done"
-                    : "Order Completed"
-              }
-            />
+            >
+              {returnOrder.status === "CREATED" ||
+              returnOrder.status === "PICKED_UP"
+                ? "Checking"
+                : returnOrder.status === "CHECKING"
+                  ? "Done"
+                  : "Order Completed"}
+            </MainButton>
           )}
         </div>
       )}
