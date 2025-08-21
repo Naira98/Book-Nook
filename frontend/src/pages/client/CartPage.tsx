@@ -95,6 +95,7 @@ const CheckoutPage = () => {
         {/* Action Buttons */}
         <div className="mt-12 flex w-full flex-col-reverse items-center justify-center gap-4 sm:flex-row">
           <MainButton
+
             className="!w-full rounded-xl bg-gray-200 text-layout cursor-pointer hover:bg-gray-300 md:!w-[200px]"
             onClick={() => navigate(-1)}
             label="Back"
@@ -104,6 +105,23 @@ const CheckoutPage = () => {
             onClick={() => navigate("/checkout")}
             label="Checkout"
           />
+
+            className="!w-[150px] bg-red-600 hover:bg-red-500"
+            onClick={() => {
+              navigaion("/checkout");
+            }}
+          >
+            Back
+          </MainButton>
+          <MainButton
+            className="!w-[150px]"
+            onClick={() => {
+              navigaion("/checkout");
+            }}
+          >
+            Checkout
+          </MainButton>
+
         </div>
       </div>
 

@@ -7,11 +7,6 @@ export function useDeleteCartItem() {
     mutationFn: async (cartItemId: number) => {
       return await apiReq("DELETE", `/cart/${cartItemId}`);
     },
-    onSuccess: () => {
-      toast("Item removed from cart successfully!", {
-        type: "success",
-      });
-    },
     onError: (err) => {
       toast(err.message, { type: "error" });
     },

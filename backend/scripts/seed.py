@@ -3,28 +3,21 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from scripts.dummy_data import (
+    add_dummy_authors,
+    add_dummy_book_details,
+    add_dummy_books,
+    add_dummy_categories,
+    add_dummy_promo_codes,
+    add_dummy_settings,
+    add_dummy_users,
+)
+from settings import settings
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
-
-from scripts.dummy_data import (
-    add_dummy_users,
-    add_dummy_authors,
-    add_dummy_categories,
-    add_dummy_books,
-    add_dummy_book_details,
-    add_dummy_cart_items,
-    add_dummy_promo_codes,
-    add_dummy_orders,
-    add_dummy_return_orders,
-    add_dummy_purchase_orders,
-    add_dummy_borrow_orders,
-    add_dummy_settings,
-)
-
-from settings import settings
 
 
 async def seed_data():
@@ -44,12 +37,7 @@ async def seed_data():
         await add_dummy_categories(db)
         await add_dummy_books(db)
         await add_dummy_book_details(db)
-        await add_dummy_cart_items(db)
         await add_dummy_promo_codes(db)
-        await add_dummy_orders(db)
-        await add_dummy_return_orders(db)
-        await add_dummy_purchase_orders(db)
-        await add_dummy_borrow_orders(db)
         await add_dummy_settings(db)
         await db.commit()
         print("\nAll data committed successfully!")

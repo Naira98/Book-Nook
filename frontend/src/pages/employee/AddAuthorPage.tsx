@@ -59,8 +59,9 @@ const AddAuthorPage = () => {
               <MainButton
                 disabled={submitting || pristine || hasValidationErrors}
                 loading={isPending}
-                label="Add Author"
-              />
+              >
+                Add Author
+              </MainButton>
             </div>
           </form>
         )}

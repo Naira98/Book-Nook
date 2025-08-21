@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 async def get_promo_codes(db: AsyncSession) -> Sequence[PromoCode]:
     """Get all active promo codes."""
-    stmt = select(PromoCode).where(PromoCode.is_active)
+    stmt = select(PromoCode).order_by(PromoCode.id.desc())
     result = await db.execute(stmt)
     promo_codes = result.scalars().all()
     return promo_codes

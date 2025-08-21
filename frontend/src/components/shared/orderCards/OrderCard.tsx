@@ -1,5 +1,6 @@
+import { BookOpen, Box, MapPin, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Box, User, BookOpen } from "lucide-react";
+import { useChangeOrderStatus } from "../../../hooks/orders/useChangeOrderStatus";
 import {
   OrderStatus,
   PickUpType,
@@ -7,7 +8,6 @@ import {
   type Order,
   type changeOrderStatusRequest,
 } from "../../../types/Orders";
-import { useChangeOrderStatus } from "../../../hooks/orders/useChangeOrderStatus";
 import MainButton from "../buttons/MainButton";
 
 type OrderCard = {
@@ -108,8 +108,9 @@ export default function OrderCard({
               }}
               loading={isPending}
               className="h-[30px] !w-20"
-              label="Accept"
-            />
+            >
+              Accept
+            </MainButton>
           ) : (
             <MainButton
               onClick={() => {
@@ -120,8 +121,9 @@ export default function OrderCard({
                 );
               }}
               className="h-[30px] !w-20 !bg-gray-200 !text-gray-700 hover:!bg-gray-50"
-              label="Details"
-            />
+            >
+              Details
+            </MainButton>
           )}
         </div>
       </div>
