@@ -270,6 +270,20 @@ const BookDetails = () => {
           </div>
         </div>
 
+      {/* Related Books Section */}
+      <div className="w-full md:w-1/4 flex-shrink-0 bg-white rounded-xl shadow-lg p-6 overflow-y-auto scrollbar-hide">
+        <h2 className="text-lg font-bold text-primary mb-4 pb-2 border-b">
+          Related Books
+        </h2>
+        <div className="flex flex-col gap-4">
+          {relatedBooks.length > 0 ? (
+            relatedBooks.map((relatedBook) => (
+              <div
+                key={relatedBook.id}
+                className="cursor-pointer transition-transform duration-200 hover:scale-105"
+                onClick={() => handleRelatedBookClick(relatedBook)}
+              >
+                {/* <BookCard book={relatedBook} showActions={false} onBorrow={() => {}} onPurchase={() => {}} /> */}
         {/* Related Items Section */}
         <div className="rounded-lg bg-white p-8 shadow-sm">
           <div className="mb-6 flex items-center justify-between">
