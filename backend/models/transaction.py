@@ -3,14 +3,11 @@ from __future__ import annotations
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Optional
 
 from db.base import Base
 from sqlalchemy import DateTime, ForeignKey, Index, Integer, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
-
-from .order import Order
 
 
 class TransactionType(Enum):
@@ -36,10 +33,6 @@ class Transaction(Base):
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id"), nullable=False
     )
-    order_id: Mapped[Optional[int]] = mapped_column(
-        Integer, ForeignKey("orders.id"), nullable=True
-    )
 
     # Relationships
     user: Mapped[User] = relationship(back_populates="transactions")  # type: ignore  # noqa: F821
-    order: Mapped[Order] = relationship(back_populates="transactions")  # type: ignore # noqa: F821

@@ -171,8 +171,9 @@ const AddBookPage = () => {
               <MainButton
                 disabled={submitting || pristine || hasValidationErrors}
                 loading={isPending}
-                label="Add Book"
-              />
+              >
+                Add Book
+              </MainButton>
             </div>
           </form>
         )}

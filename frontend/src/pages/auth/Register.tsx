@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Field, Form } from "react-final-form";
 import { Link } from "react-router-dom";
+import image from "../../assets/register.svg";
 import AuthLayout from "../../components/auth/AuthLayout";
 import MainButton from "../../components/shared/buttons/MainButton";
 import TextInput from "../../components/shared/formInputs/TextInput";
 import { useRegister } from "../../hooks/auth/useRegister";
 import type { RegisterFormData } from "../../types/auth";
-import image from "../../assets/register.svg";
 
 export default function Register() {
   const [resendCountdown, setResendCountdown] = useState<number>(30);
@@ -106,8 +106,9 @@ export default function Register() {
                       <MainButton
                         disabled={submitting || pristine || hasValidationErrors}
                         loading={isPending}
-                        label="Register"
-                      />
+                      >
+                        Register
+                      </MainButton>
                     </div>
                   </form>
                 )}
@@ -133,7 +134,7 @@ export default function Register() {
                 Please check your inbox.
               </p>
               {resendCountdown == 0 ? (
-                <MainButton onClick={onResend} label="Re-send email" />
+                <MainButton onClick={onResend}>Re-send email</MainButton>
               ) : (
                 <p className="text-sm text-gray-500">
                   You can re-send the email in {resendCountdown} seconds.

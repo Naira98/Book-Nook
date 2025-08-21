@@ -1,4 +1,4 @@
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 import { useDeleteCartItem } from "../../hooks/cart/useDeleteCartItem";
 import { useUpdateCartItem } from "../../hooks/cart/useUpdateCartItem";
 import type {
@@ -77,7 +77,8 @@ const QuantityControl = ({ item }: QuantityControlProps) => {
   const isDeleteButton = currentQuantity === 1;
 
   return (
-    <div className="mt-4 flex items-center justify-center gap-2">
+    <div className="border-accent mt-4 flex items-center justify-center gap-4 rounded-full border-1 p-1 shadow">
+      {/* Minus Button / Delete Button */}
       <button
         onClick={
           isDeleteButton
@@ -85,26 +86,22 @@ const QuantityControl = ({ item }: QuantityControlProps) => {
             : () => onUpdateQuantity(currentQuantity - 1)
         }
         disabled={isDisabled}
-        className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-200 ${
-          isDeleteButton
-            ? "bg-red-500 text-white hover:bg-red-600"
-            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-        } disabled:cursor-not-allowed disabled:opacity-50`}
+        className={
+          "bg-accent text-layout flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors duration-200 hover:bg-slate-200 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        }
       >
-        {isDeleteButton ? (
-          <Trash2 className="h-4 w-4" />
-        ) : (
-          <Minus className="h-4 w-4" />
-        )}
+        <Minus className="h-4 w-4" />
       </button>
-      <span className="text-lg font-semibold text-gray-900">
-        {currentQuantity}
-      </span>
+
+      {/* Quantity Display */}
+      <span className="text-primary text-lg font-bold">{currentQuantity}</span>
+
+      {/* Plus Button */}
       <button
         onClick={() => onUpdateQuantity(currentQuantity + 1)}
         disabled={isPendingUpdatingCartItem}
         className={
-          "flex h-8 w-8 items-center justify-center rounded-lg bg-purple-600 text-white hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+          "bg-accent text-layout flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors duration-200 hover:bg-slate-200 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         }
       >
         <Plus className="h-4 w-4" />

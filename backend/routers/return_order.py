@@ -2,6 +2,10 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Annotated, List
 
+from crud.return_orders import (
+    create_return_order_crud,
+    get_client_borrows_books_crud,
+)
 from db.database import get_db
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from models.book import BookDetails
@@ -29,10 +33,6 @@ from utils.socket import (
     send_updated_return_order,
 )
 from utils.wallet import add_to_wallet, pay_from_wallet
-from crud.return_orders import (
-    create_return_order_crud,
-    get_client_borrows_books_crud,
-)
 
 return_order_router = APIRouter(
     prefix="/return-order",
@@ -137,6 +137,8 @@ async def update_return_order_status(
                     else:
                         amount_to_add += book.deposit_fees
 
+                    book.book_details.available_stock += 1
+
                 elif book.borrow_book_problem == BorrowBookProblem.LOST.value:
                     book_price_after_discount = book.original_book_price
                     if book.promo_code_discount:
@@ -151,7 +153,6 @@ async def update_return_order_status(
                     user=db_return_order.user,
                     amount=amount_to_add,
                     description=f"Deposit return for Return Order ID: {db_return_order.id}",
-                    order_id=db_return_order.id,
                 )
             if amount_to_withdraw > 0:
                 await pay_from_wallet(
@@ -159,7 +160,6 @@ async def update_return_order_status(
                     user=db_return_order.user,
                     amount=amount_to_withdraw,
                     description=f"Penalty fees for Return Order ID: {db_return_order.id}",
-                    order_id=db_return_order.id,
                     apply_negative_balance=True,
                 )
 

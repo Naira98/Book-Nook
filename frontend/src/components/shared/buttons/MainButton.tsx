@@ -1,11 +1,11 @@
 import clsx from "clsx";
-import type { MouseEvent } from "react";
-import Spinner from "../Spinner";
+import type { MouseEvent, ReactNode } from "react";
+import SmallSpinner from "../SmallSpinner";
 
 export default function MainButton({
   disabled,
   loading,
-  label,
+  children,
   className,
   onClick,
 }: MainButtonTypes) {
@@ -15,11 +15,11 @@ export default function MainButton({
       type="submit"
       disabled={disabled || loading}
       className={clsx(
-        "bg-primary hover:bg-hover disabled:hover:bg-primary relative flex h-10 w-full cursor-pointer items-center justify-center rounded-md border border-transparent text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70 px-4",
+        "bg-primary hover:bg-hover disabled:hover:bg-primary relative flex h-10 w-full cursor-pointer items-center justify-center rounded-md border border-transparent px-4 text-sm font-medium text-white transition-all duration-300 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70",
         className,
       )}
     >
-      {loading ? <Spinner /> : label}
+      {loading ? <SmallSpinner /> : children}
     </button>
   );
 }
@@ -27,7 +27,7 @@ export default function MainButton({
 interface MainButtonTypes {
   disabled?: boolean;
   loading?: boolean;
-  label?: string;
+  children: ReactNode;
   className?: string;
   onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
 }

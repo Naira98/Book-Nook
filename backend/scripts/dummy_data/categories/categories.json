@@ -1,42 +1,134 @@
 [
-  {
-    "id": 1001,
-    "name": "Science Fiction"
-  },
-  {
-    "id": 1002,
-    "name": "Fantasy"
-  },
-  {
-    "id": 1003,
-    "name": "Mystery"
-  },
-  {
-    "id": 1004,
-    "name": "Biography"
-  },
-  {
-    "id": 1005,
-    "name": "Historical Fiction"
-  },
-  {
-    "id": 1006,
-    "name": "Horror"
-  },
-  {
-    "id": 1007,
-    "name": "Romance"
-  },
-  {
-    "id": 1008,
-    "name": "Thriller"
-  },
-  {
-    "id": 1009,
-    "name": "Young Adult"
-  },
-  {
-    "id": 1010,
-    "name": "Children's Literature"
-  }
+    {
+        "id": 1001,
+        "name": "Medical"
+    },
+    {
+        "id": 1002,
+        "name": "Science-Geography"
+    },
+    {
+        "id": 1003,
+        "name": "Art-Photography"
+    },
+    {
+        "id": 1004,
+        "name": "Biography"
+    },
+    {
+        "id": 1005,
+        "name": "Business-Finance-Law"
+    },
+    {
+        "id": 1006,
+        "name": "Childrens-Books"
+    },
+    {
+        "id": 1007,
+        "name": "Computing"
+    },
+    {
+        "id": 1008,
+        "name": "Crafts-Hobbies"
+    },
+    {
+        "id": 1009,
+        "name": "Crime-Thriller"
+    },
+    {
+        "id": 1010,
+        "name": "Dictionaries-Languages"
+    },
+    {
+        "id": 1011,
+        "name": "Entertainment"
+    },
+    {
+        "id": 1012,
+        "name": "Food-Drink"
+    },
+    {
+        "id": 1013,
+        "name": "Graphic-Novels-Anime-Manga"
+    },
+    {
+        "id": 1014,
+        "name": "Health"
+    },
+    {
+        "id": 1015,
+        "name": "History-Archaeology"
+    },
+    {
+        "id": 1016,
+        "name": "Home-Garden"
+    },
+    {
+        "id": 1017,
+        "name": "Humour"
+    },
+    {
+        "id": 1018,
+        "name": "Mind-Body-Spirit"
+    },
+    {
+        "id": 1019,
+        "name": "Natural-History"
+    },
+    {
+        "id": 1020,
+        "name": "Personal-Development"
+    },
+    {
+        "id": 1021,
+        "name": "Poetry-Drama"
+    },
+    {
+        "id": 1022,
+        "name": "Reference"
+    },
+    {
+        "id": 1023,
+        "name": "Religion"
+    },
+    {
+        "id": 1024,
+        "name": "Romance"
+    },
+    {
+        "id": 1025,
+        "name": "Science-Fiction-Fantasy-Horror"
+    },
+    {
+        "id": 1026,
+        "name": "Society-Social-Sciences"
+    },
+    {
+        "id": 1027,
+        "name": "Sport"
+    },
+    {
+        "id": 1028,
+        "name": "Stationery"
+    },
+    {
+        "id": 1029,
+        "name": "Teaching-Resources-Education"
+    },
+    {
+        "id": 1030,
+        "name": "Technology-Engineering"
+    },
+    {
+        "id": 1031,
+        "name": "Teen-Young-Adult"
+    },
+    {
+        "id": 1032,
+        "name": "Transport"
+    },
+    {
+        "id": 1033,
+        "name": "Travel-Holiday-Guides"
+    }
 ]

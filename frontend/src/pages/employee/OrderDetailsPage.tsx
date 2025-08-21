@@ -1,9 +1,9 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useGetOrder } from "../../hooks/orders/useGetOrder";
-import { useChangeOrderStatus } from "../../hooks/orders/useChangeOrderStatus";
-import { OrderStatus, type changeOrderStatusRequest } from "../../types/Orders";
+import { useNavigate, useParams } from "react-router-dom";
 import MainButton from "../../components/shared/buttons/MainButton";
 import { useGetMe } from "../../hooks/auth/useGetMe";
+import { useChangeOrderStatus } from "../../hooks/orders/useChangeOrderStatus";
+import { useGetOrder } from "../../hooks/orders/useGetOrder";
+import { OrderStatus, type changeOrderStatusRequest } from "../../types/Orders";
 
 const OrderDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,7 +38,6 @@ const OrderDetailsPage = () => {
     if (!me) return;
     const payload: changeOrderStatusRequest = {
       ...order,
-      courier_id: me.id,
       order_id: order.id,
       status: newStatus,
     };
@@ -65,8 +64,9 @@ const OrderDetailsPage = () => {
       <MainButton
         onClick={() => navigate("/employee/orders")}
         className="mb-4 !w-auto px-4"
-        label="Back to Orders"
-      ></MainButton>
+      >
+        Back to Orders
+      </MainButton>
 
       <div className="mb-6 overflow-hidden rounded-lg bg-white p-6 shadow-md">
         <h2 className="text-primary mb-4 text-xl font-bold">
@@ -202,21 +202,21 @@ const OrderDetailsPage = () => {
             }}
             loading={isUpdatingStatus}
             className="!w-[150px] bg-red-600 hover:bg-red-700"
-            label="Report Problem"
-          />
+          >
+            Report Problem
+          </MainButton>
           {order.status !== "PICKED_UP" && (
             <MainButton
               onClick={getNextAction}
               loading={isUpdatingStatus}
               className="!w-[160px]"
-              label={
-                order.status === "CREATED"
-                  ? "On The Way"
-                  : order.status === "ON_THE_WAY"
-                    ? "Picked Up"
-                    : "Order Completed"
-              }
-            />
+            >
+              {order.status === "CREATED"
+                ? "On The Way"
+                : order.status === "ON_THE_WAY"
+                  ? "Picked Up"
+                  : "Order Completed"}
+            </MainButton>
           )}
         </div>
       )}

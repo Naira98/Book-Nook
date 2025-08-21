@@ -1,19 +1,19 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Book,
-  FlaskRound,
-  History,
-  GraduationCap,
-  Sparkles,
-  Globe,
-  PenTool,
-  Film,
-  Check,
   ArrowRight,
+  Book,
+  Check,
+  Film,
+  FlaskRound,
+  Globe,
+  GraduationCap,
+  History,
+  PenTool,
   Rocket,
+  Sparkles,
 } from "lucide-react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const interestsList = [
   { id: 1, name: "Novels", icon: Book, color: "text-red-500" },

@@ -14,6 +14,7 @@ class BookBase(BaseModel):
     price: Decimal
     description: str
     cover_img: str | None = None
+    publish_year: int
 
 
 class CreateAuthorCategoryRequest(BaseModel):
@@ -87,8 +88,24 @@ class BorrowBookResponse(GetBookBase):
     deposit_fees: Decimal
 
 
+class PaginatedBorrowBooksResponse(BaseModel):
+    items: list[BorrowBookResponse]
+    total: int
+    page: int
+    limit: int
+    pages: int
+
+
 class PurchaseBookResponse(GetBookBase):
     price: Decimal
+
+
+class PaginatedPurchaseBooksResponse(BaseModel):
+    items: list[PurchaseBookResponse]
+    total: int
+    page: int
+    limit: int
+    pages: int
 
 
 """ Employee-only schema for book management """

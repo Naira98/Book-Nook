@@ -1,26 +1,26 @@
-import { useState, useEffect, useRef, type MouseEvent } from "react";
+import Decimal from "decimal.js";
+import type { FormApi } from "final-form";
 import {
-  Truck,
-  Store,
-  Tag,
-  ShoppingCart,
   Loader2,
   PackageX,
+  ShoppingCart,
+  Store,
+  Tag,
+  Truck,
 } from "lucide-react";
-import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
-import Decimal from "decimal.js";
-import { useApplyPromoCode } from "../../hooks/cart/useApplyPromoCode";
-import type { PromoCodeData } from "../../types/promoCode";
-import MainButton from "../../components/shared/buttons/MainButton";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Field, Form } from "react-final-form";
+import { toast } from "react-toastify";
+import MainButton from "../../components/shared/buttons/MainButton";
 import TextInput from "../../components/shared/formInputs/TextInput";
 import { useGetMe } from "../../hooks/auth/useGetMe";
-import { getPosition } from "../../utils/getUserPosition";
-import { toast } from "react-toastify";
+import { useApplyPromoCode } from "../../hooks/cart/useApplyPromoCode";
+import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 import { useGetAddress } from "../../hooks/cart/useGetUserAddress";
-import type { FormApi } from "final-form";
 import { useCreateOrder } from "../../hooks/orders/useCreateOrder";
 import { PickUpType } from "../../types/Orders";
+import type { PromoCodeData } from "../../types/promoCode";
+import { getPosition } from "../../utils/getUserPosition";
 
 type Prices = {
   purchase_total: Decimal;
@@ -121,7 +121,7 @@ export default function CheckoutPage() {
         );
     }
 
-    // Calculate Delivary
+    // Calculate Delivery
     if (pickupType === "COURIER") {
       newPrices.delivery = newPrices.delivery.plus(
         new Decimal(cartItems.delevary_fees || 0),
@@ -405,9 +405,10 @@ export default function CheckoutPage() {
                     <MainButton
                       loading={isAddressPending}
                       onClick={getUserAddress}
-                      label="Locate me"
                       className="!w-[120px] rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                    />
+                    >
+                      Locate me
+                    </MainButton>
                   </div>
                 </div>
               )}
@@ -429,8 +430,9 @@ export default function CheckoutPage() {
                     disabled={!promoCode}
                     onClick={applyPromoCodeHandler}
                     className="!w-[120px] rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                    label="Apply"
-                  />
+                  >
+                    Apply
+                  </MainButton>
                 </div>
                 {promoCodeObject?.id && (
                   <p className="text-sm text-green-600">Promo code applied!</p>
@@ -456,11 +458,9 @@ export default function CheckoutPage() {
               </div>
 
               {/* Submit */}
-              <MainButton
-                disabled={submitting}
-                onClick={handleSubmit}
-                label="Confirm Order"
-              />
+              <MainButton disabled={submitting} onClick={handleSubmit}>
+                Confirm Order
+              </MainButton>
             </form>
           );
         }}

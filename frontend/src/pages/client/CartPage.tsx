@@ -1,10 +1,10 @@
 import { User } from "lucide-react";
-import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
-import PurchaseCartItem from "../../components/cart/PurchaseCartItem";
-import BorrowCartItem from "../../components/cart/BorrowCartItem";
-import { useGetMe } from "../../hooks/auth/useGetMe";
-import MainButton from "../../components/shared/buttons/MainButton";
 import { useNavigate } from "react-router-dom";
+import BorrowCartItem from "../../components/cart/BorrowCartItem";
+import PurchaseCartItem from "../../components/cart/PurchaseCartItem";
+import MainButton from "../../components/shared/buttons/MainButton";
+import { useGetMe } from "../../hooks/auth/useGetMe";
+import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 
 const CheckoutPage = () => {
   const { cartItems } = useGetCartItems();
@@ -149,15 +149,17 @@ const CheckoutPage = () => {
             onClick={() => {
               navigaion("/checkout");
             }}
-            label="Back"
-          />
+          >
+            Back
+          </MainButton>
           <MainButton
             className="!w-[150px]"
             onClick={() => {
               navigaion("/checkout");
             }}
-            label="Checkout"
-          />
+          >
+            Checkout
+          </MainButton>
         </div>
       </div>
     </div>

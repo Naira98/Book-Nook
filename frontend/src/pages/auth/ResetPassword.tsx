@@ -71,8 +71,9 @@ const ResetPassword = () => {
                   <MainButton
                     disabled={submitting || pristine || hasValidationErrors}
                     loading={isPending}
-                    label="Reset Password"
-                  />
+                  >
+                    Reset Password
+                  </MainButton>
                 </div>
               </form>
             )}

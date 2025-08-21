@@ -1,14 +1,15 @@
-import { Outlet } from "react-router-dom";
-import Sidebar from "./Sidebar";
-import { LibraryBig, Package } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { LibraryBig, Package } from "lucide-react";
+import { Outlet } from "react-router-dom";
 import { connectWebSocket } from "../../services/websocketService";
 import type {
   AllOrdersResponse,
   Order,
+  OrderStatus,
   ReturnOrder,
   ReturnOrderStatus,
 } from "../../types/Orders";
+import Sidebar from "./Sidebar";
 
 const navItems = [
   { to: "/staff/books", label: "Books", icon: <LibraryBig /> },
@@ -44,14 +45,14 @@ const EmployeeLayout = () => {
     );
   }
 
-  function removeAccepetedOrder(orderId: number) {
+  function changeOrderStatus(orderId: number, status: OrderStatus) {
     queryClient.setQueryData(
       ["allStaffOrders"],
       (oldData: AllOrdersResponse) => {
         if (oldData != undefined) {
           const newData = { ...oldData };
-          newData.orders = oldData.orders.filter(
-            (order) => order.id !== orderId,
+          newData.orders = newData.orders.map((order) =>
+            order.id === orderId ? { ...order, status: status } : order,
           );
           return newData;
         }
@@ -94,7 +95,7 @@ const EmployeeLayout = () => {
       addNewReturnOrder(data.return_order);
     }
     if (data && data.message == "order_status_updated") {
-      removeAccepetedOrder(data.order_id);
+      changeOrderStatus(data.order_id, data.status);
     }
 
     if (data && data.message == "return_order_status_updated") {

@@ -22,10 +22,10 @@ from schemas.order import (
     BorrowOrderBookUpdateProblemResponse,
     CreateOrderRequest,
     GetAllOrdersResponse,
-    UpdateOrderStatusRequest,
     OrderCreatedUpdateResponse,
     OrderDetailsResponseSchema,
     OrderResponseSchema,
+    UpdateOrderStatusRequest,
 )
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -337,7 +337,6 @@ async def create_order(
             user=user,
             amount=total_order_value,
             description=f"Payment for Order ID: {order.id}",
-            order_id=order.id,
         )
         user.current_borrowed_books += borrowing_book_count
 
@@ -549,7 +548,6 @@ async def update_borrow_order_book_status(
                 user=borrow_order_book.user,
                 amount=plenty_fees,
                 description=f"Charge for lost or damaged book (ID: {borrow_order_book.book_details_id})",
-                order_id=None,
             )
 
         borrow_order_book.actual_return_date = datetime.now()

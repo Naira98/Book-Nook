@@ -7,8 +7,10 @@ from crud.book import (
     create_book,
     create_book_details,
     create_category_crud,
+    get_all_books,
     get_author_by_id,
     get_authors_crud,
+    get_book_details,
     get_book_details_for_update_crud,
     get_books_table_crud,
     get_borrow_books_crud,
@@ -19,7 +21,16 @@ from crud.book import (
     update_book_crud,
 )
 from db.database import get_db
-from fastapi import APIRouter, Depends, File, Form, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    UploadFile,
+    status,
+    Query,
+)
 from fastapi.responses import JSONResponse
 from schemas.book import (
     AuthorCategorySchema,
@@ -29,8 +40,9 @@ from schemas.book import (
     BorrowBookResponse,
     CreateAuthorCategoryRequest,
     CreateBookRequest,
-    PurchaseBookResponse,
+    PaginatedPurchaseBooksResponse,
     UpdateBookData,
+    PaginatedBorrowBooksResponse,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils.auth import get_user_id_via_session
@@ -38,11 +50,41 @@ from utils.auth import get_user_id_via_session
 book_router = APIRouter(prefix="/books", tags=["Books"])
 
 
-@book_router.get("/borrow", response_model=List[BorrowBookResponse])
+@book_router.get("/borrow", response_model=PaginatedBorrowBooksResponse)
 async def get_borrow_books(
-    db: AsyncSession = Depends(get_db), _=Depends(get_user_id_via_session)
+    db: AsyncSession = Depends(get_db),
+    # Optional parameters for filtering and searching
+    search: Optional[str] = Query(
+        None, description="Search by book title or author name."
+    ),
+    authors_ids: Optional[str] = Query(
+        None, description="Filter by comma-separated author names."
+    ),
+    categories_ids: Optional[str] = Query(
+        None, description="Filter by comma-separated category names."
+    ),
+    # Optional parameter for retrieving a single book by ID
+    book_details_id: Optional[int] = Query(
+        None, description="ID of a specific book detail to retrieve."
+    ),
+    # Pagination parameters
+    page: int = Query(1, ge=1, description="Page number."),
+    limit: int = Query(10, ge=1, le=100, description="Number of items per page."),
+    _=Depends(get_user_id_via_session),
 ):
-    return await get_borrow_books_crud(db)
+    """
+    Retrieves a paginated list of books available for borrowing, with optional
+    search and filtering by author and category.
+    """
+    return await get_borrow_books_crud(
+        db,
+        search=search,
+        authors_ids=authors_ids,
+        categories_ids=categories_ids,
+        page=page,
+        limit=limit,
+        book_details_id=book_details_id,
+    )
 
 
 @book_router.get("/borrow/{book_details_id}", response_model=List[BorrowBookResponse])
@@ -51,25 +93,50 @@ async def get_borrow_book_details(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_user_id_via_session),
 ):
-    return await get_borrow_books_crud(db, book_details_id)
+    return await get_borrow_books_crud(db, book_details_id=book_details_id)
 
 
-@book_router.get("/purchase", response_model=List[PurchaseBookResponse])
+@book_router.get("/purchase", response_model=PaginatedPurchaseBooksResponse)
 async def get_purchase_books(
-    db: AsyncSession = Depends(get_db), _=Depends(get_user_id_via_session)
+    db: AsyncSession = Depends(get_db),
+    # Optional parameters for filtering and searching
+    search: Optional[str] = Query(
+        None, description="Search by book title or author name."
+    ),
+    authors_ids: Optional[str] = Query(
+        None, description="Filter by comma-separated author names."
+    ),
+    categories_ids: Optional[str] = Query(
+        None, description="Filter by comma-separated category names."
+    ),
+    # Pagination parameters
+    page: int = Query(1, ge=1, description="Page number."),
+    limit: int = Query(10, ge=1, le=100, description="Number of items per page."),
+    _=Depends(get_user_id_via_session),
 ):
-    return await get_purchase_books_crud(db)
+    """
+    Retrieves a paginated list of books available for purchase, with optional
+    search and filtering by author and category.
+    """
+    return await get_purchase_books_crud(
+        db,
+        search=search,
+        authors_ids=authors_ids,
+        categories_ids=categories_ids,
+        page=page,
+        limit=limit,
+    )
 
 
 @book_router.get(
-    "/purchase/{book_details_id}", response_model=List[PurchaseBookResponse]
+    "/purchase/{book_details_id}", response_model=PaginatedPurchaseBooksResponse
 )
 async def get_purchase_book_details(
     book_details_id: int,
     db: AsyncSession = Depends(get_db),
     _=Depends(get_user_id_via_session),
 ):
-    return await get_purchase_books_crud(db, book_details_id)
+    return await get_purchase_books_crud(db, book_details_id=book_details_id)
 
 
 @book_router.get("/authors", response_model=List[AuthorCategorySchema])
@@ -80,7 +147,6 @@ async def get_authors(db: AsyncSession = Depends(get_db)):
 @book_router.get("/categories", response_model=List[AuthorCategorySchema])
 async def get_categories(db: AsyncSession = Depends(get_db)):
     return await get_categories_crud(db)
-
 
 
 """ Employee-only endpoints for book management """
@@ -117,8 +183,10 @@ async def get_books_table(
     return await get_books_table_crud(db)
 
 
-@book_router.get("/{book_id}/details", response_model=BookDetailsForUpdateResponse)
-async def get_book_details(book_id: int, db: AsyncSession = Depends(get_db)):
+@book_router.get(
+    "/update_details/{book_id}", response_model=BookDetailsForUpdateResponse
+)
+async def get_book_details_for_update(book_id: int, db: AsyncSession = Depends(get_db)):
     return await get_book_details_for_update_crud(db, book_id=book_id)
 
 
@@ -206,10 +274,26 @@ async def update_book(
         "purchase_available_stock": purchase_available_stock,
         "borrow_available_stock": borrow_available_stock,
     }
-
     if secure_url:
         book_data_dict["cover_img"] = secure_url
 
     book_data = UpdateBookData(**book_data_dict)
 
     return await update_book_crud(book_id, book_data, db)
+
+
+@book_router.get("/{book_details_id}", response_model=BookResponse)
+async def read_book_details(book_details_id: int, db: AsyncSession = Depends(get_db)):
+    book = await get_book_details(book_details_id, db)
+    if book is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Book with id {book_details_id} not found",
+        )
+    return book
+
+
+@book_router.get("/", response_model=list[BookResponse])
+async def read_all_books(db: AsyncSession = Depends(get_db)):
+    books = await get_all_books(db=db)
+    return books
