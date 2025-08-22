@@ -10,11 +10,11 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-accent font-sans text-layout">
+    <div className="bg-accent text-layout min-h-screen font-sans">
       {/* Main Content Container */}
       <div className="container mx-auto px-4 py-12">
         {/* Page Title */}
-        <h1 className="mb-10 text-center text-4xl font-extrabold text-primary">
+        <h1 className="text-primary mb-10 text-center text-4xl font-extrabold">
           Your Cart
         </h1>
 
@@ -22,8 +22,10 @@ const CheckoutPage = () => {
           {/* Purchase Books Section */}
           <div className="animate-fade-in-up rounded-2xl bg-white/95 p-6 shadow-xl md:p-8">
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-primary">Purchase Books</h2>
-              <span className="rounded-full bg-secondary px-3 py-1 text-sm font-semibold text-white">
+              <h2 className="text-primary text-2xl font-bold">
+                Purchase Books
+              </h2>
+              <span className="bg-secondary rounded-full px-3 py-1 text-sm font-semibold text-white">
                 {cartItems?.purchase_items.length || 0} items
               </span>
             </div>
@@ -32,12 +34,22 @@ const CheckoutPage = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-accent">
-                        <th className="p-2 text-left font-medium text-layout">Item</th>
-                        <th className="p-2 text-center font-medium text-layout">Quantity</th>
-                        <th className="p-2 text-center font-medium text-layout">Price</th>
-                        <th className="p-2 text-center font-medium text-layout">Total</th>
-                        <th className="p-2 text-center font-medium text-layout">Action</th>
+                      <tr className="border-accent border-b">
+                        <th className="text-layout p-2 text-left font-medium">
+                          Item
+                        </th>
+                        <th className="text-layout p-2 text-center font-medium">
+                          Quantity
+                        </th>
+                        <th className="text-layout p-2 text-center font-medium">
+                          Price
+                        </th>
+                        <th className="text-layout p-2 text-center font-medium">
+                          Total
+                        </th>
+                        <th className="text-layout p-2 text-center font-medium">
+                          Action
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -48,7 +60,7 @@ const CheckoutPage = () => {
                   </table>
                 </div>
               ) : (
-                <div className="p-6 text-center text-layout/70">
+                <div className="text-layout/70 p-6 text-center">
                   <p>No items in your purchase cart.</p>
                 </div>
               )}
@@ -58,8 +70,8 @@ const CheckoutPage = () => {
           {/* Borrow Books Section */}
           <div className="animate-fade-in-up rounded-2xl bg-white/95 p-6 shadow-xl md:p-8">
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-primary">Borrow Books</h2>
-              <span className="rounded-full bg-secondary px-3 py-1 text-sm font-semibold text-white">
+              <h2 className="text-primary text-2xl font-bold">Borrow Books</h2>
+              <span className="bg-secondary rounded-full px-3 py-1 text-sm font-semibold text-white">
                 {cartItems?.borrow_items.length || 0} items
               </span>
             </div>
@@ -68,12 +80,22 @@ const CheckoutPage = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-accent">
-                        <th className="p-2 text-left font-medium text-layout">Item</th>
-                        <th className="p-2 text-center font-medium text-layout">Weeks</th>
-                        <th className="p-2 text-center font-medium text-layout">Price/Week</th>
-                        <th className="p-2 text-center font-medium text-layout">Total</th>
-                        <th className="p-2 text-center font-medium text-layout">Action</th>
+                      <tr className="border-accent border-b">
+                        <th className="text-layout p-2 text-left font-medium">
+                          Item
+                        </th>
+                        <th className="text-layout p-2 text-center font-medium">
+                          Weeks
+                        </th>
+                        <th className="text-layout p-2 text-center font-medium">
+                          Price/Week
+                        </th>
+                        <th className="text-layout p-2 text-center font-medium">
+                          Total
+                        </th>
+                        <th className="text-layout p-2 text-center font-medium">
+                          Action
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -84,7 +106,7 @@ const CheckoutPage = () => {
                   </table>
                 </div>
               ) : (
-                <div className="p-6 text-center text-layout/70">
+                <div className="text-layout/70 p-6 text-center">
                   <p>No items in your borrow cart.</p>
                 </div>
               )}
@@ -101,6 +123,7 @@ const CheckoutPage = () => {
             Back
           </MainButton>
           <MainButton
+
             className="!w-full rounded-xl bg-primary text-white cursor-pointer hover:bg-hover md:!w-[200px]"
             onClick={() => navigate("/checkout")}
           >

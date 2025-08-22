@@ -41,7 +41,7 @@ async def lifespan(app: FastAPI):
     # Logic here will run before the application starts receiving requests.
     init_cloudinary()
     print("Application startup...", "🚀🚀🚀")
-    # ensure_vector_store_initialized()
+    ensure_vector_store_initialized()
     print("Vector store initialized successfully!", "✌️✌️✌️")
     # RAG system will be initialized lazily on first use
     print("RAG system will initialize on first use")

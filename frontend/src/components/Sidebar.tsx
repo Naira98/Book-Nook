@@ -70,7 +70,7 @@ const Sidebar = ({ navItems }: { navItems: navItem[] }) => {
           })}
         </nav>
 
-        <div className="border-accent border-t pt-4 md:pt-6">
+        <div className="border-accent border-t p-4 md:pt-6">
           <div className="flex flex-col items-start gap-y-1">
             <div className="hidden w-full cursor-default items-center px-3 py-2 md:flex">
               <User className="text-layout min-h-6 min-w-6" />

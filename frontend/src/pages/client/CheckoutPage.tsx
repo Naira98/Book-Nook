@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Field, Form } from "react-final-form";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import MainButton from "../../components/shared/buttons/MainButton";
 import TextInput from "../../components/shared/formInputs/TextInput";
@@ -36,7 +37,6 @@ type CourierInfo = {
   address: string;
 };
 
-// CheckoutPage component with updated professional styling.
 export default function CheckoutPage() {
   const { me } = useGetMe();
   const formRef = useRef<FormApi<CourierInfo, Partial<CourierInfo>>>(null);
@@ -49,6 +49,7 @@ export default function CheckoutPage() {
   const [promoCodeObject, setPromoCodeObject] = useState<PromoCodeData | null>(
     null,
   );
+  const navigate = useNavigate();
 
   const [prices, setPrices] = useState<Prices>({
     purchase_total: new Decimal(0),
@@ -211,7 +212,7 @@ export default function CheckoutPage() {
   if (isPending) {
     return (
       <div className="flex items-center justify-center gap-2 p-6 text-gray-600">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <Loader2 className="text-primary h-6 w-6 animate-spin" />
         Loading your cart...
       </div>
     );
@@ -239,12 +240,12 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-accent font-sans text-layout">
+    <div className="bg-accent text-layout min-h-screen font-sans">
       {/* Main Content Container with full-width layout */}
       <div className="container mx-auto px-4 py-12">
         {/* Page Title with consistent styling */}
-        <h1 className="mb-10 flex items-center justify-center gap-4 text-center text-4xl font-extrabold text-primary">
-          <ShoppingCart className="h-10 w-10 text-primary" />
+        <h1 className="text-primary mb-10 flex items-center justify-center gap-4 text-center text-4xl font-extrabold">
+          <ShoppingCart className="text-primary h-10 w-10" />
           Checkout
         </h1>
 
@@ -253,7 +254,9 @@ export default function CheckoutPage() {
           {/* Purchase Books Section */}
           {cartItems.purchase_items?.length > 0 && (
             <div className="mb-8">
-              <h2 className="mb-4 text-2xl font-bold text-primary">Purchase Books</h2>
+              <h2 className="text-primary mb-4 text-2xl font-bold">
+                Purchase Books
+              </h2>
               <div className="space-y-4">
                 {cartItems.purchase_items.map((item) => (
                   <div
@@ -266,19 +269,22 @@ export default function CheckoutPage() {
                       className="h-24 w-20 rounded-lg object-cover"
                     />
                     <div className="flex-1">
-                      <p className="font-medium text-layout">{item.book.title}</p>
-                      <p className="text-sm text-layout/70">
+                      <p className="text-layout font-medium">
+                        {item.book.title}
+                      </p>
+                      <p className="text-layout/70 text-sm">
                         {item.book.author.name}
                       </p>
-                      <p className="mt-1 text-sm text-layout/70">
-                        <span className="font-bold text-success">
+                      <p className="text-layout/70 mt-1 text-sm">
+                        <span className="text-success font-bold">
                           {item.quantity}
                         </span>{" "}
                         × {item.book_price} EGP
                       </p>
                     </div>
-                    <p className="font-bold text-success">
-                      {(parseFloat(item.book_price) * item.quantity).toFixed(2)} EGP
+                    <p className="text-success font-bold">
+                      {(parseFloat(item.book_price) * item.quantity).toFixed(2)}{" "}
+                      EGP
                     </p>
                   </div>
                 ))}
@@ -289,7 +295,9 @@ export default function CheckoutPage() {
           {/* Borrow Books Section */}
           {cartItems.borrow_items?.length > 0 && (
             <div className="mb-8">
-              <h2 className="mb-4 text-2xl font-bold text-primary">Borrow Books</h2>
+              <h2 className="text-primary mb-4 text-2xl font-bold">
+                Borrow Books
+              </h2>
               <div className="space-y-4">
                 {cartItems.borrow_items.map((item) => (
                   <div
@@ -302,24 +310,30 @@ export default function CheckoutPage() {
                       className="h-24 w-20 rounded-lg object-cover"
                     />
                     <div className="flex-1">
-                      <p className="font-medium text-layout">{item.book.title}</p>
-                      <p className="text-sm text-layout/70">
+                      <p className="text-layout font-medium">
+                        {item.book.title}
+                      </p>
+                      <p className="text-layout/70 text-sm">
                         {item.book.author.name}
                       </p>
-                      <p className="mt-1 text-sm text-layout/70">
-                        <span className="font-bold text-secondary">
+                      <p className="text-layout/70 mt-1 text-sm">
+                        <span className="text-secondary font-bold">
                           {item.borrowing_weeks}
                         </span>{" "}
                         weeks × {item.borrow_fees_per_week} EGP + deposit{" "}
-                        <span className="font-bold text-success">{item.deposit_fees}</span> EGP
+                        <span className="text-success font-bold">
+                          {item.deposit_fees}
+                        </span>{" "}
+                        EGP
                       </p>
                     </div>
-                    <p className="font-bold text-success">
+                    <p className="text-success font-bold">
                       {(
                         parseFloat(item.borrow_fees_per_week) *
                           item.borrowing_weeks +
                         parseFloat(item.deposit_fees)
-                      ).toFixed(2)} EGP
+                      ).toFixed(2)}{" "}
+                      EGP
                     </p>
                   </div>
                 ))}
@@ -329,8 +343,10 @@ export default function CheckoutPage() {
 
           {/* Pickup Type Section */}
           <div className="mb-8">
-            <h2 className="mb-4 text-2xl font-bold text-primary">Pickup Type</h2>
-            <div className="space-y-4 text-layout">
+            <h2 className="text-primary mb-4 text-2xl font-bold">
+              Pickup Type
+            </h2>
+            <div className="text-layout space-y-4">
               <label
                 className={`flex cursor-pointer items-center gap-4 rounded-lg p-3 transition hover:bg-gray-50 ${
                   pickupType === PickUpType.SITE ? "bg-gray-100" : ""
@@ -342,11 +358,11 @@ export default function CheckoutPage() {
                   value={PickUpType.SITE}
                   checked={pickupType === "SITE"}
                   onChange={(e) => setPickupType(e.target.value as PickUpType.SITE)}
-                  className="form-radio h-5 w-5 text-secondary"
+                  className="form-radio text-secondary h-5 w-5"
                 />
-                <Store className="h-6 w-6 text-primary" />
+                <Store className="text-primary h-6 w-6" />
                 <span className="font-medium">On-site Pickup</span>
-                <span className="ml-auto text-sm font-bold text-success">
+                <span className="text-success ml-auto text-sm font-bold">
                   (Free)
                 </span>
               </label>
@@ -360,14 +376,12 @@ export default function CheckoutPage() {
                   name="pickup"
                   value={PickUpType.COURIER}
                   checked={pickupType === "COURIER"}
-                  onChange={(e) =>
-                    setPickupType(e.target.value as PickUpType.COURIER)
-                  }
-                  className="form-radio h-5 w-5 text-secondary"
+                  onChange={(e) => setPickupType(e.target.value as PickUpType.COURIER)}
+                  className="form-radio text-secondary h-5 w-5"
                 />
-                <Truck className="h-6 w-6 text-primary" />
+                <Truck className="text-primary h-6 w-6" />
                 <span className="font-medium">Courier Delivery</span>
-                <span className="ml-auto text-sm font-bold text-layout">
+                <span className="text-layout ml-auto text-sm font-bold">
                   (+{cartItems.delevary_fees || 0} EGP)
                 </span>
               </label>
@@ -389,7 +403,7 @@ export default function CheckoutPage() {
                   {/* Courier Info Section */}
                   {pickupType === "COURIER" && (
                     <div className="mb-8">
-                      <h2 className="mb-4 text-2xl font-bold text-primary">
+                      <h2 className="text-primary mb-4 text-2xl font-bold">
                         Delivery Details
                       </h2>
 
@@ -404,7 +418,9 @@ export default function CheckoutPage() {
                               value={input.value}
                               onChange={input.onChange}
                               error={
-                                meta.touched && meta.error ? meta.error : undefined
+                                meta.touched && meta.error
+                                  ? meta.error
+                                  : undefined
                               }
                             />
                           )}
@@ -421,7 +437,9 @@ export default function CheckoutPage() {
                               value={input.value}
                               onChange={input.onChange}
                               error={
-                                meta.touched && meta.error ? meta.error : undefined
+                                meta.touched && meta.error
+                                  ? meta.error
+                                  : undefined
                               }
                             />
                           )}
@@ -440,33 +458,35 @@ export default function CheckoutPage() {
 
                   {/* Promo Code Section */}
                   <div className="mb-8">
-                    <h2 className="mb-2 text-2xl font-bold text-primary">
+                    <h2 className="text-primary mb-2 text-2xl font-bold">
                       Promo Code
                     </h2>
                     <div className="flex w-full items-center gap-2">
-                      <Tag className="h-6 w-6 text-primary" />
+                      <Tag className="text-primary h-6 w-6" />
                       <input
                         type="text"
                         placeholder="Enter Promo Code"
                         value={promoCode}
                         onChange={(e) => setPromoCode(e.target.value)}
-                        className={`focus:ring-none w-full border-b-2 border-accent p-2 placeholder-layout/70 transition-colors focus:border-secondary focus:outline-none`}
+                        className={`focus:ring-none border-accent placeholder-layout/70 focus:border-secondary w-full border-b-2 p-2 transition-colors focus:outline-none`}
                       />
                       <MainButton
                         loading={isPromoCodePending}
                         disabled={!promoCode}
                         onClick={applyPromoCodeHandler}
+
                         className="!w-[120px] rounded-lg bg-primary px-4 py-2 text-white hover:bg-hover"
                       >
                         Apply
                       </MainButton>
                     </div>
                     {promoCodeObject?.id && (
-                      <p className="mt-2 text-sm text-success font-medium">Promo code applied!</p>
+                      <p className="text-success mt-2 text-sm font-medium">
+                        Promo code applied!
+                      </p>
                     )}
                   </div>
 
-                  {/* Prices Section */}
                   <div className="mb-8 flex flex-col items-center justify-between gap-4 font-bold">
                     {Object.keys(prices).map((key) =>
                       prices[key as keyof Prices].isZero() ? null : (
@@ -474,7 +494,9 @@ export default function CheckoutPage() {
                           key={key}
                           className="flex w-full items-center justify-between gap-2 capitalize last:border-t-2 last:border-gray-200 last:pt-4 last:text-3xl"
                         >
-                          <span className="font-medium text-layout/80">{key.replace("_", " ")}:</span>
+                          <span className="text-layout/80 font-medium">
+                            {key.replace("_", " ")}:
+                          </span>
                           <span className="text-success">
                             {key === "promo_code" ? "-" : ""}{" "}
                             {prices[key as keyof Prices]?.toFixed(2)} EGP
