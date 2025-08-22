@@ -1,2 +1,12 @@
-from . import auth, book, cart, order, promo_code, wallet , listAllUsers ,interests# noqa: F401  # noqa: F401
-
+from . import (  # noqa: F401  # noqa: F401
+    auth,
+    book,
+    cart,
+    interests,
+    listAllUsers,
+    # list_all_users,
+    order,
+    promo_code,
+    wallet,
+    manager,
+)
