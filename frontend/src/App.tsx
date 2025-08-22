@@ -38,7 +38,7 @@ import EmployeeReturnOrderDetailsPage from "./pages/employee/EmployeeRetrunOrder
 import PromoCodesPage from "./pages/employee/PromoCodesPage";
 import UpdateBookPage from "./pages/employee/UpdateBookPage";
 import AddNewUser from "./pages/manager/addNewUser";
-import Dashboard from "./pages/manager/Dashboard";
+import ManagerDashboardPage from "./pages/manager/ManagerDashboardPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import { UserRole } from "./types/User";
@@ -146,7 +146,7 @@ const App = () => {
         {/* MANAGER-only routes */}
         <Route element={<RoleBasedRoute allowedRoles={[UserRole.MANAGER]} />}>
           <Route element={<ManagerLayout />}>
-            <Route path="/manager/dashboard" element={<Dashboard />} />
+            <Route path="/manager/dashboard" element={<ManagerDashboardPage />} />
             <Route path="/manager/promo-codes" element={<PromoCodesPage />} />
             <Route
               path="/manager/promo-codes/create"
