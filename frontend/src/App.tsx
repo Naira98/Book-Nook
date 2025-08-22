@@ -8,9 +8,6 @@ import CourierLayout from "./components/courier/CourierLayout";
 import ClientWithNavbarLayout from "./components/layouts/ClientWithNavbarLayout";
 import ClientWithSidebarLayout from "./components/layouts/ClientWithSidebarLayout";
 import EmployeeLayout from "./components/staff/EmployeeLayout";
-import Home from "./pages/Home";
-import NotFoundPage from "./pages/NotFoundPage";
-import UnauthorizedPage from "./pages/UnauthorizedPage";
 import ForgetPassword from "./pages/auth/ForgetPassword";
 import Login from "./pages/auth/Login";
 import OrdersListPage from "./pages/auth/OrdersListPage";
@@ -22,6 +19,7 @@ import CartPage from "./pages/client/CartPage";
 import ChechoutPage from "./pages/client/CheckoutPage";
 import CheckoutSuccess from "./pages/client/CheckoutSuccess";
 import CurrentBorrowsPage from "./pages/client/CurrentBorrowsPage";
+import HomePage from "./pages/client/HomePage";
 import Interests from "./pages/client/Interests";
 import OrdersPage from "./pages/client/OrdersPage";
 import PurchaseBooksPage from "./pages/client/PurchaseBooksPage";
@@ -33,13 +31,16 @@ import AddAuthorPage from "./pages/employee/AddAuthorPage";
 import AddBookPage from "./pages/employee/AddBookPage";
 import AddCategoryPage from "./pages/employee/AddCategoryPage";
 import BooksTablePage from "./pages/employee/BooksTablePage";
+import CreatePromoCodePage from "./pages/employee/CreatePromoCodePage";
 import EmployeeOrderDetailsPage from "./pages/employee/EmployeeOrderDetailsPage";
 import EmployeeOrdersPage from "./pages/employee/EmployeeOrdersPage";
 import EmployeeReturnOrderDetailsPage from "./pages/employee/EmployeeRetrunOrderDetailsPage";
-import UpdateBookPage from "./pages/employee/UpdateBookPage";
-import { UserRole } from "./types/User";
 import PromoCodesPage from "./pages/employee/PromoCodesPage";
-import CreatePromoCodePage from "./pages/employee/CreatePromoCodePage";
+import UpdateBookPage from "./pages/employee/UpdateBookPage";
+import Dashboard from "./pages/manager/Dashboard";
+import NotFoundPage from "./pages/NotFoundPage";
+import UnauthorizedPage from "./pages/UnauthorizedPage";
+import { UserRole } from "./types/User";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -66,7 +67,7 @@ const App = () => {
           <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}>
             {/* Client pages with navbar */}
             <Route path="/" element={<ClientWithNavbarLayout />}>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<HomePage />} />
               <Route path="/borrow-books" element={<BorrowBooksPage />} />
               <Route path="/purchase-books" element={<PurchaseBooksPage />} />
               <Route path="/book/:bookId" element={<BookDetails />} />
@@ -119,8 +120,6 @@ const App = () => {
                 path="/staff/return-order/:orderId"
                 element={<EmployeeReturnOrderDetailsPage />}
               />
-              <Route path="/employee/promo-codes" element={<PromoCodesPage />} />
-              <Route path="/employee/promo-codes/create" element={<CreatePromoCodePage />} />
             </Route>
           </Route>
 
@@ -141,9 +140,14 @@ const App = () => {
           </Route>
 
           {/* MANAGER-only routes */}
-          <Route
-            element={<RoleBasedRoute allowedRoles={[UserRole.MANAGER]} />}
-          ></Route>
+          <Route element={<RoleBasedRoute allowedRoles={[UserRole.MANAGER]} />}>
+            <Route path="/manager/dashboard" element={<Dashboard />} />
+            <Route path="/manager/promo-codes" element={<PromoCodesPage />} />
+            <Route
+              path="/manager/promo-codes/create"
+              element={<CreatePromoCodePage />}
+            />
+          </Route>
 
           {/* Unauthorized route */}
           <Route path="/unauthorized" element={<UnauthorizedPage />} />

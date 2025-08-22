@@ -42,21 +42,24 @@ const CreatePromoCodePage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     createPromoCode(formData, {
       onSuccess: () => {
-        navigate("/employee/promo-codes");
+        navigate("/manager/promo-codes");
       },
     });
   };
 
-  const handleInputChange = (field: keyof PromoCodeCreate, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleInputChange = (
+    field: keyof PromoCodeCreate,
+    value: string | boolean,
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
 
@@ -65,10 +68,10 @@ const CreatePromoCodePage = () => {
       <Sidebar navItems={navItems} />
       <main className="w-full p-10">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="mb-8 flex items-center gap-4">
           <button
-            onClick={() => navigate("/employee/promo-codes")}
-            className="text-gray-500 hover:text-gray-700 transition-colors p-2 -ml-2"
+            onClick={() => navigate("/manager/promo-codes")}
+            className="-ml-2 p-2 text-gray-500 transition-colors hover:text-gray-700"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
@@ -80,16 +83,21 @@ const CreatePromoCodePage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Promo Code Field */}
             <div>
-              <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="code"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Promo Code *
               </label>
               <input
                 id="code"
                 type="text"
                 value={formData.code}
-                onChange={(e) => handleInputChange("code", e.target.value.toUpperCase())}
+                onChange={(e) =>
+                  handleInputChange("code", e.target.value.toUpperCase())
+                }
                 placeholder="Enter promo code (e.g., SAVE20)"
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary ${
+                className={`focus:ring-primary/50 focus:border-primary w-full rounded-lg border px-3 py-2 focus:ring-2 focus:outline-none ${
                   errors.code ? "border-red-500" : "border-gray-300"
                 }`}
               />
@@ -100,7 +108,10 @@ const CreatePromoCodePage = () => {
 
             {/* Discount Percentage Field */}
             <div>
-              <label htmlFor="discount_perc" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="discount_perc"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Discount Percentage *
               </label>
               <div className="relative">
@@ -111,18 +122,22 @@ const CreatePromoCodePage = () => {
                   max="100"
                   step="0.01"
                   value={formData.discount_perc}
-                  onChange={(e) => handleInputChange("discount_perc", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("discount_perc", e.target.value)
+                  }
                   placeholder="Enter discount percentage"
-                  className={`w-full px-3 py-2 pr-8 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary ${
+                  className={`focus:ring-primary/50 focus:border-primary w-full rounded-lg border px-3 py-2 pr-8 focus:ring-2 focus:outline-none ${
                     errors.discount_perc ? "border-red-500" : "border-gray-300"
                   }`}
                 />
-                <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                <span className="absolute top-1/2 right-3 -translate-y-1/2 transform text-gray-500">
                   %
                 </span>
               </div>
               {errors.discount_perc && (
-                <p className="mt-1 text-sm text-red-600">{errors.discount_perc}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.discount_perc}
+                </p>
               )}
             </div>
 
@@ -132,8 +147,10 @@ const CreatePromoCodePage = () => {
                 <input
                   type="checkbox"
                   checked={formData.is_active}
-                  onChange={(e) => handleInputChange("is_active", e.target.checked)}
-                  className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                  onChange={(e) =>
+                    handleInputChange("is_active", e.target.checked)
+                  }
+                  className="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300"
                 />
                 <span className="text-sm font-medium text-gray-700">
                   Active (users can use this promo code)
@@ -146,15 +163,15 @@ const CreatePromoCodePage = () => {
               <button
                 type="submit"
                 disabled={isPending}
-                className="bg-primary hover:bg-primary/90 focus:ring-primary flex items-center gap-2 rounded-lg px-6 py-3 font-semibold text-white transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-primary hover:bg-primary/90 focus:ring-primary flex cursor-pointer items-center gap-2 rounded-lg px-6 py-3 font-semibold text-white transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isPending ? <Spinner /> : <Tag className="h-5 w-5" />}
                 {isPending ? "Creating..." : "Create Promo Code"}
               </button>
               <button
                 type="button"
-                onClick={() => navigate("/employee/promo-codes")}
-                className="border border-gray-300 hover:bg-gray-50 rounded-lg px-6 py-3 font-semibold text-gray-700 transition-all duration-200"
+                onClick={() => navigate("/manager/promo-codes")}
+                className="rounded-lg border border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50"
               >
                 Cancel
               </button>
@@ -169,5 +186,5 @@ const CreatePromoCodePage = () => {
 export default CreatePromoCodePage;
 
 const navItems = [
-  { to: "/employee/promo-codes", label: "Promo Codes", icon: <Tag /> },
+  { to: "/manager/promo-codes", label: "Promo Codes", icon: <Tag /> },
 ];
