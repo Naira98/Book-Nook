@@ -9,7 +9,7 @@ import type {
   ReturnOrder,
   ReturnOrderStatus,
 } from "../../types/Orders";
-import Sidebar from "./Sidebar";
+import Sidebar from "../Sidebar";
 
 const navItems = [
   { to: "/staff/books", label: "Books", icon: <LibraryBig /> },
@@ -116,7 +116,7 @@ const EmployeeLayout = () => {
   return (
     <div className="flex">
       <Sidebar navItems={navItems} />
-      <main className="h-screen flex-1 overflow-auto bg-gray-100 p-6">
+      <main className="mx-auto h-screen max-w-7xl flex-1 overflow-auto px-8 py-16 sm:px-12 lg:px-16">
         <Outlet />
       </main>
     </div>

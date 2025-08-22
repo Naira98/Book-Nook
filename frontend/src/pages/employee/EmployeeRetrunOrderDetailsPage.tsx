@@ -91,7 +91,7 @@ const EmployeeReturnOrderDetailsPage = () => {
   const isAnyActionPending = isUpdatingStatus || isUpdatingBookProblem;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div>
       <MainButton onClick={() => navigate(-1)} className="mb-4 !w-auto px-4">
         <ArrowLeft className="mr-2" size={16} />
         Back

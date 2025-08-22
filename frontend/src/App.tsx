@@ -114,7 +114,7 @@ const App = () => {
                 element={<EmployeeOrderDetailsPage />}
               />
               <Route
-                path="/staff/return-orders/:orderId"
+                path="/staff/return-order/:orderId"
                 element={<EmployeeReturnOrderDetailsPage />}
               />
             </Route>

@@ -111,7 +111,7 @@ const EmployeeOrderCard = ({
           {isReturnOrderAndCreated ? (
             <div className="flex space-x-2">
               <MainButton
-                onClick={() => navigate(`/staff/return-orders/${order.id}`)}
+                onClick={() => navigate(`/staff/return-order/${order.id}`)}
                 className="border-layout !bg-accent !text-layout h-9 w-24 border hover:!bg-gray-200"
               >
                 Details
@@ -129,7 +129,7 @@ const EmployeeOrderCard = ({
           ) : isReturnOrderAndPickedUp ? (
             <div className="flex space-x-2">
               <MainButton
-                onClick={() => navigate(`/staff/return-orders/${order.id}`)}
+                onClick={() => navigate(`/staff/return-order/${order.id}`)}
                 className="border-layout !bg-accent !text-layout h-9 w-24 border hover:!bg-gray-200"
               >
                 Details
@@ -171,7 +171,7 @@ const EmployeeOrderCard = ({
               onClick={() => {
                 const detailsPath =
                   orderType === "return_order"
-                    ? `/staff/return-orders/${order.id}`
+                    ? `/staff/return-order/${order.id}`
                     : `/staff/order/${order.id}`;
                 navigate(detailsPath);
               }}
