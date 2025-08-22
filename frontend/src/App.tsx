@@ -37,6 +37,7 @@ import EmployeeOrdersPage from "./pages/employee/EmployeeOrdersPage";
 import EmployeeReturnOrderDetailsPage from "./pages/employee/EmployeeRetrunOrderDetailsPage";
 import PromoCodesPage from "./pages/employee/PromoCodesPage";
 import UpdateBookPage from "./pages/employee/UpdateBookPage";
+import AddNewUser from "./pages/manager/addNewUser";
 import Dashboard from "./pages/manager/Dashboard";
 import NotFoundPage from "./pages/NotFoundPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
@@ -151,6 +152,7 @@ const App = () => {
               path="/manager/promo-codes/create"
               element={<CreatePromoCodePage />}
             />
+            <Route path="/add-new-user" element={<AddNewUser />} />
           </Route>
         </Route>
 
