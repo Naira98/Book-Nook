@@ -1,6 +1,7 @@
+import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import MainButton from "../../components/shared/buttons/MainButton";
-import OrderInfo from "../../components/staff/OrderInfo";
+import EmployeeOrderInfo from "../../components/staff/EmployeeOrderInfo";
 import { useGetMe } from "../../hooks/auth/useGetMe";
 import { useChangeOrderStatus } from "../../hooks/orders/useChangeOrderStatus";
 import { useGetOrder } from "../../hooks/orders/useGetOrder";
@@ -58,14 +59,12 @@ const EmployeeOrderDetailsPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <MainButton
-        onClick={() => navigate("/staff/orders")}
-        className="mb-4 !w-auto px-4"
-      >
-        Back to Orders
+      <MainButton onClick={() => navigate(-1)} className="mb-4 !w-auto px-4">
+        <ArrowLeft className="mr-2" size={16} />
+        Back
       </MainButton>
 
-      <OrderInfo order={order} isOrder={true} />
+      <EmployeeOrderInfo order={order} isOrder={true} />
 
       <div className="mb-6 overflow-hidden rounded-lg bg-white p-6 shadow-md">
         <h3 className="text-primary mb-4 text-xl font-semibold">Order Items</h3>

@@ -17,8 +17,14 @@ interface BookDetails {
 interface BorrowOrderBookDetail {
   id: number;
   borrowing_weeks: number;
-  deposit_fees: string;
+  borrow_book_problem: BorrowBookProblem;
   borrow_fees: string;
+  actual_return_date?: string | null;
+  expected_return_date?: string | null;
+  deposit_fees: string;
+  deposit_fees_per_day: string;
+  return_order_id?: number | null;
+  original_book_price: string;
   book_details: BookDetails;
 }
 
@@ -38,6 +44,12 @@ export interface User {
 export enum PickUpType {
   COURIER = "COURIER",
   SITE = "SITE",
+}
+
+export enum BorrowBookProblem {
+  LOST = "LOST",
+  DAMAGED = "DAMAGED",
+  NORMAL = "NORMAL",
 }
 
 export enum OrderStatus {

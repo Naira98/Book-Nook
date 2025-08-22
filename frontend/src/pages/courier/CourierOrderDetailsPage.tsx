@@ -4,20 +4,17 @@ import MainButton from "../../components/shared/buttons/MainButton";
 import OrderItemsTableWithQuantity from "../../components/shared/orderCards/OrderItemsTableWithQuantity";
 import CourierOrderInfo from "../../components/staff/CourierOrderInfo";
 import { useGetMe } from "../../hooks/auth/useGetMe";
-import { useChangeReturnOrderStatus } from "../../hooks/orders/useChangeReturnOrderStatus";
-import { useGetReturnOrder } from "../../hooks/orders/useGetReturnOrder";
-import {
-  ReturnOrderStatus,
-  type changeRetrunOrderStatusRequest,
-} from "../../types/Orders";
+import { useChangeOrderStatus } from "../../hooks/orders/useChangeOrderStatus";
+import { useGetOrder } from "../../hooks/orders/useGetOrder";
+import { OrderStatus, type changeOrderStatusRequest } from "../../types/Orders";
 
-const CourierReturnOrderDetailsPage = () => {
-  const { orderId } = useParams<{ orderId: string }>();
+const CourierOrderDetailsPage = () => {
   const navigate = useNavigate();
-  const { returnOrder, isPending, error } = useGetReturnOrder(orderId);
+  const { orderId } = useParams<{ orderId: string }>();
+  const { order, isPending, error } = useGetOrder(orderId);
   const { me } = useGetMe();
-  const { changeReturnOrderStatus, isPending: isUpdatingStatus } =
-    useChangeReturnOrderStatus();
+  const { changeOrderStatus, isPending: isUpdatingStatus } =
+    useChangeOrderStatus();
 
   if (isPending) {
     return (
@@ -35,30 +32,29 @@ const CourierReturnOrderDetailsPage = () => {
     );
   }
 
-  if (!returnOrder) {
+  if (!order) {
     return <div className="py-8 text-center">Order not found</div>;
   }
 
-  const handleStatusChange = (newStatus: ReturnOrderStatus) => {
+  const handleStatusChange = (newStatus: OrderStatus) => {
     if (!me) return;
-    const payload: changeRetrunOrderStatusRequest = {
-      ...returnOrder,
-      courier_id: me.id,
-      return_order_id: returnOrder.id,
+    const payload: changeOrderStatusRequest = {
+      ...order,
+      order_id: order.id,
       status: newStatus,
     };
     console.log("payload", payload);
 
-    changeReturnOrderStatus(payload);
+    changeOrderStatus(payload);
   };
 
   const getNextAction = () => {
-    switch (returnOrder.status) {
-      case ReturnOrderStatus.CREATED:
-        handleStatusChange(ReturnOrderStatus.ON_THE_WAY);
+    switch (order.status) {
+      case OrderStatus.CREATED:
+        handleStatusChange(OrderStatus.ON_THE_WAY);
         break;
-      case ReturnOrderStatus.ON_THE_WAY:
-        handleStatusChange(ReturnOrderStatus.PICKED_UP);
+      case OrderStatus.ON_THE_WAY:
+        handleStatusChange(OrderStatus.PICKED_UP);
         break;
       default:
         return null;
@@ -68,46 +64,49 @@ const CourierReturnOrderDetailsPage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <MainButton onClick={() => navigate(-1)} className="mb-4 !w-auto px-4">
-        <ArrowLeft className="mr-2" size={16} />
+        <ArrowLeft className="mr-2" size={16}/>
         Back
       </MainButton>
 
       <div className="mb-6 overflow-hidden rounded-lg bg-white p-6 shadow-md">
         <h2 className="text-primary mb-4 text-xl font-bold">
-          Return Order Details #{returnOrder.id}
+          Order Details #{order.id}
         </h2>
-
-        <CourierOrderInfo order={returnOrder} />
+        <CourierOrderInfo order={order} />
       </div>
 
-      <OrderItemsTableWithQuantity order={returnOrder} />
+      <div className="mb-6 overflow-hidden rounded-lg bg-white p-6 shadow-md">
+        <OrderItemsTableWithQuantity order={order} />
+      </div>
 
-      {(returnOrder.status === ReturnOrderStatus.CREATED ||
-        returnOrder.status === ReturnOrderStatus.ON_THE_WAY) && (
-        <div className="flex justify-end space-x-4">
+      <div className="flex justify-end space-x-4">
+        {order.status !== "PROBLEM" && order.status !== "PICKED_UP" && (
           <MainButton
             onClick={() => {
-              handleStatusChange(ReturnOrderStatus.PROBLEM);
+              handleStatusChange(OrderStatus.PROBLEM);
             }}
             loading={isUpdatingStatus}
-            className="!w-[150px] bg-red-600 hover:bg-red-700"
+            className="!bg-error !w-[150px] hover:!bg-red-600"
           >
             Report Problem
           </MainButton>
-
+        )}
+        {order.status !== "PICKED_UP" && (
           <MainButton
             onClick={getNextAction}
             loading={isUpdatingStatus}
-            className="!w-[190px]"
+            className="!w-[160px]"
           >
-            {returnOrder.status === ReturnOrderStatus.CREATED
-              ? "Start Return Pickup"
-              : "Confirm Return Pickup"}
+            {order.status === "CREATED"
+              ? "Start Pickup"
+              : order.status === "ON_THE_WAY"
+                ? "Confirm Drop-off"
+                : "Order Completed"}
           </MainButton>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
 
-export default CourierReturnOrderDetailsPage;
+export default CourierOrderDetailsPage;

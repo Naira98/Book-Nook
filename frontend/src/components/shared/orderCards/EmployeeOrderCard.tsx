@@ -1,9 +1,4 @@
-import {
-  BookOpen,
-  CircleArrowOutUpRight,
-  Undo2,
-  User
-} from "lucide-react";
+import { BookOpen, CircleArrowOutUpRight, Undo2, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChangeOrderStatus } from "../../../hooks/orders/useChangeOrderStatus";
@@ -39,16 +34,19 @@ const EmployeeOrderCard = ({
     changeOrderStatus(values);
   };
 
-  const handleReturnStatusChange = () => {
+  const handleReturnStatusChange = (newStatus: ReturnOrderStatus) => {
     changeReturnOrderStatus({
       ...(order as ReturnOrder),
       return_order_id: order.id,
-      status: ReturnOrderStatus.CHECKING,
+      status: newStatus,
     });
   };
 
   const isReturnOrderAndCreated =
-    orderType === "return_order" && order.status === "CREATED";
+    orderType === "return_order" && order.status === ReturnOrderStatus.CREATED;
+  const isReturnOrderAndPickedUp =
+    orderType === "return_order" &&
+    order.status === ReturnOrderStatus.PICKED_UP;
   const isStandardOrderAndCreated =
     orderType === "order" && order.status === OrderStatus.CREATED;
 
@@ -110,28 +108,50 @@ const EmployeeOrderCard = ({
           {new Date(order.created_at).toLocaleString()}
         </span>
         <div className="flex space-x-2">
-          {/* Action buttons based on order type and status */}
           {isReturnOrderAndCreated ? (
             <div className="flex space-x-2">
               <MainButton
                 onClick={() => navigate(`/staff/return-orders/${order.id}`)}
                 className="border-layout !bg-accent !text-layout h-9 w-24 border hover:!bg-gray-200"
-                label="Details"
-              />
+              >
+                Details
+              </MainButton>
               <MainButton
-                onClick={handleReturnStatusChange}
+                onClick={() =>
+                  handleReturnStatusChange(ReturnOrderStatus.CHECKING)
+                }
                 loading={isChangingReturnStatus}
                 className="h-9 min-w-[140px]"
-                label="Approve Return"
-              />
+              >
+                Approve Return
+              </MainButton>
+            </div>
+          ) : isReturnOrderAndPickedUp ? (
+            <div className="flex space-x-2">
+              <MainButton
+                onClick={() => navigate(`/staff/return-orders/${order.id}`)}
+                className="border-layout !bg-accent !text-layout h-9 w-24 border hover:!bg-gray-200"
+              >
+                Details
+              </MainButton>
+              <MainButton
+                onClick={() =>
+                  handleReturnStatusChange(ReturnOrderStatus.CHECKING)
+                }
+                loading={isChangingReturnStatus}
+                className="h-9 min-w-[140px]"
+              >
+                Approve Return
+              </MainButton>
             </div>
           ) : isStandardOrderAndCreated ? (
             <div className="flex space-x-2">
               <MainButton
                 onClick={() => navigate(`/staff/order/${order.id}`)}
                 className="border-layout !bg-accent !text-layout h-9 w-24 border hover:!bg-gray-200"
-                label="Details"
-              />
+              >
+                Details
+              </MainButton>
               <MainButton
                 onClick={() => {
                   handleChangeOrderStatus({
@@ -142,8 +162,9 @@ const EmployeeOrderCard = ({
                 }}
                 loading={isPending}
                 className="h-9 min-w-[140px]"
-                label="Approve Pickup"
-              />
+              >
+                Approve Pickup
+              </MainButton>
             </div>
           ) : (
             <MainButton
@@ -155,8 +176,9 @@ const EmployeeOrderCard = ({
                 navigate(detailsPath);
               }}
               className="border-layout !bg-accent !text-layout h-9 w-24 border hover:!bg-gray-200"
-              label="Details"
-            />
+            >
+              Details
+            </MainButton>
           )}
         </div>
       </div>

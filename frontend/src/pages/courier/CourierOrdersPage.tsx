@@ -1,4 +1,15 @@
-import { useState, useMemo } from "react";
+import {
+  AlertTriangle,
+  CheckCircle,
+  ClockPlus,
+  Info,
+  Loader,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import NoOrders from "../../components/courier/OrderPage/NoOrders";
+import CourierOrderCard from "../../components/shared/orderCards/CourierOrderCard";
+import { useGetMe } from "../../hooks/auth/useGetMe";
 import { useGetAllOrders } from "../../hooks/orders/useGetAllOrders";
 import {
   PickUpType,
@@ -6,81 +17,49 @@ import {
   type OrderStatus,
   type ReturnOrderStatus,
 } from "../../types/Orders";
-// import EmployeeOrderCard from "../../components/shared/orderCards/OrderCard";
-import ReturnOrderCard from "../../components/shared/orderCards/ReturnOrderCard";
-import NoOrders from "../../components/courier/OrderPage/NoOrders";
-import { useGetMe } from "../../hooks/auth/useGetMe";
 
 const CourierOdersPage = () => {
   const { allOrders, isPending } = useGetAllOrders(PickUpType.COURIER);
-  const [activeTab, setActiveTab] = useState("Pending Orders");
   const [newOrderAlert] = useState<string[]>([]);
   const { me } = useGetMe();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "Pending Orders";
+  const setActiveTab = (tab: string) => setSearchParams({ tab });
+
   const orders: AllOrdersResponse | null = useMemo(
     () => allOrders || null,
     [allOrders],
   );
 
-  const getStatusColor = (status: OrderStatus | ReturnOrderStatus) => {
-    switch (status) {
-      case "CREATED":
-        return "bg-amber-50 text-amber-700";
-      case "ON_THE_WAY":
-        return "bg-blue-50 text-secondary";
-      case "PICKED_UP":
-        return "bg-green-50 text-green-700";
-      case "PROBLEM":
-        return "bg-red-50 text-red-700";
-      default:
-        return "bg-gray-50 text-gray-700";
-    }
-  };
-
-  const getStatusIcon = (status: OrderStatus | ReturnOrderStatus) => {
-    switch (status) {
-      case "CREATED":
-        return "🕒";
-      case "ON_THE_WAY":
-        return "🚚";
-      case "PICKED_UP":
-        return "✅";
-      case "PROBLEM":
-        return "⚠️";
-      default:
-        return "ℹ️";
-    }
-  };
-
   const displayOrders = useMemo(() => {
     if (!orders) return null;
 
-    if (activeTab === "my return orders") {
+    if (activeTab === "Pending Orders") {
+      return {
+        orders: orders.orders?.filter((o) => o.status === "CREATED"),
+        return_orders: [],
+      };
+    } else if (activeTab === "Pending Returns") {
+      return {
+        orders: [],
+        return_orders: orders.return_orders?.filter(
+          (o) => o.status === "CREATED",
+        ),
+      };
+    } else if (activeTab === "My Returns") {
       return {
         orders: [],
         return_orders: orders.return_orders?.filter(
           (o) => o.courier_id === me?.id,
         ),
       };
-    }
-
-    if (activeTab === "my orders") {
+    } else if (activeTab === "My Orders") {
       return {
         orders: orders.orders?.filter((o) => o.courier_id === me?.id),
         return_orders: [],
       };
     }
-
-    return activeTab === "Pending Orders"
-      ? {
-          orders: orders.orders?.filter((o) => o.status === "CREATED"),
-          return_orders: [],
-        }
-      : {
-          orders: [],
-          return_orders: orders.return_orders?.filter(
-            (o) => o.status === "CREATED",
-          ),
-        };
   }, [activeTab, orders, me?.id]);
 
   return (
@@ -116,24 +95,23 @@ const CourierOdersPage = () => {
             <NoOrders activeTab={activeTab} />
           ) : (
             <>
-              {/* {displayOrders?.orders?.map((order) => (
-                <EmployeeOrderCard
+              {displayOrders?.orders?.map((order) => (
+                <CourierOrderCard
                   key={order.id}
                   order={order}
-                  getStatusIcon={getStatusIcon}
                   getStatusColor={getStatusColor}
-                  pickUpType={PickUpType.COURIER}
+                  getStatusIcon={getStatusIcon}
+                  orderType="order"
                 />
-              ))} */}
+              ))}
 
               {displayOrders?.return_orders?.map((returnOrder) => (
-                <ReturnOrderCard
+                <CourierOrderCard
                   key={returnOrder.id}
-                  returnOrder={returnOrder}
-                  getStatusIcon={getStatusIcon}
+                  order={returnOrder}
                   getStatusColor={getStatusColor}
-                  pickUpType={PickUpType.COURIER}
-                  view="COURIER"
+                  getStatusIcon={getStatusIcon}
+                  orderType="return_order"
                 />
               ))}
             </>
@@ -146,9 +124,37 @@ const CourierOdersPage = () => {
 
 export default CourierOdersPage;
 
-const tabs = [
-  "Pending Orders",
-  "return orders",
-  "my orders",
-  "my return orders",
-];
+const tabs = ["Pending Orders", "Pending Returns", "My Orders", "My Returns"];
+
+const getStatusColor = (status: OrderStatus | ReturnOrderStatus) => {
+  switch (status) {
+    case "CREATED":
+      return "bg-blue-100 text-primary";
+    case "ON_THE_WAY":
+    case "CHECKING":
+      return "bg-orange-100 text-orange-800";
+    case "PICKED_UP":
+    case "DONE":
+      return "bg-green-100 text-green-800";
+    case "PROBLEM":
+      return "bg-red-100 text-red-800";
+    default:
+      return "bg-accent text-layout";
+  }
+};
+
+const getStatusIcon = (status: OrderStatus | ReturnOrderStatus) => {
+  switch (status) {
+    case "CREATED":
+      return <ClockPlus size={16} />;
+    case "PICKED_UP":
+    case "DONE":
+      return <CheckCircle size={16} />;
+    case "PROBLEM":
+      return <AlertTriangle size={16} />;
+    case "CHECKING":
+      return <Loader size={16} />;
+    default:
+      return <Info size={16} />;
+  }
+};

@@ -504,6 +504,7 @@ async def update_order_status(
 async def update_borrow_order_book_status(
     borrow_order_book_id: Annotated[int, Body()],
     new_status: Annotated[BorrowBookProblem, Body()],
+    user: Annotated[User, Depends(get_user_via_session)],
     db: AsyncSession = Depends(get_db),
 ):
     try:
@@ -521,45 +522,51 @@ async def update_borrow_order_book_status(
                 detail=f"Borrow order book with id {borrow_order_book_id} not found.",
             )
 
-        if borrow_order_book.borrow_book_problem != BorrowBookProblem.NORMAL:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Cannot update status from {borrow_order_book.borrow_book_problem.value} to {new_status.value}. Only updates from NORMAL are allowed to a non-NORMAL state.",
-            )
+        if user.role == UserRole.CLIENT:
+            if borrow_order_book.borrow_book_problem != BorrowBookProblem.NORMAL:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Cannot update status from {borrow_order_book.borrow_book_problem.value} to {new_status.value}. Only updates from NORMAL are allowed to a non-NORMAL state.",
+                )
 
-        if (
-            new_status == BorrowBookProblem.LOST
-            or new_status == BorrowBookProblem.DAMAGED
-        ):
-            # TODO: send notification to user about the problem
+            if (
+                new_status == BorrowBookProblem.LOST
+                or new_status == BorrowBookProblem.DAMAGED
+            ):
+                # TODO: send notification to user about the problem
 
-            # TODO: what if book is damaged should all its fees be charged?        no deposit returned
-            # TODO: What should happen if user has insufficient funds in wallet?
-            # TODO: if promocode applied, should it be considered in the fees?     no deposit returned
-            # TODO: if it's lost => wallet can be negative
+                # TODO: what if book is damaged should all its fees be charged?        no deposit returned
+                # TODO: What should happen if user has insufficient funds in wallet?
+                # TODO: if promocode applied, should it be considered in the fees?     no deposit returned
+                # TODO: if it's lost => wallet can be negative
 
-            borrow_order_book.user.current_borrowed_books -= 1
+                borrow_order_book.user.current_borrowed_books -= 1
 
-            plenty_fees = borrow_order_book.original_book_price - (
-                borrow_order_book.deposit_fees + borrow_order_book.borrow_fees
-            )
-            await pay_from_wallet(
-                db=db,
-                user=borrow_order_book.user,
-                amount=plenty_fees,
-                description=f"Charge for lost or damaged book (ID: {borrow_order_book.book_details_id})",
-            )
+                plenty_fees = borrow_order_book.original_book_price - (
+                    borrow_order_book.deposit_fees + borrow_order_book.borrow_fees
+                )
+                await pay_from_wallet(
+                    db=db,
+                    user=borrow_order_book.user,
+                    amount=plenty_fees,
+                    description=f"Charge for lost or damaged book (ID: {borrow_order_book.book_details_id})",
+                    apply_negative_balance=True,
+                )
 
-        borrow_order_book.actual_return_date = datetime.now()
+            borrow_order_book.actual_return_date = datetime.now()
 
-        borrow_order_book.borrow_book_problem = new_status
+            borrow_order_book.borrow_book_problem = new_status
+
+        # Any staff member
+        else:
+            borrow_order_book.borrow_book_problem = new_status
+
         await db.commit()
 
         return {
             "message": f"Borrow order book status updated successfully to {new_status.value}",
             "borrow_order_book_id": borrow_order_book.id,
         }
-
     except HTTPException as e:
         await db.rollback()
         raise e

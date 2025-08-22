@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import logo from "../../assets/light-bg-logo.svg";
 import { useGetMe } from "../../hooks/auth/useGetMe";
+import { useLogout } from "../../hooks/auth/useLogout";
 
 interface SidebarProps {
   navItems: { to: string; label: string; icon: ReactNode }[];
@@ -12,6 +13,7 @@ interface SidebarProps {
 const Sidebar = ({ navItems }: SidebarProps) => {
   const { me } = useGetMe();
   const location = useLocation();
+  const { logout } = useLogout();
 
   return (
     <aside className="flex h-screen w-16 flex-col justify-between bg-sky-950 text-white transition-all duration-300 md:w-48 lg:w-64">
@@ -73,6 +75,7 @@ const Sidebar = ({ navItems }: SidebarProps) => {
               )}
               role="button"
               tabIndex={0}
+              onClick={() => logout()}
             >
               <LogOut className="md:h-5 md:w-5" />
               <span className="ml-2 hidden text-xs md:block lg:ml-3 lg:text-sm">

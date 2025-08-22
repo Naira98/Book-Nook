@@ -3,7 +3,7 @@ import {
   CheckCircle,
   ClockPlus,
   Info,
-  Loader
+  Loader,
 } from "lucide-react";
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -30,40 +30,6 @@ const EmployeeOrdersPage = () => {
     [allOrders],
   );
 
-  const getStatusColor = (status: OrderStatus | ReturnOrderStatus) => {
-    switch (status) {
-      case "CREATED":
-        return "bg-blue-100 text-primary";
-      case "ON_THE_WAY":
-      case "CHECKING":
-        return "bg-orange-100 text-orange-800";
-      case "PICKED_UP":
-      case "DONE":
-        return "bg-green-100 text-green-800";
-      case "PROBLEM":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-accent text-layout";
-    }
-  };
-
-  const getStatusIcon = (status: OrderStatus | ReturnOrderStatus) => {
-    switch (status) {
-      case "CREATED":
-        return <ClockPlus size={16} />;
-      case "PICKED_UP":
-        return <CheckCircle size={16} />;
-      case "DONE":
-        return <CheckCircle size={16} />;
-      case "PROBLEM":
-        return <AlertTriangle size={16} />;
-      case "CHECKING":
-        return <Loader size={16} />; // Can represent an item being checked
-      default:
-        return <Info size={16} />;
-    }
-  };
-
   const displayOrders = useMemo(() => {
     if (!orders) return null;
 
@@ -77,14 +43,14 @@ const EmployeeOrdersPage = () => {
         return {
           orders: [],
           return_orders: orders.return_orders?.filter(
-            (o) => o.status === "CREATED",
+            (o) => o.status === "CREATED" || o.status === "PICKED_UP",
           ),
         };
       case "Quality Check":
         return {
           orders: [],
           return_orders: orders.return_orders?.filter(
-            (o) => o.status === "PICKED_UP" || o.status === "CHECKING",
+            (o) => o.status === "CHECKING",
           ),
         };
       case "Done Orders":
@@ -173,3 +139,37 @@ const tabs = [
   "Quality Check",
   "Done Orders",
 ];
+
+
+  const getStatusColor = (status: OrderStatus | ReturnOrderStatus) => {
+    switch (status) {
+      case "CREATED":
+        return "bg-blue-100 text-primary";
+      case "ON_THE_WAY":
+      case "CHECKING":
+        return "bg-orange-100 text-orange-800";
+      case "PICKED_UP":
+      case "DONE":
+        return "bg-green-100 text-green-800";
+      case "PROBLEM":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-accent text-layout";
+    }
+  };
+
+  const getStatusIcon = (status: OrderStatus | ReturnOrderStatus) => {
+    switch (status) {
+      case "CREATED":
+        return <ClockPlus size={16} />;
+      case "PICKED_UP":
+      case "DONE":
+        return <CheckCircle size={16} />;
+      case "PROBLEM":
+        return <AlertTriangle size={16} />;
+      case "CHECKING":
+        return <Loader size={16} />;
+      default:
+        return <Info size={16} />;
+    }
+  };
