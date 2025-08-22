@@ -8,7 +8,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import ToggleButton from "../../components/shared/buttons/ToggleButton";
 import Spinner from "../../components/shared/Spinner";
-import TrailSideBar from "../../components/TrailSideBar";
+import Sidebar from "../../components/Sidebar";
 import { useUpdatePromoCode } from "../../hooks/promoCodes/useUpdatePromoCode";
 import apiReq from "../../services/apiReq";
 import type { PromoCodeData } from "../../types/promoCode";
@@ -49,7 +49,7 @@ const PromoCodesPage = () => {
 
   return (
     <div className="flex">
-      <TrailSideBar navItems={navItems} />
+      <Sidebar navItems={navItems} />
       <main className="w-full p-10">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold">Promo Codes</h1>

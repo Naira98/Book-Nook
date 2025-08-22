@@ -79,8 +79,8 @@ const EmployeeOrdersPage = () => {
               key={tab}
               className={`cursor-pointer px-1 pb-4 font-semibold capitalize transition-colors duration-200 ${
                 activeTab === tab
-                  ? "text-primary border-primary border-b"
-                  : "text-layout/80 hover:text-primary"
+                  ? "text-secondary border-secondary border-b"
+                  : "text-layout/80 hover:text-secondary"
               }`}
               onClick={() => {
                 setActiveTab(tab);
