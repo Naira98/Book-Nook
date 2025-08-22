@@ -21,6 +21,8 @@ import BorrowBooksPage from "./pages/client/BorrowBooksPage";
 import CartPage from "./pages/client/CartPage";
 import ChechoutPage from "./pages/client/CheckoutPage";
 import CheckoutSuccess from "./pages/client/CheckoutSuccess";
+import ClientOrderDetailsPage from "./pages/client/ClientOrderDetailsPage";
+import ClientReturnOrderDetailsPage from "./pages/client/ClientReturnOrderDetailsPage";
 import CurrentBorrowsPage from "./pages/client/CurrentBorrowsPage";
 import Interests from "./pages/client/Interests";
 import OrdersPage from "./pages/client/OrdersPage";
@@ -33,15 +35,14 @@ import AddAuthorPage from "./pages/employee/AddAuthorPage";
 import AddBookPage from "./pages/employee/AddBookPage";
 import AddCategoryPage from "./pages/employee/AddCategoryPage";
 import BooksTablePage from "./pages/employee/BooksTablePage";
+import CreatePromoCodePage from "./pages/employee/CreatePromoCodePage";
 import EmployeeOrderDetailsPage from "./pages/employee/EmployeeOrderDetailsPage";
 import EmployeeOrdersPage from "./pages/employee/EmployeeOrdersPage";
 import EmployeeReturnOrderDetailsPage from "./pages/employee/EmployeeRetrunOrderDetailsPage";
-import UpdateBookPage from "./pages/employee/UpdateBookPage";
-import { UserRole } from "./types/User";
 import PromoCodesPage from "./pages/employee/PromoCodesPage";
-import CreatePromoCodePage from "./pages/employee/CreatePromoCodePage";
-import ClientOrderDetailsPage from "./pages/client/ClientOrderDetailsPage";
-import ClientReturnOrderDetailsPage from "./pages/client/ClientReturnOrderDetailsPage";
+import UpdateBookPage from "./pages/employee/UpdateBookPage";
+import AddNewUser from './pages/manager/addNewUser';
+import { UserRole } from "./types/User";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -159,7 +160,9 @@ const App = () => {
           {/* MANAGER-only routes */}
           <Route
             element={<RoleBasedRoute allowedRoles={[UserRole.MANAGER]} />}
-          ></Route>
+          >
+            <Route path="/add-new-user" element={<AddNewUser />} />
+          </Route>
 
           {/* Unauthorized route */}
           <Route path="/unauthorized" element={<UnauthorizedPage />} />

@@ -88,3 +88,11 @@ async def get_staff_user(user: User = Depends(get_user_via_session)):
             detail="You do not have permission to perform this action.",
         )
     return user
+
+def manager_required(current_user: User = Depends(get_user_via_session)):
+    if current_user.role != UserRole.MANAGER:  # adjust field name if it's "role" or "user_role"
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to access this resource",
+        )
+    return current_user
