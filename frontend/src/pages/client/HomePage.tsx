@@ -1,16 +1,16 @@
-import { SwiperSlide } from "swiper/react";
-import "../../node_modules/swiper/modules/navigation.css";
-import "../../node_modules/swiper/modules/pagination.css";
-import "../../node_modules/swiper/swiper.css";
-import HeroSection from "../components/home/HeroSection";
-import PromoCodeDiscount from "../components/home/PromoCodeDiscount";
-import HomeSlider from "../components/shared/HomeSlider";
-import { useGetBorrowBooks } from "../hooks/books/useGetBorrowBooks";
-import OurServices from "../components/home/OurServices";
-import { useGetPurchaseBooks } from "../hooks/books/useGetPruchaseBooks";
 import { useNavigate } from "react-router-dom";
+import { SwiperSlide } from "swiper/react";
+import HeroSection from "../../components/home/HeroSection";
+import OurServices from "../../components/home/OurServices";
+import PromoCodeDiscount from "../../components/home/PromoCodeDiscount";
+import HomeSlider from "../../components/shared/HomeSlider";
+import { useGetBorrowBooks } from "../../hooks/books/useGetBorrowBooks";
+import { useGetPurchaseBooks } from "../../hooks/books/useGetPruchaseBooks";
+import "../../../node_modules/swiper/modules/navigation.css";
+import "../../../node_modules/swiper/modules/pagination.css";
+import "../../../node_modules/swiper/swiper.css";
 
-export default function Home() {
+export default function HomePage() {
   const { books: borrowBooks } = useGetBorrowBooks();
   const { books: purchaseBooks } = useGetPurchaseBooks();
   const navigate = useNavigate();
@@ -40,7 +40,6 @@ export default function Home() {
       <HomeSlider
         title="Available Purchase Books"
         to="/purchase-books"
-        // containerClassName="mb-16"
       >
         {purchaseBooks?.map((book) => (
           <SwiperSlide

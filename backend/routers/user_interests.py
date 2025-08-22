@@ -7,13 +7,13 @@ from schemas.user_interests import InterestsRequest, InterestsResponse
 from models.user import User
 
 # Router for handling user interests
-router = APIRouter(
+interests_router = APIRouter(
     prefix="/api/interests",
     tags=["Interests"],
 )
 
 
-@router.put("/", response_model=InterestsResponse)
+@interests_router.put("/", response_model=InterestsResponse)
 async def set_user_interests(
     request: InterestsRequest,
     db: AsyncSession = Depends(get_db),
@@ -31,7 +31,7 @@ async def set_user_interests(
     )
 
 
-@router.get("/", response_model=InterestsResponse)
+@interests_router.get("/", response_model=InterestsResponse)
 async def fetch_user_interests(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_user_via_session),

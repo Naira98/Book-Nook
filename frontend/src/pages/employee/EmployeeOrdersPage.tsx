@@ -11,14 +11,13 @@ import NoOrders from "../../components/courier/OrderPage/NoOrders";
 import EmployeeOrderCard from "../../components/shared/orderCards/EmployeeOrderCard";
 import { useGetAllOrders } from "../../hooks/orders/useGetAllOrders";
 import {
-  PickUpType,
   type AllOrdersResponse,
   type OrderStatus,
   type ReturnOrderStatus,
 } from "../../types/Orders";
 
 const EmployeeOrdersPage = () => {
-  const { allOrders, isPending } = useGetAllOrders(PickUpType.SITE);
+  const { allOrders, isPending } = useGetAllOrders();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const activeTab = searchParams.get("tab") || "Pending Pickups";

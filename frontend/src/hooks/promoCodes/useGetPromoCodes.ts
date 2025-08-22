@@ -2,19 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import apiReq from "../../services/apiReq";
 import type { PromoCodeData } from "../../types/promoCode";
 
-export const useGetPromoCodes = (adminView: boolean = false) => {
-  const {
-    data: promoCodes,
-    isPending,
-    error,
-  } = useQuery<PromoCodeData[]>({
-    queryKey: ["promoCodes", adminView ? "admin" : "public"],
+export const useGetPromoCodes = () => {
+  const { data: promoCodes, isPending } = useQuery<PromoCodeData[]>({
+    queryKey: ["promoCodes"],
     queryFn: async () => {
-      const endpoint = adminView ? "/promo-codes" : "/promo-codes";
-      return await apiReq("GET", endpoint);
+      return await apiReq("GET", "/promo-codes");
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 
-  return { promoCodes, isPending, error };
+  return { promoCodes, isPending };
 };

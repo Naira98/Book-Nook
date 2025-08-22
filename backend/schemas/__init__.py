@@ -1,1 +1,1 @@
-from . import auth ,listAllUsers # noqa: F401
+from . import auth ,listAllUsers, manager # noqa: F401

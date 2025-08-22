@@ -1,27 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
-import {
-  Calendar,
-  ClipboardClock,
-  Plus,
-  Tag,
-} from "lucide-react";
+import { ClipboardClock, Plus, Tag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ToggleButton from "../../components/shared/buttons/ToggleButton";
 import Spinner from "../../components/shared/Spinner";
-import Sidebar from "../../components/Sidebar";
+import { useGetPromoCodes } from "../../hooks/promoCodes/useGetPromoCodes";
 import { useUpdatePromoCode } from "../../hooks/promoCodes/useUpdatePromoCode";
-import apiReq from "../../services/apiReq";
-import type { PromoCodeData } from "../../types/promoCode";
 
 const PromoCodesPage = () => {
   const navigate = useNavigate();
-  const { data: promoCodes, isPending } = useQuery<PromoCodeData[]>({
-    queryKey: ["promoCodes"],
-    queryFn: async () => {
-      return await apiReq("GET", "/promo-codes");
-    },
-    staleTime: 1000 * 60 * 5,
-  });
+  const { promoCodes, isPending } = useGetPromoCodes();
   const { updatePromoCode } = useUpdatePromoCode();
 
   if (isPending) return <Spinner />;
@@ -35,13 +21,13 @@ const PromoCodesPage = () => {
 
   const getStatusBadge = (isActive: boolean) => {
     return isActive ? (
-      <span className="w-[70px] flex justify-center items-center gap-1 px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
-        <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+      <span className="flex w-[70px] items-center justify-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
+        <div className="h-1.5 w-1.5 rounded-full bg-green-500"></div>
         Active
       </span>
     ) : (
-      <span className="w-[70px] flex justify-center items-center gap-1 px-2 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">
-        <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+      <span className="flex w-[70px] items-center justify-center gap-1 rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-700">
+        <div className="h-1.5 w-1.5 rounded-full bg-red-500"></div>
         Inactive
       </span>
     );
@@ -49,13 +35,12 @@ const PromoCodesPage = () => {
 
   return (
     <div className="flex">
-      <Sidebar navItems={navItems} />
       <main className="w-full p-10">
-        <div className="flex items-center justify-between mb-8">
+        <div className="mb-8 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Promo Codes</h1>
           <button
-            onClick={() => navigate("/employee/promo-codes/create")}
-            className="bg-primary hover:bg-primary/90 focus:ring-primary flex items-center gap-2 rounded-lg px-6 py-3 font-semibold text-white transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+            onClick={() => navigate("/manager/promo-codes/create")}
+            className="bg-primary hover:bg-primary/90 focus:ring-primary flex cursor-pointer items-center gap-2 rounded-lg px-6 py-3 font-semibold text-white transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none"
           >
             <Plus className="h-5 w-5" />
             Create New
@@ -63,16 +48,20 @@ const PromoCodesPage = () => {
         </div>
 
         {/* Header */}
-        <div className="bg-gray-50 border-b border-gray-200 px-6 py-4 grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-6 border-b border-gray-200 bg-gray-50 px-6 py-4">
           <div className="flex items-center gap-2">
             <Tag className="h-4 w-4 text-gray-400" />
             <span className="text-sm font-semibold text-gray-600">Code</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-gray-600">Discount</span>
+            <span className="text-sm font-semibold text-gray-600">
+              Discount
+            </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-gray-600">Status & Actions</span>
+            <span className="text-sm font-semibold text-gray-600">
+              Status & Actions
+            </span>
           </div>
         </div>
 
@@ -81,7 +70,9 @@ const PromoCodesPage = () => {
           {!promoCodes || promoCodes.length === 0 ? (
             <div className="py-12 text-center text-gray-500">
               <ClipboardClock className="mx-auto mb-4 h-16 w-16 text-gray-300" />
-              <p className="text-lg font-medium text-gray-900 mb-2">No promo codes found</p>
+              <p className="mb-2 text-lg font-medium text-gray-900">
+                No promo codes found
+              </p>
               <p>Start by creating your first promo code</p>
             </div>
           ) : (
@@ -90,10 +81,10 @@ const PromoCodesPage = () => {
                 key={promoCode.id}
                 className="px-6 py-4 transition-colors hover:bg-gray-50"
               >
-                <div className="grid grid-cols-3 gap-6 items-center">
+                <div className="grid grid-cols-3 items-center gap-6">
                   {/* Code Column */}
                   <div className="flex-1">
-                    <div className="font-medium text-gray-900 text-lg">
+                    <div className="text-lg font-medium text-gray-900">
                       {promoCode.code}
                     </div>
                     <div className="text-sm text-gray-500">
@@ -123,7 +114,7 @@ const PromoCodesPage = () => {
                           handleToggleActive(promoCode.id, promoCode.is_active)
                         }
                       />
-                    </div>  
+                    </div>
                   </div>
                 </div>
               </div>
@@ -136,9 +127,3 @@ const PromoCodesPage = () => {
 };
 
 export default PromoCodesPage;
-
-const navItems = [
-  { to: "/employee/promo-codes", label: "Promo Codes", icon: <Tag /> },
-  { to: "/employee/books", label: "Books", icon: <ClipboardClock /> },
-  { to: "/employee/orders", label: "Orders", icon: <Calendar /> },
-];
