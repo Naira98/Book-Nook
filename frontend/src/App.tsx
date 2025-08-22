@@ -26,16 +26,16 @@ import Interests from "./pages/client/Interests";
 import OrdersPage from "./pages/client/OrdersPage";
 import PurchaseBooksPage from "./pages/client/PurchaseBooksPage";
 import TransactionsPage from "./pages/client/TransactionsPage";
-import CourierOrderDetailsPage from "./pages/courier/OrderDetailsPage";
-import OrderPage from "./pages/courier/OrdersPage";
-import CourierReturnOrderDetailsPage from "./pages/courier/RetrunOrderDetailsPage";
+import CourierOrderDetailsPage from "./pages/courier/CourierOrderDetailsPage";
+import CourierOrdersPage from "./pages/courier/CourierOrdersPage";
+import CourierReturnOrderDetailsPage from "./pages/courier/CourierRetrunOrderDetailsPage";
 import AddAuthorPage from "./pages/employee/AddAuthorPage";
 import AddBookPage from "./pages/employee/AddBookPage";
 import AddCategoryPage from "./pages/employee/AddCategoryPage";
 import BooksTablePage from "./pages/employee/BooksTablePage";
-import EmployeeOrderDetailsPage from "./pages/employee/OrderDetailsPage";
-import StaffOrdersPage from "./pages/employee/OrdersPage";
-import EmployeeReturnOrderDetailsPage from "./pages/employee/RetrunOrderDetailsPage";
+import EmployeeOrderDetailsPage from "./pages/employee/EmployeeOrderDetailsPage";
+import EmployeeOrdersPage from "./pages/employee/EmployeeOrdersPage";
+import EmployeeReturnOrderDetailsPage from "./pages/employee/EmployeeRetrunOrderDetailsPage";
 import UpdateBookPage from "./pages/employee/UpdateBookPage";
 import { UserRole } from "./types/User";
 import PromoCodesPage from "./pages/employee/PromoCodesPage";
@@ -64,6 +64,7 @@ const App = () => {
 
           {/* CLIENT-only routes */}
           <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}>
+            {/* Client pages with navbar */}
             <Route path="/" element={<ClientWithNavbarLayout />}>
               <Route path="/" element={<Home />} />
               <Route path="/borrow-books" element={<BorrowBooksPage />} />
@@ -79,6 +80,7 @@ const App = () => {
               <Route path="/orders-history" element={<OrdersPage />} />
               <Route path="/current-borrows" element={<CurrentBorrowsPage />} />
             </Route>
+
             <Route path="/transaction-success" element={<CheckoutSuccess />} />
           </Route>
 
@@ -108,13 +110,13 @@ const App = () => {
                 path="/staff/books/update-book/:book_id"
                 element={<UpdateBookPage />}
               />
-              <Route path="/employee/orders" element={<StaffOrdersPage />} />
+              <Route path="/staff/orders" element={<EmployeeOrdersPage />} />
               <Route
-                path="/employee/orders/:id"
+                path="/staff/order/:orderId"
                 element={<EmployeeOrderDetailsPage />}
               />
               <Route
-                path="/employee/return-orders/:id"
+                path="/staff/return-order/:orderId"
                 element={<EmployeeReturnOrderDetailsPage />}
               />
               <Route path="/employee/promo-codes" element={<PromoCodesPage />} />
@@ -125,10 +127,13 @@ const App = () => {
           {/* COURIER-only routes */}
           <Route element={<RoleBasedRoute allowedRoles={[UserRole.COURIER]} />}>
             <Route element={<CourierLayout />}>
-              <Route path="/courier/orders" element={<OrderPage />} />
-              <Route path="/order/:id" element={<CourierOrderDetailsPage />} />
+              <Route path="/courier/orders" element={<CourierOrdersPage />} />
               <Route
-                path="/return-order/:id"
+                path="/courier/order/:orderId"
+                element={<CourierOrderDetailsPage />}
+              />
+              <Route
+                path="/courier/return-order/:orderId"
                 element={<CourierReturnOrderDetailsPage />}
               />
               <Route path="/orders" element={<OrdersListPage />} />

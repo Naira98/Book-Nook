@@ -1,7 +1,8 @@
 import { Calendar, AlertTriangle, CheckCircle } from "lucide-react";
 import type { IClientBorrows } from "../../types/ReturnOrder";
 import { formatDate, formatMoney } from "../../utils/formatting";
-import { useMarkBookAsLost } from "../../hooks/orders/useMarkBookAsLost";
+import { useUpdateBorrowOrderBookProblem } from "../../hooks/orders/useUpdateBorrowOrderBookProblem";
+import { BorrowBookProblem } from "../../types/Orders";
 
 interface BorrowedBookItemProps {
   borrowedBook: IClientBorrows;
@@ -16,7 +17,8 @@ const BorrowedBookItem = ({
   onSelect,
   showActions = true,
 }: BorrowedBookItemProps) => {
-  const { markBookAsLost, isPending } = useMarkBookAsLost();
+  const { updateBorrowBookProblem, isPending } =
+    useUpdateBorrowOrderBookProblem();
 
   const now = new Date();
   const expectedReturnDate = new Date(borrowedBook.expected_return_date);
@@ -36,9 +38,9 @@ const BorrowedBookItem = ({
   const netRefund = depositAmount - delayFees;
 
   const handleMarkAsLost = async () => {
-    markBookAsLost({
+    updateBorrowBookProblem({
       borrow_order_book_id: borrowedBook.book_details_id,
-      new_status: "LOST",
+      new_status: BorrowBookProblem.LOST,
     });
   };
 

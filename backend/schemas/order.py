@@ -77,6 +77,7 @@ class OrderResponseSchema(BaseModel):
 class GetAllOrdersUserResponse(BaseModel):
     first_name: str
     last_name: str
+    email: str
     pass
 
 

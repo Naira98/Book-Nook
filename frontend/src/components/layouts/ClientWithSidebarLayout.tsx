@@ -1,11 +1,11 @@
 import { ArrowRightLeft, BookOpen, ShoppingBag } from "lucide-react";
 import { Outlet } from "react-router-dom";
-import TrailSideBar from "../TrailSideBar";
+import Sidebar from "../Sidebar";
 
 const ClientWithSidebarLayout = () => {
   return (
     <div className="flex">
-      <TrailSideBar navItems={navItems} />
+      <Sidebar navItems={navItems} />
       <main className="h-screen w-full flex-1 overflow-auto p-10">
         <Outlet />
       </main>
