@@ -253,3 +253,52 @@ class PurchaseBookItem(TypedDict):
 class UserCart(TypedDict):
     borrow_books: List[BorrowBookItem]
     purchase_books: List[PurchaseBookItem]
+
+
+class UserOrderDetails(BaseModel):
+    id: int
+    created_at: datetime
+    address: Optional[str | None] = None
+    pickup_date: Optional[datetime | None] = None
+    status: OrderStatus
+    phone_number: Optional[str | None] = None
+    delivery_fees: Optional[Decimal | None] = None
+    promo_code_id: Optional[int | None] = None
+    pickup_type: PickUpType
+    borrow_order_books_details: List[BorrowOrderBookSchema]
+    purchase_order_books_details: List[PurchaseOrderBookSchema]
+    total_price: Decimal = Decimal("0.0")
+
+    @model_validator(mode="before")
+    @classmethod
+    def prepare_data(cls, data: Order):
+        total_price = Decimal("0.0")
+        if data.delivery_fees:
+            total_price += data.delivery_fees
+
+        for book in data.borrow_order_books_details:
+            total_price += (book.borrow_fees * book.borrowing_weeks) + book.deposit_fees
+
+        for book in data.purchase_order_books_details:
+            total_price += book.paid_price_per_book * book.quantity
+
+        return {
+            "id": data.id,
+            "created_at": data.created_at,
+            "address": data.address,
+            "pickup_date": data.pickup_date,
+            "status": data.status,
+            "phone_number": data.phone_number,
+            "delivery_fees": data.delivery_fees,
+            "promo_code_id": data.promo_code_id,
+            "pickup_type": data.pickup_type,
+            "borrow_order_books_details": data.borrow_order_books_details,
+            "purchase_order_books_details": data.purchase_order_books_details,
+            "total_price": total_price,
+        }
+
+
+class AllUserOrders(BaseModel):
+    orders: List[UserOrderDetails]
+
+    model_config = ConfigDict(from_attributes=True)

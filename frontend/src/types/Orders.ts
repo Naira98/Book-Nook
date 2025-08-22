@@ -7,10 +7,12 @@ interface Book {
   id: number;
   title: string;
   price: string;
+  cover_img: string;
 }
 
 interface BookDetails {
   id: number;
+  status: string;
   book: Book;
 }
 
@@ -26,6 +28,7 @@ interface BorrowOrderBookDetail {
   return_order_id?: number | null;
   original_book_price: string;
   book_details: BookDetails;
+  promo_code_discount: string;
 }
 
 interface PurchaseOrderBookDetail {
@@ -33,6 +36,7 @@ interface PurchaseOrderBookDetail {
   quantity: number;
   paid_price_per_book: string;
   book_details: BookDetails;
+  promo_code_discount_per_book: string;
 }
 
 export interface User {
@@ -88,6 +92,41 @@ export interface Order {
   courier_id: number | null;
   borrow_order_books_details: BorrowOrderBookDetail[];
   purchase_order_books_details: PurchaseOrderBookDetail[];
+}
+
+export interface UserOrder {
+  id: number;
+  created_at: Date;
+  address: string;
+  pickup_date?: string;
+  status: string;
+  phone_number: string;
+  delivery_fees?: string;
+  promo_code_id?: number;
+  pickup_type: PickUpType;
+  borrow_order_books_details: BorrowOrderBookDetail[];
+  purchase_order_books_details: PurchaseOrderBookDetail[];
+  total_price: string;
+}
+
+export interface UserReturnOrder {
+  id: number;
+  created_at: Date;
+  address?: string;
+  phone_number?: string;
+  status: ReturnOrderStatus;
+  pickup_type: PickUpType;
+  courier_id: number | null;
+  borrow_order_books_details: BorrowOrderBookDetail[];
+  total_price: string;
+}
+
+export interface UserOrderesResponse {
+  orders: UserOrder[];
+}
+
+export interface UserReturnOrderResponse {
+  return_orders: UserReturnOrder[];
 }
 
 export interface ReturnOrder {

@@ -12,14 +12,13 @@ import CourierOrderCard from "../../components/shared/orderCards/CourierOrderCar
 import { useGetMe } from "../../hooks/auth/useGetMe";
 import { useGetAllOrders } from "../../hooks/orders/useGetAllOrders";
 import {
-  PickUpType,
   type AllOrdersResponse,
   type OrderStatus,
   type ReturnOrderStatus,
 } from "../../types/Orders";
 
 const CourierOdersPage = () => {
-  const { allOrders, isPending } = useGetAllOrders(PickUpType.COURIER);
+  const { allOrders, isPending } = useGetAllOrders();
   const [newOrderAlert] = useState<string[]>([]);
   const { me } = useGetMe();
 
