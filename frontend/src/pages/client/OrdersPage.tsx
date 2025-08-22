@@ -101,7 +101,9 @@ const OrdersPage = () => {
                 <div className="divide-y divide-gray-100">
                   {ordersPerDay.map((order) => (
                     <div
-                      onClick={() => navigate(`/orders-history/${order.id}`)}
+                      onClick={() =>
+                        navigate(`/orders-history/order/${order.id}`)
+                      }
                       key={order.id}
                       className="cursor-pointer px-6 py-4 transition-colors"
                     >
@@ -159,7 +161,9 @@ const OrdersPage = () => {
                 <div className="divide-y divide-gray-100">
                   {returnOrdersPerDay.map((order) => (
                     <div
-                      onClick={() => navigate(`/orders-history/${order.id}`)}
+                      onClick={() =>
+                        navigate(`/orders-history/return-order/${order.id}`)
+                      }
                       key={order.id}
                       className="cursor-pointer px-6 py-4 transition-colors"
                     >

@@ -115,6 +115,7 @@ export interface UserReturnOrder {
   address?: string;
   phone_number?: string;
   status: ReturnOrderStatus;
+  delivery_fees?: string;
   pickup_type: PickUpType;
   courier_id: number | null;
   borrow_order_books_details: BorrowOrderBookDetail[];

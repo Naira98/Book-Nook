@@ -17,7 +17,7 @@ import {
   type ReturnOrderStatus,
 } from "../../types/Orders";
 
-const CourierOdersPage = () => {
+const CourierOrdersPage = () => {
   const { allOrders, isPending } = useGetAllOrders();
   const [newOrderAlert] = useState<string[]>([]);
   const { me } = useGetMe();
@@ -121,7 +121,7 @@ const CourierOdersPage = () => {
   );
 };
 
-export default CourierOdersPage;
+export default CourierOrdersPage;
 
 const tabs = ["Pending Orders", "Pending Returns", "My Orders", "My Returns"];
 
