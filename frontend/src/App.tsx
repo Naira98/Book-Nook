@@ -40,6 +40,8 @@ import UpdateBookPage from "./pages/employee/UpdateBookPage";
 import { UserRole } from "./types/User";
 import PromoCodesPage from "./pages/employee/PromoCodesPage";
 import CreatePromoCodePage from "./pages/employee/CreatePromoCodePage";
+import ClientOrderDetailsPage from "./pages/client/ClientOrderDetailsPage";
+import ClientReturnOrderDetailsPage from "./pages/client/ClientReturnOrderDetailsPage";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -79,6 +81,14 @@ const App = () => {
               <Route path="/transactions" element={<TransactionsPage />} />
               <Route path="/orders-history" element={<OrdersPage />} />
               <Route path="/current-borrows" element={<CurrentBorrowsPage />} />
+              <Route
+                path="/orders-history/order/:orderId"
+                element={<ClientOrderDetailsPage />}
+              />
+              <Route
+                path="/orders-history/return-order/:returnOrderId"
+                element={<ClientReturnOrderDetailsPage />}
+              />
             </Route>
 
             <Route path="/transaction-success" element={<CheckoutSuccess />} />
@@ -119,8 +129,14 @@ const App = () => {
                 path="/staff/return-order/:orderId"
                 element={<EmployeeReturnOrderDetailsPage />}
               />
-              <Route path="/employee/promo-codes" element={<PromoCodesPage />} />
-              <Route path="/employee/promo-codes/create" element={<CreatePromoCodePage />} />
+              <Route
+                path="/employee/promo-codes"
+                element={<PromoCodesPage />}
+              />
+              <Route
+                path="/employee/promo-codes/create"
+                element={<CreatePromoCodePage />}
+              />
             </Route>
           </Route>
 

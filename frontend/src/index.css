@@ -22,6 +22,7 @@
 
   --animate-up-and-down: up-and-down 3s linear infinite;
   --animate-left-and-right: left-and-right 3s linear infinite;
+  --animate-on-the-way: on-the-way 3s linear infinite;
 
   @keyframes up-and-down {
     0% {
@@ -47,9 +48,20 @@
     }
   }
 
+  @keyframes on-the-way {
+    0% {
+      color: #fb923c;
+    }
+    50% {
+      color: #34d399;
+    }
+    100% {
+      color: #fb923c;
+    }
+  }
+
   --color-success: #4ade80; /* green-600 */
   --color-error: #dc2626; /* red-600 */
-
 }
 
 .btn-sky {

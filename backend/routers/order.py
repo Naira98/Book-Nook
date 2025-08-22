@@ -26,6 +26,8 @@ from schemas.order import (
     OrderDetailsResponseSchema,
     OrderResponseSchema,
     UpdateOrderStatusRequest,
+    AllUserOrders,
+    UserOrderDetails,
 )
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -162,6 +164,95 @@ async def get_all_orders(
             "orders": orders,
             "return_orders": return_orders,
         }
+
+    except Exception as e:
+        # For any unexpected error, raise a generic 500 error with the exception details
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred while fetching orders: {str(e)}",
+        )
+
+
+@order_router.get("/my", status_code=status.HTTP_200_OK, response_model=AllUserOrders)
+async def get_all_user_orders(
+    user: Annotated[User, Depends(get_user_via_session)],
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        get_orders_query = (
+            select(Order)
+            .options(joinedload(Order.user))
+            .options(
+                selectinload(Order.borrow_order_books_details).options(
+                    joinedload(BorrowOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    ),
+                    joinedload(BorrowOrderBook.return_order),
+                ),
+                selectinload(Order.purchase_order_books_details).options(
+                    joinedload(PurchaseOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    )
+                ),
+            )
+            .where(Order.user_id == user.id)
+            .order_by(Order.created_at.desc())
+        )
+
+        orders_result = await db.execute(get_orders_query)
+
+        orders = orders_result.scalars().unique().all()
+
+        return {"orders": orders}
+
+    except Exception as e:
+        # For any unexpected error, raise a generic 500 error with the exception details
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred while fetching orders: {str(e)}",
+        )
+
+
+@order_router.get(
+    "/my/details/{order_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=UserOrderDetails,
+)
+async def get_user_order_details(
+    user: Annotated[User, Depends(get_user_via_session)],
+    order_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        get_orders_query = (
+            select(Order)
+            .options(joinedload(Order.user))
+            .options(
+                selectinload(Order.borrow_order_books_details).options(
+                    joinedload(BorrowOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    ),
+                    joinedload(BorrowOrderBook.return_order),
+                ),
+                selectinload(Order.purchase_order_books_details).options(
+                    joinedload(PurchaseOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    )
+                ),
+            )
+            .where(Order.user_id == user.id, Order.id == order_id)
+        )
+
+        order_result = await db.execute(get_orders_query)
+
+        order = order_result.scalars().unique().first()
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Order with id {order_id} not found.",
+            )
+
+        return order
 
     except Exception as e:
         # For any unexpected error, raise a generic 500 error with the exception details

@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import apiReq from "../../services/apiReq";
-import type { AllOrdersResponse, PickUpType } from "../../types/Orders";
+import type { AllOrdersResponse } from "../../types/Orders";
 
-export const useGetAllOrders = (pickupType: PickUpType) => {
+export const useGetAllOrders = () => {
   const {
     data: allOrders,
     isPending,
@@ -10,7 +10,7 @@ export const useGetAllOrders = (pickupType: PickUpType) => {
   } = useQuery<AllOrdersResponse>({
     queryKey: ["allStaffOrders"],
     queryFn: async () => {
-      return await apiReq("GET", `/order/all?pickup_type=${pickupType}`);
+      return await apiReq("GET", `/order/all`);
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
