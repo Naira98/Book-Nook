@@ -2,7 +2,6 @@ import { ArrowLeft, Tag } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../../components/shared/Spinner";
-import Sidebar from "../../components/Sidebar";
 import { useCreatePromoCode } from "../../hooks/promoCodes/useCreatePromoCode";
 import type { PromoCodeCreate } from "../../types/promoCode";
 
@@ -65,7 +64,6 @@ const CreatePromoCodePage = () => {
 
   return (
     <div className="flex">
-      <Sidebar navItems={navItems} />
       <main className="w-full p-10">
         {/* Header */}
         <div className="mb-8 flex items-center gap-4">
@@ -184,7 +182,3 @@ const CreatePromoCodePage = () => {
 };
 
 export default CreatePromoCodePage;
-
-const navItems = [
-  { to: "/manager/promo-codes", label: "Promo Codes", icon: <Tag /> },
-];

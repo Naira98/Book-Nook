@@ -1,8 +1,7 @@
-import { Calendar, ClipboardClock, Plus, Tag } from "lucide-react";
+import { ClipboardClock, Plus, Tag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ToggleButton from "../../components/shared/buttons/ToggleButton";
 import Spinner from "../../components/shared/Spinner";
-import Sidebar from "../../components/Sidebar";
 import { useGetPromoCodes } from "../../hooks/promoCodes/useGetPromoCodes";
 import { useUpdatePromoCode } from "../../hooks/promoCodes/useUpdatePromoCode";
 
@@ -36,7 +35,6 @@ const PromoCodesPage = () => {
 
   return (
     <div className="flex">
-      <Sidebar navItems={navItems} />
       <main className="w-full p-10">
         <div className="mb-8 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Promo Codes</h1>
@@ -129,9 +127,3 @@ const PromoCodesPage = () => {
 };
 
 export default PromoCodesPage;
-
-const navItems = [
-  { to: "/manager/promo-codes", label: "Promo Codes", icon: <Tag /> },
-  { to: "/employee/books", label: "Books", icon: <ClipboardClock /> },
-  { to: "/employee/orders", label: "Orders", icon: <Calendar /> },
-];

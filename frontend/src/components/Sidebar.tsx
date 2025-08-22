@@ -30,7 +30,7 @@ const Sidebar = ({ navItems }: { navItems: navItem[] }) => {
   };
 
   return (
-    <aside className="text-text flex h-screen w-16 flex-col gap-8 border-r-1 border-slate-100 bg-white p-2 transition-all duration-300 md:w-48 lg:w-64">
+    <aside className="text-text flex h-screen w-16 flex-col gap-8 border-r-1 border-slate-100 bg-white p-2 transition-all duration-300 md:w-56 lg:w-72">
       <Link
         to={getHomePath(me!.role)}
         className="flex justify-center pt-4 md:pt-6"
@@ -39,7 +39,7 @@ const Sidebar = ({ navItems }: { navItems: navItem[] }) => {
       </Link>
 
       <div className="flex flex-1 flex-col justify-between">
-        <nav className="flex flex-col space-y-2 md:space-y-3">
+        <nav className="flex flex-col space-y-2 md:space-y-3 px-2">
           {navItems.map((item) => {
             const isActive = isActiveLink(item);
             return (
@@ -47,7 +47,7 @@ const Sidebar = ({ navItems }: { navItems: navItem[] }) => {
                 key={item.to}
                 to={item.to}
                 className={clsx(
-                  "flex items-center justify-center rounded-lg p-2 md:justify-start md:px-3 md:py-2", // Increased padding
+                  "flex items-center justify-center rounded-lg p-2 md:justify-start md:px-3 md:py-2",
                   "transition-all duration-200",
                   isActive
                     ? "bg-accent text-secondary border-l-2 md:border-l-3 lg:border-l-4"
