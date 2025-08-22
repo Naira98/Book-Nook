@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Moon+Dance&display=swap");
 
 @theme {
   /* --color-background: #dfe8ef;
@@ -18,6 +19,49 @@
 
   --color-success: #34d399; /* green-400 */
   --color-error: #f87171; /* red-400 */
+
+  --animate-up-and-down: up-and-down 3s linear infinite;
+  --animate-left-and-right: left-and-right 3s linear infinite;
+  --animate-on-the-way: on-the-way 3s linear infinite;
+
+  @keyframes up-and-down {
+    0% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes left-and-right {
+    0% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(20px);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes on-the-way {
+    0% {
+      color: #fb923c;
+    }
+    50% {
+      color: #34d399;
+    }
+    100% {
+      color: #fb923c;
+    }
+  }
+
+  --color-success: #4ade80; /* green-600 */
+  --color-error: #dc2626; /* red-600 */
 }
 
 .btn-sky {
@@ -67,6 +111,12 @@
 .animate-fade-in-right {
   animation: fade-in-right 0.8s ease-out forwards;
   animation-delay: 0.2s; /* Delay for the form section to animate after the image */
+}
+
+.moon-dance-regular {
+  font-family: "Moon Dance", cursive;
+  font-weight: 400;
+  font-style: normal;
 }
 
 /* Optional: Font-face definitions if you are using custom downloaded fonts */

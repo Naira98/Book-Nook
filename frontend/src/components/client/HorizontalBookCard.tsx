@@ -5,6 +5,7 @@ import { formatMoney } from "../../utils/formatting";
 import AddToCartButton from "./AddToCartButton";
 import QuantityControl from "./QuantityControl";
 import { Link } from "react-router-dom";
+import clsx from "clsx";
 
 interface BookCardProps {
   book: IPurchaseBook | IBorrowBook;
@@ -13,6 +14,9 @@ interface BookCardProps {
 
 const HorizontalBookCard = ({ book, cartItems }: BookCardProps) => {
   const isBorrowBook = Object.hasOwn(book, "borrow_fees_per_week");
+
+  // Determine if the book is out of stock
+  const isOutOfStock = book.available_stock <= 0;
 
   const bookInCart = isBorrowBook
     ? cartItems?.borrow_items.find(
@@ -33,7 +37,12 @@ const HorizontalBookCard = ({ book, cartItems }: BookCardProps) => {
     isBorrowBook && cartItems.remaining_borrow_books_count <= 0;
 
   return (
-    <div className="flex w-full overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:shadow-xl">
+    <div
+      className={clsx(
+        "flex w-full overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:shadow-xl",
+        { "opacity-60": isOutOfStock },
+      )}
+    >
       <Link to={`/book/${book.book_details_id}`} className="flex w-full">
         {/* Left Section - Book Cover */}
         <div className="w-32 flex-shrink-0 md:w-40">
@@ -84,7 +93,7 @@ const HorizontalBookCard = ({ book, cartItems }: BookCardProps) => {
       <div className="border-accent flex w-60 flex-col items-center justify-between border-l p-4 md:p-6">
         <div>
           {isBorrowBook && (
-            <div className="flex flex-col justify-center space-y-2">
+            <div className="flex cursor-default flex-col justify-center space-y-2">
               <div className="text-primary text-center font-semibold">
                 <span className="font-medium">Weekly: </span>
                 {formatMoney((book as IBorrowBook).borrow_fees_per_week)} EGP
@@ -97,26 +106,32 @@ const HorizontalBookCard = ({ book, cartItems }: BookCardProps) => {
           )}
 
           {!isBorrowBook && (
-            <div className="space-y-2">
+            <div className="cursor-default space-y-2">
               <div className="text-primary font-semibold">
+                <span className="font-medium">Price: </span>
                 {formatMoney((book as IPurchaseBook).price)} EGP
               </div>
             </div>
           )}
 
           {bookInCart && isBorrowBook && (
-            <div className="text-green-600 mt-2 text-center text-sm font-semibold">
+            <div className="text-success mt-2 cursor-default text-center text-sm font-semibold">
               In Cart!
               <span className="ml-1">({borrowBookCountInCart})</span>
             </div>
           )}
         </div>
 
-        {isBorrowBook ? (
+        {isOutOfStock ? (
+          <div className="text-error cursor-default text-center font-semibold">
+            Out of Stock
+          </div>
+        ) : isBorrowBook ? (
           <AddToCartButton
             book_details_id={book.book_details_id}
             isBorrowBook={isBorrowBook}
             borrowingLimitExceeded={borrowingLimitExceeded}
+            isOutOfStock={isOutOfStock}
           />
         ) : bookInCart ? (
           <QuantityControl item={bookInCart} />
@@ -125,6 +140,7 @@ const HorizontalBookCard = ({ book, cartItems }: BookCardProps) => {
             book_details_id={book.book_details_id}
             isBorrowBook={isBorrowBook}
             borrowingLimitExceeded={borrowingLimitExceeded}
+            isOutOfStock={isOutOfStock}
           />
         )}
       </div>

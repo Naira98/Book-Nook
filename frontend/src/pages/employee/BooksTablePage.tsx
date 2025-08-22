@@ -36,8 +36,8 @@ export default function BooksTablePage() {
   const endIndex = startIndex + BOOKS_PER_PAGE;
   const paginatedBooks = filteredBooks.slice(startIndex, endIndex);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+  const handleSearchChange = (e: string) => {
+    setSearchTerm(e);
     setCurrentPage(1);
   };
 

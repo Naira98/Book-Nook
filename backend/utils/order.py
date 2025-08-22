@@ -123,13 +123,20 @@ def validate_borrow_book_and_borrowing_weeks_and_available_stock(item, book_deta
             detail=f"Book with id {book_details.id} is not available for borrowing.",
         )
 
-    # Validate borrowing weeks and stock
-    # borrowing_weeks is an integer between 1 and 4
-    if not (item["borrowing_weeks"] and (1 <= item["borrowing_weeks"] <= 4)):
+    borrowing_weeks = item.get("borrowing_weeks")
+
+    if borrowing_weeks is None or not isinstance(borrowing_weeks, int):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Borrowing weeks must be a valid integer.",
+        )
+
+    if not (1 <= borrowing_weeks <= 4):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Borrowing weeks must be between 1 and 4.",
         )
+
     if book_details.available_stock < 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

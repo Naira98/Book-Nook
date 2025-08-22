@@ -23,6 +23,7 @@ from routers.return_order import return_order_router
 from routers.listAllUsers import getUsers 
 
 from settings import settings
+from routers import user_interests
 
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__))))
 
@@ -43,7 +44,7 @@ async def lifespan(app: FastAPI):
     # Logic here will run before the application starts receiving requests.
     init_cloudinary()
     print("Application startup...", "🚀🚀🚀")
-    ensure_vector_store_initialized()
+    # ensure_vector_store_initialized()
     print("Vector store initialized successfully!", "✌️✌️✌️")
     # RAG system will be initialized lazily on first use
     print("RAG system will initialize on first use")
@@ -85,3 +86,4 @@ api_router.include_router(getUsers)
 
 
 app.include_router(api_router)
+app.include_router(user_interests.router)

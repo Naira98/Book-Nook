@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Field, Form } from "react-final-form";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import MainButton from "../../components/shared/buttons/MainButton";
 import TextInput from "../../components/shared/formInputs/TextInput";
@@ -48,6 +49,7 @@ export default function CheckoutPage() {
   const [promoCodeObject, setPromoCodeObject] = useState<PromoCodeData | null>(
     null,
   );
+  const navigate = useNavigate();
 
   const [prices, setPrices] = useState<Prices>({
     purchase_total: new Decimal(0),
@@ -121,7 +123,7 @@ export default function CheckoutPage() {
         );
     }
 
-    // Calculate Delivary
+    // Calculate Delivery
     if (pickupType === "COURIER") {
       newPrices.delivery = newPrices.delivery.plus(
         new Decimal(cartItems.delevary_fees || 0),
@@ -141,15 +143,12 @@ export default function CheckoutPage() {
   };
 
   const getUserAddress = async (e: MouseEvent<HTMLButtonElement>) => {
-    console.log(import.meta.env);
-
     e.preventDefault();
     await getPosition()
       .then((position: GeolocationPosition) => {
         getAddress(position.coords, {
           onSuccess: (res) => {
             formRef?.current?.change("address", res.city);
-            console.log(res);
           },
         });
       })
@@ -213,7 +212,7 @@ export default function CheckoutPage() {
   if (isPending) {
     return (
       <div className="flex items-center justify-center gap-2 p-6 text-gray-600">
-        <Loader2 className="h-6 w-6 animate-spin" />
+        <Loader2 className="text-primary h-6 w-6 animate-spin" />
         Loading your cart...
       </div>
     );
@@ -241,230 +240,293 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-4">
-      <h1 className="flex items-center gap-2 text-3xl font-bold">
-        <ShoppingCart className="h-8 w-8 text-blue-600" />
-        Checkout
-      </h1>
+    <div className="bg-accent text-layout min-h-screen font-sans">
+      {/* Main Content Container with full-width layout */}
+      <div className="container mx-auto px-4 py-12">
+        {/* Page Title with consistent styling */}
+        <h1 className="text-primary mb-10 flex items-center justify-center gap-4 text-center text-4xl font-extrabold">
+          <ShoppingCart className="text-primary h-10 w-10" />
+          Checkout
+        </h1>
 
-      {/* Purchase Books */}
-      {cartItems.purchase_items?.length > 0 && (
-        <div className="rounded-2xl bg-white p-4 shadow-md">
-          <h2 className="mb-3 text-lg font-semibold">Purchase Books</h2>
-          <div className="space-y-3">
-            {cartItems.purchase_items.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-4 border-b pb-3 last:border-none"
-              >
-                <img
-                  src={item.book.cover_img}
-                  alt={item.book.title}
-                  className="h-20 w-16 rounded-lg object-cover"
-                />
-                <div className="flex-1">
-                  <p className="font-medium">{item.book.title}</p>
-                  <p className="text-sm text-gray-500">
-                    {item.book.author.name}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    {item.quantity} × {item.book_price} EGP
-                  </p>
-                </div>
-                <p className="font-bold text-blue-600">
-                  {(parseFloat(item.book_price) * item.quantity).toFixed(2)} EGP
-                </p>
+        {/* Combined Checkout Section */}
+        <div className="rounded-2xl bg-white/95 p-6 shadow-xl md:p-8">
+          {/* Purchase Books Section */}
+          {cartItems.purchase_items?.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-primary mb-4 text-2xl font-bold">
+                Purchase Books
+              </h2>
+              <div className="space-y-4">
+                {cartItems.purchase_items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-4 border-b border-gray-100 pb-4 last:border-none"
+                  >
+                    <img
+                      src={item.book.cover_img}
+                      alt={item.book.title}
+                      className="h-24 w-20 rounded-lg object-cover"
+                    />
+                    <div className="flex-1">
+                      <p className="text-layout font-medium">
+                        {item.book.title}
+                      </p>
+                      <p className="text-layout/70 text-sm">
+                        {item.book.author.name}
+                      </p>
+                      <p className="text-layout/70 mt-1 text-sm">
+                        <span className="text-success font-bold">
+                          {item.quantity}
+                        </span>{" "}
+                        × {item.book_price} EGP
+                      </p>
+                    </div>
+                    <p className="text-success font-bold">
+                      {(parseFloat(item.book_price) * item.quantity).toFixed(2)}{" "}
+                      EGP
+                    </p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            </div>
+          )}
 
-      {/* Borrow Books */}
-      {cartItems.borrow_items?.length > 0 && (
-        <div className="rounded-2xl bg-white p-4 shadow-md">
-          <h2 className="mb-3 text-lg font-semibold">Borrow Books</h2>
-          <div className="space-y-3">
-            {cartItems.borrow_items.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-4 border-b pb-3 last:border-none"
-              >
-                <img
-                  src={item.book.cover_img}
-                  alt={item.book.title}
-                  className="h-20 w-16 rounded-lg object-cover"
-                />
-                <div className="flex-1">
-                  <p className="font-medium">{item.book.title}</p>
-                  <p className="text-sm text-gray-500">
-                    {item.book.author.name}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    {item.borrowing_weeks} weeks × {item.borrow_fees_per_week}{" "}
-                    EGP + deposit {item.deposit_fees} EGP
-                  </p>
-                </div>
-                <p className="font-bold text-green-600">
-                  {(
-                    parseFloat(item.borrow_fees_per_week) *
-                      item.borrowing_weeks +
-                    parseFloat(item.deposit_fees)
-                  ).toFixed(2)}
-                </p>
+          {/* Borrow Books Section */}
+          {cartItems.borrow_items?.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-primary mb-4 text-2xl font-bold">
+                Borrow Books
+              </h2>
+              <div className="space-y-4">
+                {cartItems.borrow_items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-4 border-b border-gray-100 pb-4 last:border-none"
+                  >
+                    <img
+                      src={item.book.cover_img}
+                      alt={item.book.title}
+                      className="h-24 w-20 rounded-lg object-cover"
+                    />
+                    <div className="flex-1">
+                      <p className="text-layout font-medium">
+                        {item.book.title}
+                      </p>
+                      <p className="text-layout/70 text-sm">
+                        {item.book.author.name}
+                      </p>
+                      <p className="text-layout/70 mt-1 text-sm">
+                        <span className="text-secondary font-bold">
+                          {item.borrowing_weeks}
+                        </span>{" "}
+                        weeks × {item.borrow_fees_per_week} EGP + deposit{" "}
+                        <span className="text-success font-bold">
+                          {item.deposit_fees}
+                        </span>{" "}
+                        EGP
+                      </p>
+                    </div>
+                    <p className="text-success font-bold">
+                      {(
+                        parseFloat(item.borrow_fees_per_week) *
+                          item.borrowing_weeks +
+                        parseFloat(item.deposit_fees)
+                      ).toFixed(2)}{" "}
+                      EGP
+                    </p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            </div>
+          )}
 
-      {/* Pickup Type */}
-      <div className="rounded-2xl bg-white p-4 shadow-md">
-        <h2 className="mb-3 text-lg font-semibold">Pickup Type</h2>
-        <div className="space-y-2">
-          <label className="flex cursor-pointer items-center gap-2 rounded-lg p-2 transition hover:bg-gray-50">
-            <input
-              type="radio"
-              name="pickup"
-              value={PickUpType.SITE}
-              checked={pickupType === "SITE"}
-              onChange={(e) => setPickupType(e.target.value as PickUpType.SITE)}
-            />
-            <Store className="h-5 w-5 text-gray-600" />
-            On-site Pickup (Free)
-          </label>
-          <label className="flex cursor-pointer items-center gap-2 rounded-lg p-2 transition hover:bg-gray-50">
-            <input
-              type="radio"
-              name="pickup"
-              value={PickUpType.COURIER}
-              checked={pickupType === "COURIER"}
-              onChange={(e) =>
-                setPickupType(e.target.value as PickUpType.COURIER)
-              }
-            />
-            <Truck className="h-5 w-5 text-gray-600" />
-            Courier Delivery (+{cartItems.delevary_fees || 0} EGP)
-          </label>
+          {/* Pickup Type Section */}
+          <div className="mb-8">
+            <h2 className="text-primary mb-4 text-2xl font-bold">
+              Pickup Type
+            </h2>
+            <div className="text-layout space-y-4">
+              <label
+                className={`flex cursor-pointer items-center gap-4 rounded-lg p-3 transition hover:bg-gray-50 ${
+                  pickupType === PickUpType.SITE ? "bg-gray-100" : ""
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="pickup"
+                  value={PickUpType.SITE}
+                  checked={pickupType === "SITE"}
+                  onChange={(e) => setPickupType(e.target.value as PickUpType.SITE)}
+                  className="form-radio text-secondary h-5 w-5"
+                />
+                <Store className="text-primary h-6 w-6" />
+                <span className="font-medium">On-site Pickup</span>
+                <span className="text-success ml-auto text-sm font-bold">
+                  (Free)
+                </span>
+              </label>
+              <label
+                className={`flex cursor-pointer items-center gap-4 rounded-lg p-3 transition hover:bg-gray-50 ${
+                  pickupType === PickUpType.COURIER ? "bg-gray-100" : ""
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="pickup"
+                  value={PickUpType.COURIER}
+                  checked={pickupType === "COURIER"}
+                  onChange={(e) => setPickupType(e.target.value as PickUpType.COURIER)}
+                  className="form-radio text-secondary h-5 w-5"
+                />
+                <Truck className="text-primary h-6 w-6" />
+                <span className="font-medium">Courier Delivery</span>
+                <span className="text-layout ml-auto text-sm font-bold">
+                  (+{cartItems.delevary_fees || 0} EGP)
+                </span>
+              </label>
+            </div>
+          </div>
+          <Form
+            onSubmit={onSubmit}
+            validate={validate}
+            initialValues={{
+              phone: me?.phone_number,
+            }}
+            render={({ handleSubmit, submitting, form }) => {
+              formRef.current = form;
+              return (
+                <form
+                  onSubmit={handleSubmit}
+                  className="flex w-full flex-col gap-6"
+                >
+                  {/* Courier Info Section */}
+                  {pickupType === "COURIER" && (
+                    <div className="mb-8">
+                      <h2 className="text-primary mb-4 text-2xl font-bold">
+                        Delivery Details
+                      </h2>
+
+                      <div className="mb-4 flex items-center gap-2">
+                        <Field name="phone">
+                          {({ input, meta }) => (
+                            <TextInput
+                              name="phone"
+                              type="text"
+                              containerClassName="!mb-4"
+                              placeholder="Phone Number"
+                              value={input.value}
+                              onChange={input.onChange}
+                              error={
+                                meta.touched && meta.error
+                                  ? meta.error
+                                  : undefined
+                              }
+                            />
+                          )}
+                        </Field>
+                      </div>
+                      <div className="mb-4 flex flex-col gap-2 md:flex-row">
+                        <Field name="address">
+                          {({ input, meta }) => (
+                            <TextInput
+                              name="address"
+                              type="text"
+                              containerClassName="!mb-4 flex-1"
+                              placeholder="Address"
+                              value={input.value}
+                              onChange={input.onChange}
+                              error={
+                                meta.touched && meta.error
+                                  ? meta.error
+                                  : undefined
+                              }
+                            />
+                          )}
+                        </Field>
+
+                        <MainButton
+                          loading={isAddressPending}
+                          onClick={getUserAddress}
+                          className="bg-primary hover:bg-hover !w-full rounded-lg text-white md:!w-[120px]"
+                        >
+                          Locate me
+                        </MainButton>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Promo Code Section */}
+                  <div className="mb-8">
+                    <h2 className="text-primary mb-2 text-2xl font-bold">
+                      Promo Code
+                    </h2>
+                    <div className="flex w-full items-center gap-2">
+                      <Tag className="text-primary h-6 w-6" />
+                      <input
+                        type="text"
+                        placeholder="Enter Promo Code"
+                        value={promoCode}
+                        onChange={(e) => setPromoCode(e.target.value)}
+                        className={`focus:ring-none border-accent placeholder-layout/70 focus:border-secondary w-full border-b-2 p-2 transition-colors focus:outline-none`}
+                      />
+                      <MainButton
+                        loading={isPromoCodePending}
+                        disabled={!promoCode}
+                        onClick={applyPromoCodeHandler}
+                        className="bg-primary hover:bg-hover !w-[120px] rounded-lg px-4 py-2 text-white"
+                      >
+                        Apply
+                      </MainButton>
+                    </div>
+                    {promoCodeObject?.id && (
+                      <p className="text-success mt-2 text-sm font-medium">
+                        Promo code applied!
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mb-8 flex flex-col items-center justify-between gap-4 font-bold">
+                    {Object.keys(prices).map((key) =>
+                      prices[key as keyof Prices].isZero() ? null : (
+                        <div
+                          key={key}
+                          className="flex w-full items-center justify-between gap-2 capitalize last:border-t-2 last:border-gray-200 last:pt-4 last:text-3xl"
+                        >
+                          <span className="text-layout/80 font-medium">
+                            {key.replace("_", " ")}:
+                          </span>
+                          <span className="text-success">
+                            {key === "promo_code" ? "-" : ""}{" "}
+                            {prices[key as keyof Prices]?.toFixed(2)} EGP
+                          </span>
+                        </div>
+                      ),
+                    )}
+                  </div>
+
+                  {/* Submit and Back Buttons */}
+                  <div className="flex justify-center gap-4">
+                    <MainButton
+                      onClick={() => navigate(-1)}
+                      className="rounded-xl bg-gray-500 px-6 py-2 text-white transition-colors duration-300 hover:bg-gray-600"
+                    >
+                      Back
+                    </MainButton>
+                    <MainButton
+                      disabled={submitting}
+                      onClick={handleSubmit}
+                      className="bg-primary hover:bg-hover rounded-xl px-6 py-2 text-white transition-colors duration-300"
+                    >
+                      Confirm Order
+                    </MainButton>
+                  </div>
+                </form>
+              );
+            }}
+          />
         </div>
       </div>
-      <Form
-        onSubmit={onSubmit}
-        validate={validate}
-        initialValues={{
-          phone: me?.phone_number,
-        }}
-        render={({ handleSubmit, submitting, form }) => {
-          formRef.current = form;
-          return (
-            <form
-              onSubmit={handleSubmit}
-              className="flex w-full flex-col gap-6"
-            >
-              {/* Courier Info */}
-              {pickupType === "COURIER" && (
-                <div className="rounded-2xl bg-white p-4 shadow-md">
-                  <h2 className="mb-4 text-lg font-semibold">
-                    Delivery Details
-                  </h2>
-
-                  <div className="mb-4 flex items-center gap-2">
-                    <Field name="phone">
-                      {({ input, meta }) => (
-                        <TextInput
-                          name="phone"
-                          type="text"
-                          containerClassName="!mb-4"
-                          placeholder="Phone Number"
-                          value={input.value}
-                          onChange={input.onChange}
-                          error={
-                            meta.touched && meta.error ? meta.error : undefined
-                          }
-                        />
-                      )}
-                    </Field>
-                  </div>
-                  <div className="mb-4 flex gap-2">
-                    <Field name="address">
-                      {({ input, meta }) => (
-                        <TextInput
-                          name="address"
-                          type="text"
-                          containerClassName="!mb-4"
-                          placeholder="Address"
-                          value={input.value}
-                          onChange={input.onChange}
-                          error={
-                            meta.touched && meta.error ? meta.error : undefined
-                          }
-                        />
-                      )}
-                    </Field>
-
-                    <MainButton
-                      loading={isAddressPending}
-                      onClick={getUserAddress}
-                      label="Locate me"
-                      className="!w-[120px] rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Promo Code */}
-              <div className="flex flex-col gap-2 rounded-2xl bg-white p-4 shadow-md">
-                <div className="flex w-full items-center gap-2">
-                  <Tag className="h-5 w-5 text-gray-500" />
-
-                  <input
-                    type="text"
-                    placeholder="Enter Promo Code"
-                    value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value)}
-                    className={`focus:ring-none w-full border-b border-gray-300 p-2 placeholder-gray-400 transition-colors focus:outline-none`}
-                  />
-                  <MainButton
-                    loading={isPromoCodePending}
-                    disabled={!promoCode}
-                    onClick={applyPromoCodeHandler}
-                    className="!w-[120px] rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                    label="Apply"
-                  />
-                </div>
-                {promoCodeObject?.id && (
-                  <p className="text-sm text-green-600">Promo code applied!</p>
-                )}
-              </div>
-
-              {/* Prices */}
-              <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-white p-4 text-lg font-bold shadow-md">
-                {Object.keys(prices).map((key) =>
-                  prices[key as keyof Prices].isZero() ? null : (
-                    <div
-                      key={key}
-                      className="flex w-full items-center justify-between gap-2 capitalize last:border-t last:border-gray-400 last:pt-2"
-                    >
-                      <span>{key.replace("_", " ")}:</span>
-                      <span>
-                        {key === "promo_code" ? "-" : ""}{" "}
-                        {prices[key as keyof Prices]?.toFixed(2)} EGP
-                      </span>
-                    </div>
-                  ),
-                )}
-              </div>
-
-              {/* Submit */}
-              <MainButton
-                disabled={submitting}
-                onClick={handleSubmit}
-                label="Confirm Order"
-              />
-            </form>
-          );
-        }}
-      />
     </div>
   );
 }

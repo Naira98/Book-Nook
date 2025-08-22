@@ -5,12 +5,12 @@ import MainButton from "../../components/shared/buttons/MainButton";
 import Dropzone from "../../components/shared/formInputs/Dropzone";
 import SelectInput from "../../components/shared/formInputs/SelectInput";
 import TextInput from "../../components/shared/formInputs/TextInput";
+import Spinner from "../../components/shared/Spinner";
 import { useGetAuthors } from "../../hooks/books/useGetAuthors";
 import { useGetBookDetailsForUpdate } from "../../hooks/books/useGetBookDetailsForUpdate";
 import { useGetCategories } from "../../hooks/books/useGetCategories";
 import { useUpdateBook } from "../../hooks/books/useUpdateBook";
 import type { IUpdateBookData } from "../../types/staff/staffBookTypes";
-import Spinner from "../../components/shared/Spinner";
 
 const UpdateBookPage = () => {
   const { book_id } = useParams<{ book_id: string }>();
@@ -184,8 +184,9 @@ const UpdateBookPage = () => {
               <MainButton
                 disabled={submitting || pristine || hasValidationErrors}
                 loading={isUpdatingBookPending}
-                label="Update Book"
-              />
+              >
+                Update Book
+              </MainButton>
             </div>
           </form>
         )}
