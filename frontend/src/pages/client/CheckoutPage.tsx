@@ -122,7 +122,7 @@ export default function CheckoutPage() {
         );
     }
 
-    // Calculate Delivery
+    // Calculate Delivary
     if (pickupType === "COURIER") {
       newPrices.delivery = newPrices.delivery.plus(
         new Decimal(cartItems.delevary_fees || 0),
@@ -430,9 +430,10 @@ export default function CheckoutPage() {
                         <MainButton
                           loading={isAddressPending}
                           onClick={getUserAddress}
-                          label="Locate me"
                           className="!w-full rounded-lg bg-primary text-white hover:bg-hover md:!w-[120px]"
-                        />
+                        >
+                          Locate me
+                        </MainButton>
                       </div>
                     </div>
                   )}
@@ -456,8 +457,9 @@ export default function CheckoutPage() {
                         disabled={!promoCode}
                         onClick={applyPromoCodeHandler}
                         className="!w-[120px] rounded-lg bg-primary px-4 py-2 text-white hover:bg-hover"
-                        label="Apply"
-                      />
+                      >
+                        Apply
+                      </MainButton>
                     </div>
                     {promoCodeObject?.id && (
                       <p className="mt-2 text-sm text-success font-medium">Promo code applied!</p>
@@ -486,16 +488,17 @@ export default function CheckoutPage() {
                   <div className="flex justify-center gap-4">
                     <MainButton
                       onClick={() => window.history.back()}
-                      label="Back"
                       className="rounded-xl bg-gray-500 px-6 py-2 text-white transition-colors duration-300 hover:bg-gray-600"
-                    />
+                    >
+                      Back
+                    </MainButton>
                     <MainButton
-
                       disabled={submitting}
                       onClick={handleSubmit}
-                      label="Confirm Order"
                       className="rounded-xl bg-primary px-6 py-2 text-white transition-colors duration-300 hover:bg-hover"
-                    />
+                    >
+                      Confirm Order
+                    </MainButton>
                   </div>
                 </form>
               );
@@ -503,70 +506,6 @@ export default function CheckoutPage() {
           />
         </div>
       </div>
-
-                      loading={isAddressPending}
-                      onClick={getUserAddress}
-                      className="!w-[120px] rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                    >
-                      Locate me
-                    </MainButton>
-                  </div>
-                </div>
-              )}
-
-              {/* Promo Code */}
-              <div className="flex flex-col gap-2 rounded-2xl bg-white p-4 shadow-md">
-                <div className="flex w-full items-center gap-2">
-                  <Tag className="h-5 w-5 text-gray-500" />
-
-                  <input
-                    type="text"
-                    placeholder="Enter Promo Code"
-                    value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value)}
-                    className={`focus:ring-none w-full border-b border-gray-300 p-2 placeholder-gray-400 transition-colors focus:outline-none`}
-                  />
-                  <MainButton
-                    loading={isPromoCodePending}
-                    disabled={!promoCode}
-                    onClick={applyPromoCodeHandler}
-                    className="!w-[120px] rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                  >
-                    Apply
-                  </MainButton>
-                </div>
-                {promoCodeObject?.id && (
-                  <p className="text-sm text-green-600">Promo code applied!</p>
-                )}
-              </div>
-
-              {/* Prices */}
-              <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-white p-4 text-lg font-bold shadow-md">
-                {Object.keys(prices).map((key) =>
-                  prices[key as keyof Prices].isZero() ? null : (
-                    <div
-                      key={key}
-                      className="flex w-full items-center justify-between gap-2 capitalize last:border-t last:border-gray-400 last:pt-2"
-                    >
-                      <span>{key.replace("_", " ")}:</span>
-                      <span>
-                        {key === "promo_code" ? "-" : ""}{" "}
-                        {prices[key as keyof Prices]?.toFixed(2)} EGP
-                      </span>
-                    </div>
-                  ),
-                )}
-              </div>
-
-              {/* Submit */}
-              <MainButton disabled={submitting} onClick={handleSubmit}>
-                Confirm Order
-              </MainButton>
-            </form>
-          );
-        }}
-      />
-
     </div>
   );
 }
