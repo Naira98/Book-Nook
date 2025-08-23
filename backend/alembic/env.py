@@ -6,7 +6,17 @@ from sqlalchemy import pool
 from alembic import context
 from db.base import Base
 from db.database import SQLALCHEMY_DATABASE_URL
-from models import book, cart, notification, order, settings, user, session, transaction  # noqa: F401
+from models import (  # noqa: F401
+    book,
+    cart,
+    notification,
+    order,
+    settings,
+    user,
+    session,
+    transaction,
+    UserTracker,
+)
 
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), "..")))
 

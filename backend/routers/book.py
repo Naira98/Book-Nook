@@ -91,7 +91,7 @@ async def get_borrow_books(
 async def get_borrow_book_details(
     book_details_id: int,
     db: AsyncSession = Depends(get_db),
-    _=Depends(get_user_id_via_session),
+    user_id: int = Depends(get_user_id_via_session),
 ):
     return await get_borrow_books_crud(db, book_details_id=book_details_id)
 
