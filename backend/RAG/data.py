@@ -143,7 +143,7 @@ def initialize_rag_chain():
         "You are a book recommendation assistant. Based on the user's interests and these book details:\n"
         "{context}\n"
         "Recommend 3-5 books with a brief reason for each recommendation. "
-        "Include title, author, category, and availability status. "
+        "Include title, author, category, price , cover image URL and availability status. "
     )
 
     prompt = ChatPromptTemplate.from_messages(
@@ -183,9 +183,9 @@ async def get_recommendations(interests: str):
         system_prompt = (
             "You are a book recommendation assistant. Based on the user's interests and these book details:\n"
             "{context}\n"
-            "Recommend 3-5 books with a brief reason for each recommendation. "
-            "Include title, author, category, and availability status. "
-            "Format your response as json object with fields:'id','title', 'author', 'category', 'status', 'reason'. "
+            "Recommend 3-5 books "
+            "Include book details id  , title, author, category , available purchase stock and cover image URL. "
+            "Format your response as json object with fields:'id','title', 'author', 'category', 'status', 'cover_img' , 'available_stock' , 'description'."
             "If no relevant books are found, suggest alternative interests or categories."
         )
 
