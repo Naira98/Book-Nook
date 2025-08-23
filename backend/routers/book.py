@@ -27,9 +27,9 @@ from fastapi import (
     File,
     Form,
     HTTPException,
+    Query,
     UploadFile,
     status,
-    Query,
 )
 from fastapi.responses import JSONResponse
 from schemas.book import (
@@ -40,9 +40,10 @@ from schemas.book import (
     BorrowBookResponse,
     CreateAuthorCategoryRequest,
     CreateBookRequest,
-    PaginatedPurchaseBooksResponse,
-    UpdateBookData,
     PaginatedBorrowBooksResponse,
+    PaginatedPurchaseBooksResponse,
+    PurchaseBookResponse,
+    UpdateBookData,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils.auth import get_user_id_via_session
@@ -87,13 +88,18 @@ async def get_borrow_books(
     )
 
 
-@book_router.get("/borrow/{book_details_id}", response_model=List[BorrowBookResponse])
+@book_router.get("/borrow/{book_details_id}", response_model=BorrowBookResponse)
 async def get_borrow_book_details(
     book_details_id: int,
     db: AsyncSession = Depends(get_db),
-    user_id: int = Depends(get_user_id_via_session),
+    _=Depends(get_user_id_via_session),
 ):
-    return await get_borrow_books_crud(db, book_details_id=book_details_id)
+    book_details = await get_borrow_books_crud(db, book_details_id=book_details_id)
+    if not len(book_details["items"]):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+        )
+    return book_details["items"][0]
 
 
 @book_router.get("/purchase", response_model=PaginatedPurchaseBooksResponse)
@@ -128,15 +134,18 @@ async def get_purchase_books(
     )
 
 
-@book_router.get(
-    "/purchase/{book_details_id}", response_model=PaginatedPurchaseBooksResponse
-)
+@book_router.get("/purchase/{book_details_id}", response_model=PurchaseBookResponse)
 async def get_purchase_book_details(
     book_details_id: int,
     db: AsyncSession = Depends(get_db),
     _=Depends(get_user_id_via_session),
 ):
-    return await get_purchase_books_crud(db, book_details_id=book_details_id)
+    book_details = await get_purchase_books_crud(db, book_details_id=book_details_id)
+    if not len(book_details["items  "]):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+        )
+    return book_details["items"][0]
 
 
 @book_router.get("/authors", response_model=List[AuthorCategorySchema])
