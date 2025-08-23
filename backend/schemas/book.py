@@ -81,6 +81,7 @@ class GetBookBase(BaseModel):
     author: AuthorBase
     available_stock: int
     book_id: int
+    rating: str
 
 
 class BorrowBookResponse(GetBookBase):

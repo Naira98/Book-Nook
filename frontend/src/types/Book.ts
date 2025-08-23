@@ -18,6 +18,7 @@ export interface IPurchaseBook {
   author: IAuthor;
   available_stock: number;
   price: string;
+  rating: string;
 }
 
 export interface IBorrowBook extends Omit<IPurchaseBook, "price"> {

@@ -21,12 +21,6 @@ from utils.order import calculate_borrow_order_book_fees
 from utils.settings import get_settings
 
 
-from typing import Optional
-
-from sqlalchemy import select, func, or_
-from sqlalchemy.orm import selectinload
-
-
 async def get_borrow_books_crud(
     db,
     search: Optional[str] = None,
@@ -123,6 +117,7 @@ async def get_borrow_books_crud(
             "book_id": book_details.book.id,
             "borrow_fees_per_week": fees["borrow_fees_per_week"],
             "deposit_fees": fees["deposit_fees"],
+            "rating": str(book_details.book.rating),
         }
         result_list.append(book_info)
 
@@ -232,6 +227,7 @@ async def get_purchase_books_crud(
             "available_stock": book_details.available_stock,
             "book_id": book_details.book.id,
             "price": book_details.book.price,
+            "rating": str(book_details.book.rating),
         }
         return_list.append(book_info)
 

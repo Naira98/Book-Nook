@@ -40,7 +40,7 @@ class Book(Base):
     description: Mapped[str | None] = mapped_column(String(1000))
     cover_img: Mapped[str] = mapped_column(String)
     publish_year: Mapped[int]
-    rate: Mapped[Decimal] = mapped_column(Numeric(2, 1), default=0.0)
+    rating: Mapped[Decimal] = mapped_column(Numeric(2, 1), default=4.3)
 
     # Foreign Keys
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))

@@ -141,7 +141,7 @@ async def get_purchase_book_details(
     _=Depends(get_user_id_via_session),
 ):
     book_details = await get_purchase_books_crud(db, book_details_id=book_details_id)
-    if not len(book_details["items  "]):
+    if not len(book_details["items"]):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
         )

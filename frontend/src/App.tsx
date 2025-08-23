@@ -13,8 +13,8 @@ import Login from "./pages/auth/Login";
 import OrdersListPage from "./pages/auth/OrdersListPage";
 import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
-import BookDetails from "./pages/client/BookDetails";
 import BorrowBooksPage from "./pages/client/BorrowBooksPage";
+import BorrowDetailsPage from "./pages/client/BorrowDetailsPage";
 import CartPage from "./pages/client/CartPage";
 import ChechoutPage from "./pages/client/CheckoutPage";
 import CheckoutSuccess from "./pages/client/CheckoutSuccess";
@@ -25,6 +25,7 @@ import HomePage from "./pages/client/HomePage";
 import Interests from "./pages/client/Interests";
 import OrdersPage from "./pages/client/OrdersPage";
 import PurchaseBooksPage from "./pages/client/PurchaseBooksPage";
+import PurchaseDetailsPage from "./pages/client/PurchaseDetailsPage";
 import TransactionsPage from "./pages/client/TransactionsPage";
 import CourierOrderDetailsPage from "./pages/courier/CourierOrderDetailsPage";
 import CourierOrdersPage from "./pages/courier/CourierOrdersPage";
@@ -72,7 +73,9 @@ const App = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/borrow-books" element={<BorrowBooksPage />} />
             <Route path="/purchase-books" element={<PurchaseBooksPage />} />
-            <Route path="/book/:bookId" element={<BookDetails />} />
+            <Route path="/details/borrow/:bookDetailsId" element={<BorrowDetailsPage />} />
+            <Route path="/details/purchase/:bookDetailsId" element={<PurchaseDetailsPage />} />
+
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<ChechoutPage />} />
           </Route>
