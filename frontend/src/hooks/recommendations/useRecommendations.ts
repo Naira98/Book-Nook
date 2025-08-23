@@ -4,18 +4,22 @@ import apiReq from "../../services/apiReq";
 export type Recommendation = {
   id: number;
   title: string;
-  author: string;
-  category: string;
+  author: {
+    name: string;
+  };
+  category: {
+    name: string;
+  };
   status: string;
   reason: string;
-  cover_img: string; 
+  cover_img: string;
   description: string;
   available_stock: number;
 };
 
 type RecommendResponse = {
   status: string;
-  recommendations: Recommendation[] ;
+  recommendations: Recommendation[];
   interests: string;
 };
 
@@ -33,13 +37,14 @@ export function useRecommendations() {
         // Support both shapes:
         // 1) { recommendations: { recommendations: [...] } }
         // 2) { recommendations: [...] }
-        const maybeNested = (rec as any)?.recommendations;
+        const maybeNested = (rec as RecommendResponse)?.recommendations;
         if (Array.isArray(maybeNested)) return maybeNested as Recommendation[];
         if (
           maybeNested &&
-          Array.isArray((maybeNested as any).recommendations)
+          Array.isArray((maybeNested as RecommendResponse).recommendations)
         ) {
-          return (maybeNested as any).recommendations as Recommendation[];
+          return (maybeNested as RecommendResponse)
+            .recommendations as Recommendation[];
         }
         return [];
       } catch {

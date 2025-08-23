@@ -78,6 +78,9 @@ const EmployeeOrderDetailsPage = () => {
                 <th className="bg-accent text-primary px-6 py-3 text-center text-xs font-medium tracking-wider uppercase">
                   Quantity
                 </th>
+                <th className="bg-accent text-primary px-6 py-3 text-center text-xs font-medium tracking-wider uppercase">
+                  Type
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -89,6 +92,9 @@ const EmployeeOrderDetailsPage = () => {
                   <td className="text-layout px-6 py-4 text-center whitespace-nowrap">
                     1
                   </td>
+                  <td className="text-layout px-6 py-4 text-center whitespace-nowrap">
+                    {item.book_details.status}
+                  </td>
                 </tr>
               ))}
               {order.purchase_order_books_details.map((item, index) => (
@@ -98,6 +104,9 @@ const EmployeeOrderDetailsPage = () => {
                   </td>
                   <td className="text-layout px-6 py-4 text-center whitespace-nowrap">
                     {item.quantity}
+                  </td>
+                  <td className="text-layout px-6 py-4 text-center whitespace-nowrap">
+                    {item.book_details.status}
                   </td>
                 </tr>
               ))}

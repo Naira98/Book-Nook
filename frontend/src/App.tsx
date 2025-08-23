@@ -41,12 +41,13 @@ import EmployeeReturnOrderDetailsPage from "./pages/employee/EmployeeRetrunOrder
 import PromoCodesPage from "./pages/employee/PromoCodesPage";
 import UpdateBookPage from "./pages/employee/UpdateBookPage";
 import AddNewUser from "./pages/manager/addNewUser";
-import UsersList from './pages/manager/listallUser';
+import UsersList from "./pages/manager/listallUser";
 import ManagerDashboardPage from "./pages/manager/ManagerDashboardPage";
 import ManagerSettingsPage from "./pages/manager/ManagerSettingsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import { UserRole } from "./types/User";
+import EmailVerification from "./pages/auth/EmailVerificationPage";
 
 const App = () => {
   const { me } = useGetMe();
@@ -59,7 +60,7 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
-
+          <Route path="/verify-email" element={<EmailVerification />} />
           <Route
             path="/reset-password/:reset_token"
             element={<ResetPassword />}
@@ -74,8 +75,14 @@ const App = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/borrow-books" element={<BorrowBooksPage />} />
             <Route path="/purchase-books" element={<PurchaseBooksPage />} />
-            <Route path="/details/borrow/:bookDetailsId" element={<BorrowDetailsPage />} />
-            <Route path="/details/purchase/:bookDetailsId" element={<PurchaseDetailsPage />} />
+            <Route
+              path="/details/borrow/:bookDetailsId"
+              element={<BorrowDetailsPage />}
+            />
+            <Route
+              path="/details/purchase/:bookDetailsId"
+              element={<PurchaseDetailsPage />}
+            />
 
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<ChechoutPage />} />

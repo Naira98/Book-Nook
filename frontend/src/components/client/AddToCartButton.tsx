@@ -44,7 +44,10 @@ const AddToCartButton = ({
       onMouseLeave={() => setShowTooltip(false)}
     >
       <button
-        onClick={onAddToCart}
+        onClick={(e) => {
+          e.preventDefault();
+          onAddToCart();
+        }}
         disabled={isDisabled}
         className={buttonClasses}
       >

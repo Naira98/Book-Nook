@@ -9,17 +9,7 @@ export const useUpdateBook = () => {
   const { mutate: updateBook, isPending } = useMutation({
     mutationFn: updateBookApi,
     onSuccess: (book: IBookTable) => {
-      const oldData = queryClient.getQueryData(["allBooksTable"]);
-
-      if (oldData != undefined) {
-        queryClient.setQueryData(
-          ["allBooksTable"],
-          (oldData: IBookTable[] | undefined) => {
-            if (oldData)
-              return oldData.map((b) => (b.id === book.id ? book : b));
-          },
-        );
-      }
+      queryClient.invalidateQueries({ queryKey: ["allBooksTable"] });
 
       toast(`Book ${book.title} updated successfully!`, { type: "success" });
     },

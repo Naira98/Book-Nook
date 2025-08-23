@@ -3,8 +3,8 @@ import { Star } from "lucide-react";
 interface Recommendation {
   id: number;
   title: string;
-  author: string;
-  category: string;
+  author: { name: string };
+  category: { name: string };
   status: string;
   cover_img: string;
   description: string;
@@ -13,50 +13,50 @@ interface Recommendation {
 
 const RecommendationBookCard = ({ rec }: { rec: Recommendation }) => {
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-lg h-[600 px] w-[800 px] flex flex-row">
+    <div className="h-[600 px] w-[800 px] flex flex-row rounded-2xl bg-white p-6 shadow-lg">
       {/* Left Section - Text Content */}
-      <div className="flex-1 flex flex-col pr-6">
+      <div className="flex flex-1 flex-col pr-6">
         {/* Category + Rating */}
-        <div className="flex justify-between items-center mb-3">
-          <span className="inline-block rounded-md bg-primary px-3 py-1 text-sm font-medium text-white">
-            {rec.category}
+        <div className="mb-3 flex items-center justify-between">
+          <span className="bg-primary inline-block rounded-md px-3 py-1 text-sm font-medium text-white">
+            {rec.category.name}
           </span>
-          <div className="flex items-center text-orange-500 text-sm">
+          <div className="flex items-center text-sm text-orange-500">
             {/* Dummy 4-star rating */}
-            <Star className="w-4 h-4 fill-current" />
-            <Star className="w-4 h-4 fill-current" />
-            <Star className="w-4 h-4 fill-current" />
-            <Star className="w-4 h-4 fill-current" />
-            <Star className="w-4 h-4" /> {/* empty star */}
+            <Star className="h-4 w-4 fill-current" />
+            <Star className="h-4 w-4 fill-current" />
+            <Star className="h-4 w-4 fill-current" />
+            <Star className="h-4 w-4 fill-current" />
+            <Star className="h-4 w-4" /> {/* empty star */}
             <span className="ml-1 text-gray-600">(459)</span>
           </div>
         </div>
 
         {/* Title */}
-        <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-2">
+        <h3 className="mb-2 line-clamp-2 text-lg font-bold text-gray-800">
           {rec.title}
         </h3>
 
         {/* Author */}
-        <div className="flex items-center mb-2">
-          <span className="text-gray-700 text-sm">{rec.author}</span>
+        <div className="mb-2 flex items-center">
+          <span className="text-sm text-gray-700">{rec.author.name}</span>
         </div>
 
         {/* Description */}
-        <p className="text-sm text-gray-600 line-clamp-4 mb-3">
+        <p className="mb-3 line-clamp-4 text-sm text-gray-600">
           {rec.description}
         </p>
 
-        {/* Stock */}
+        {/* Stock
         <p className="text-sm text-gray-800 font-semibold mb-4">
           {rec.available_stock > 0
             ? `${rec.available_stock} available for purchase`
             : "Out of stock"}
-        </p>
+        </p> */}
       </div>
 
       {/* Right Section - Cover Image */}
-      <div className="w-40 h-56 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100 flex items-center justify-center">
+      <div className="flex h-56 w-40 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-100">
         <img
           src={rec.cover_img}
           alt={rec.title}
