@@ -1,163 +1,264 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { useGetUsers } from "../../hooks/manager/useGetUsers"; 
-import type { IUser } from "../../types/User";
-import  type {UserRole}from "../../types/User"; 
-const UsersList = () => {
-  const { users, isPending } = useGetUsers(); 
-  const [filter, setFilter] = useState<"all" | "employee" | "courier">("all");
+import { useMemo, useState } from "react";
+import { useGetUsers } from "../../hooks/manager/useGetUsers";
+import { UserRole } from "../../types/User";
 
-  // ✅ safely handle loading + no users
-  if (isPending) {
-    return (
-      <div className="text-center py-8" style={{ color: "var(--color-primary)" }}>
-        Loading users...
-      </div>
-    );
-  }
+const UsersPage = () => {
+  const { users = [], isPending } = useGetUsers();
 
-  if (!users || users.length === 0) {
-    return (
-      <div className="text-center py-8" style={{ color: "var(--color-primary)" }}>
-        No users found
-      </div>
-    );
-  }
+  const [filter, setFilter] = useState<"ALL" | UserRole>("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10; 
+  const filteredUsers = useMemo(() => {
+    if (filter === "ALL") return users;
+    return users.filter((user) => user.role === filter);
+  }, [users, filter]);
 
-  const filteredUsers = users.filter((user: IUser) => {
-    if (filter === "all") return true;
-    // return user.role === filter;
-  });
+  const totalPages = Math.ceil(filteredUsers.length / pageSize);
+  const paginatedUsers = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredUsers.slice(start, start + pageSize);
+  }, [filteredUsers, currentPage, pageSize]);
+
+  if (isPending) return <p style={{ color: "var(--color-primary)" }}>Loading users...</p>;
 
   return (
-    <div
-      className="container mx-auto px-4 py-8"
-      style={{ backgroundColor: "var(--color-background)" }}
-    >
-      <h1
-        className="text-2xl font-bold mb-6"
-        style={{ color: "var(--color-primary)" }}
-      >
-        Users List
-      </h1>
+    <div className="p-6" style={{ backgroundColor: "var(--color-background)", minHeight: "100vh" }}>
+      <h1 className="text-2xl font-bold mb-4" style={{ color: "var(--color-primary)" }}>Users</h1>
 
-      {/* Filter Buttons */}
-      <div className="flex justify-end mb-6">
-        <div className="flex space-x-2">
-          {["all", "employee", "courier"].map((role) => (
-            <button
-              key={role}
-              onClick={() => setFilter(role as "all" | "employee" | "courier")}
-              className={`px-4 py-2 rounded-md ${
-                filter === role ? "text-white" : "bg-gray-200 text-gray-700"
-              }`}
-              style={{
-                backgroundColor: filter === role ? "var(--color-primary)" : "",
-              }}
-            >
-              {role === "all"
-                ? "All"
-                : role.charAt(0).toUpperCase() + role.slice(1) + "s"}
-            </button>
-          ))}
-        </div>
+      {/* Filter buttons */}
+      <div className="flex gap-3 mb-6">
+        <button
+          onClick={() => {
+            setFilter("ALL");
+            setCurrentPage(1);
+          }}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            filter === "ALL" 
+              ? "text-white" 
+              : "text-gray-700"
+          }`}
+          style={{
+            backgroundColor: filter === "ALL" 
+              ? "var(--color-primary)" 
+              : "#e2e8f0",
+            border: filter !== "ALL" ? "1px solid #cbd5e0" : "none"
+          }}
+          onMouseEnter={(e) => {
+            if (filter !== "ALL") {
+              e.currentTarget.style.backgroundColor = "var(--color-hover)";
+              e.currentTarget.style.color = "white";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (filter !== "ALL") {
+              e.currentTarget.style.backgroundColor = "#e2e8f0";
+              e.currentTarget.style.color = "#374151";
+            }
+          }}
+        >
+          All
+        </button>
+        <button
+          onClick={() => {
+            setFilter(UserRole.CLIENT);
+            setCurrentPage(1);
+          }}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            filter === "CLIENT" 
+              ? "text-white" 
+              : "text-gray-700"
+          }`}
+          style={{
+            backgroundColor: filter === "CLIENT" 
+              ? "var(--color-primary)" 
+              : "#e2e8f0",
+            border: filter !== "CLIENT" ? "1px solid #cbd5e0" : "none"
+          }}
+          onMouseEnter={(e) => {
+            if (filter !== "CLIENT") {
+              e.currentTarget.style.backgroundColor = "var(--color-hover)";
+              e.currentTarget.style.color = "white";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (filter !== "CLIENT") {
+              e.currentTarget.style.backgroundColor = "#e2e8f0";
+              e.currentTarget.style.color = "#374151";
+            }
+          }}
+        >
+          Clients
+        </button>
+        <button
+          onClick={() => {
+            setFilter(UserRole.EMPLOYEE);
+            setCurrentPage(1);
+          }}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            filter === "EMPLOYEE" 
+              ? "text-white" 
+              : "text-gray-700"
+          }`}
+          style={{
+            backgroundColor: filter === "EMPLOYEE" 
+              ? "var(--color-primary)" 
+              : "#e2e8f0",
+            border: filter !== "EMPLOYEE" ? "1px solid #cbd5e0" : "none"
+          }}
+          onMouseEnter={(e) => {
+            if (filter !== "EMPLOYEE") {
+              e.currentTarget.style.backgroundColor = "var(--color-hover)";
+              e.currentTarget.style.color = "white";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (filter !== "EMPLOYEE") {
+              e.currentTarget.style.backgroundColor = "#e2e8f0";
+              e.currentTarget.style.color = "#374151";
+            }
+          }}
+        >
+          Employees
+        </button>
+        <button
+          onClick={() => {
+            setFilter(UserRole.COURIER);
+            setCurrentPage(1);
+          }}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            filter === "COURIER" 
+              ? "text-white" 
+              : "text-gray-700"
+          }`}
+          style={{
+            backgroundColor: filter === "COURIER" 
+              ? "var(--color-primary)" 
+              : "#e2e8f0",
+            border: filter !== "COURIER" ? "1px solid #cbd5e0" : "none"
+          }}
+          onMouseEnter={(e) => {
+            if (filter !== "COURIER") {
+              e.currentTarget.style.backgroundColor = "var(--color-hover)";
+              e.currentTarget.style.color = "white";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (filter !== "COURIER") {
+              e.currentTarget.style.backgroundColor = "#e2e8f0";
+              e.currentTarget.style.color = "#374151";
+            }
+          }}
+        >
+          Couriers
+        </button>
       </div>
 
-      {/* Table */}
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                {[
-                  "ID",
-                  "Name",
-                  "Email",
-                  "Phone",
-                  "Role",
-                  "Status",
-                  "Date Joined",
-                  "Actions",
-                ].map((heading) => (
-                  <th
-                    key={heading}
-                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                    style={{ color: "var(--color-primary)" }}
-                  >
-                    {heading}
-                  </th>
-                ))}
+      {/* Users table */}
+      <div className="border rounded-lg overflow-hidden shadow" style={{ backgroundColor: "white" }}>
+        <table className="min-w-full">
+          <thead>
+            <tr style={{ backgroundColor: "var(--color-primary)", color: "white" }}>
+              <th className="px-4 py-3 text-left">Name</th>
+              <th className="px-4 py-3 text-left">Email</th>
+              <th className="px-4 py-3 text-left">Wallet</th>
+              <th className="px-4 py-3 text-left">Status</th>
+              <th className="px-4 py-3 text-left">Role</th>
+
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedUsers.map((user) => (
+              <tr key={user.id} className="border-b hover:bg-gray-50">
+                <td className="px-4 py-3" style={{ color: "var(--color-primary)" }}>{user.first_name}</td>
+                <td className="px-4 py-3" style={{ color: "var(--color-primary)" }}>{user.email}</td>
+                <td className="px-4 py-3" style={{ color: "var(--color-primary)" }}>{user.wallet}</td>
+                <td className="px-px-2 py-1 rounded-full text-xs py-3" style={{ color: "var(--color-primary)" }}>{user.status}</td>
+
+                <td className="px-4 py-3 font-semibold">
+                  <span className="px-2 py-1 rounded-full text-xs" style={{
+                    backgroundColor: user.role === "CLIENT" 
+                      ? "rgba(11, 52, 96, 0.1)" 
+                      : user.role === "EMPLOYEE" 
+                      ? "rgba(242, 182, 61, 0.2)" 
+                      : "rgba(11, 52, 96, 0.15)",
+                    color: user.role === "CLIENT" 
+                      ? "var(--color-primary)" 
+                      : user.role === "EMPLOYEE" 
+                      ? "#b45309" 
+                      : "var(--color-primary)"
+                  }}>
+                    {user.role}
+                  </span>
+                </td>
               </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers.map((user: IUser) => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm" style={{ color: "var(--color-primary)" }}>
-                    {user.id}
-                  </td>
-                  <td className="px-6 py-4 text-sm" style={{ color: "var(--color-primary)" }}>
-                    {user.first_name} {user.last_name}
-                  </td>
-                  <td className="px-6 py-4 text-sm" style={{ color: "var(--color-primary)" }}>
-                    {user.email}
-                  </td>
-                  <td className="px-6 py-4 text-sm" style={{ color: "var(--color-primary)" }}>
-                    {user.phone_number}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                         user.role === "EMPLOYEE" ? "text-green-800" : "text-purple-800"
-                      }`}
-                      style={{
-                        backgroundColor:
-                          user.role === "EMPLOYEE"
-                            ? "var(--color-secondary)"
-                            : "#E9D8FD",
-                      }}
-                    >
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        user.status === "ACTIVATED" ? "text-green-800" : "text-red-800"
-                      }`}
-                      style={{
-                        backgroundColor:
-                          user.status === "ACTIVATED" ? "#D1FAE5" : "#FECACA",
-                      }}
-                    >
-                      {user.status}
-                    </span>
-                  </td>
-                  {/* <td className="px-6 py-4 text-sm" style={{ color: "var(--color-primary)" }}>
-                    {new Date(user.created_at).toLocaleDateString()}
-                  </td> */}
-                  <td className="px-6 py-4 text-sm font-medium">
-                    <Link
-                      to={`/users/${user.id}`}
-                      className="px-3 py-1 rounded-md text-xs text-white hover:bg-blue-700"
-                      style={{ backgroundColor: "var(--color-primary)" }}
-                    >
-                      View Details
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+            {paginatedUsers.length === 0 && (
+              <tr>
+                <td colSpan={3} className="px-4 py-4 text-center" style={{ color: "var(--color-primary)" }}>
+                  No users found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
-      {filteredUsers.length === 0 && (
-        <div className="text-center py-8" style={{ color: "var(--color-primary)" }}>
-          No users found
-        </div>
-      )}
+      {/* Pagination controls */}
+      <div className="flex justify-center items-center mt-6 gap-3">
+        <button
+          onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+          disabled={currentPage === 1}
+          className="px-3 py-1 rounded transition-colors"
+          style={{ 
+            backgroundColor: currentPage === 1 ? "#e2e8f0" : "var(--color-primary)",
+            color: currentPage === 1 ? "#64748b" : "white",
+            cursor: currentPage === 1 ? "not-allowed" : "pointer"
+          }}
+          onMouseEnter={(e) => {
+            if (currentPage !== 1) {
+              e.currentTarget.style.backgroundColor = "var(--color-hover)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (currentPage !== 1) {
+              e.currentTarget.style.backgroundColor = "var(--color-primary)";
+            }
+          }}
+        >
+          Prev
+        </button>
+        <span style={{ color: "var(--color-primary)" }}>
+          Page {currentPage} of {totalPages || 1}
+        </span>
+        <button
+          onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+          disabled={currentPage === totalPages || totalPages === 0}
+          className="px-3 py-1 rounded transition-colors"
+          style={{ 
+            backgroundColor: currentPage === totalPages || totalPages === 0 ? "#e2e8f0" : "var(--color-primary)",
+            color: currentPage === totalPages || totalPages === 0 ? "#64748b" : "white",
+            cursor: currentPage === totalPages || totalPages === 0 ? "not-allowed" : "pointer"
+          }}
+          onMouseEnter={(e) => {
+            if (currentPage !== totalPages && totalPages !== 0) {
+              e.currentTarget.style.backgroundColor = "var(--color-hover)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (currentPage !== totalPages && totalPages !== 0) {
+              e.currentTarget.style.backgroundColor = "var(--color-primary)";
+            }
+          }}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };
 
-export default UsersList;
+export default UsersPage;
+
+
+
+

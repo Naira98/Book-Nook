@@ -161,9 +161,9 @@ const App = () => {
           <Route
             element={<RoleBasedRoute allowedRoles={[UserRole.MANAGER]} />}
           >
-            <Route path="/add-new-user" element={<AddNewUser />} />
+            <Route path="manager/add-new-user" element={<AddNewUser />} />
           </Route>
-          <Route path="list-all-users" element={<UsersList />} />
+          <Route path="manager/list-all-users" element={<UsersList />} />
 
           {/* Unauthorized route */}
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
