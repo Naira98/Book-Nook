@@ -1,6 +1,7 @@
 from decimal import Decimal
-from typing import Dict, List
-from pydantic import BaseModel
+from typing import Dict, List, Optional
+
+from pydantic import BaseModel, Field
 
 
 class OrderStats(BaseModel):
@@ -62,3 +63,50 @@ class ManagerDashboardStats(BaseModel):
     financial_stats: FinancialStats
     inventory_stats: InventoryStats
     user_stats: UserStats
+
+
+class SettingsBase(BaseModel):
+    deposit_perc: Decimal = Field(
+        ..., ge=0, le=100, description="Deposit percentage (0-100)"
+    )
+    borrow_perc: Decimal = Field(
+        ..., ge=0, le=100, description="Borrow percentage (0-100)"
+    )
+    delay_perc: Decimal = Field(
+        ..., ge=0, le=100, description="Delay percentage (0-100)"
+    )
+    delivery_fees: Decimal = Field(..., ge=0, description="Delivery fees")
+    min_borrow_fee: Decimal = Field(..., ge=0, description="Minimum borrow fee")
+    max_num_of_borrow_books: int = Field(
+        ..., ge=1, description="Maximum number of borrowable books"
+    )
+
+
+class SettingsResponse(SettingsBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+        json_encoders = {Decimal: str}
+
+
+class SettingsUpdate(BaseModel):
+    deposit_perc: Optional[Decimal] = Field(
+        None, ge=0, le=100, description="Deposit percentage (0-100)"
+    )
+    borrow_perc: Optional[Decimal] = Field(
+        None, ge=0, le=100, description="Borrow percentage (0-100)"
+    )
+    delay_perc: Optional[Decimal] = Field(
+        None, ge=0, le=100, description="Delay percentage (0-100)"
+    )
+    delivery_fees: Optional[Decimal] = Field(None, ge=0, description="Delivery fees")
+    min_borrow_fee: Optional[Decimal] = Field(
+        None, ge=0, description="Minimum borrow fee"
+    )
+    max_num_of_borrow_books: Optional[int] = Field(
+        None, ge=1, description="Maximum number of borrowable books"
+    )
+
+    class Config:
+        json_encoders = {Decimal: str}

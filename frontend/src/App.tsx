@@ -41,6 +41,7 @@ import PromoCodesPage from "./pages/employee/PromoCodesPage";
 import UpdateBookPage from "./pages/employee/UpdateBookPage";
 import AddNewUser from "./pages/manager/addNewUser";
 import ManagerDashboardPage from "./pages/manager/ManagerDashboardPage";
+import ManagerSettingsPage from "./pages/manager/ManagerSettingsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import { UserRole } from "./types/User";
@@ -165,6 +166,7 @@ const App = () => {
               path="/manager/promo-codes/create"
               element={<CreatePromoCodePage />}
             />
+            <Route path="/manager/settings" element={<ManagerSettingsPage />} />
             <Route path="/add-new-user" element={<AddNewUser />} />
           </Route>
         </Route>
