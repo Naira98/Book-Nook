@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useGetUsers } from "../../hooks/manager/useGetUsers";
 import { UserRole } from "../../types/User";
+import { Link } from "react-router-dom";
 
 const UsersPage = () => {
   const { users = [], isPending } = useGetUsers();
@@ -22,136 +23,93 @@ const UsersPage = () => {
   if (isPending) return <p style={{ color: "var(--color-primary)" }}>Loading users...</p>;
 
   return (
+    
     <div className="p-6" style={{ backgroundColor: "var(--color-background)", minHeight: "100vh" }}>
-      <h1 className="text-2xl font-bold mb-4" style={{ color: "var(--color-primary)" }}>Users</h1>
+      <h1 className="text-2xl font-bold mb-4" style={{ color: "var(--color-primary)" }}>Manager</h1>
+<div className="flex justify-between items-center mb-6">
+  {/* Left: Add New User button */}
+  <Link
+    to="/manager/add-new-user" 
+    className="px-4 py-2 rounded-lg text-white font-medium transition-colors"
+    style={{ backgroundColor: "var(--color-primary)" }}
+    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--color-hover)")}
+    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--color-primary)")}
+  >
+    + Add New User
+  </Link>
 
-      {/* Filter buttons */}
-      <div className="flex gap-3 mb-6">
-        <button
-          onClick={() => {
-            setFilter("ALL");
-            setCurrentPage(1);
-          }}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            filter === "ALL" 
-              ? "text-white" 
-              : "text-gray-700"
-          }`}
-          style={{
-            backgroundColor: filter === "ALL" 
-              ? "var(--color-primary)" 
-              : "#e2e8f0",
-            border: filter !== "ALL" ? "1px solid #cbd5e0" : "none"
-          }}
-          onMouseEnter={(e) => {
-            if (filter !== "ALL") {
-              e.currentTarget.style.backgroundColor = "var(--color-hover)";
-              e.currentTarget.style.color = "white";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (filter !== "ALL") {
-              e.currentTarget.style.backgroundColor = "#e2e8f0";
-              e.currentTarget.style.color = "#374151";
-            }
-          }}
-        >
-          All
-        </button>
-        <button
-          onClick={() => {
-            setFilter(UserRole.CLIENT);
-            setCurrentPage(1);
-          }}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            filter === "CLIENT" 
-              ? "text-white" 
-              : "text-gray-700"
-          }`}
-          style={{
-            backgroundColor: filter === "CLIENT" 
-              ? "var(--color-primary)" 
-              : "#e2e8f0",
-            border: filter !== "CLIENT" ? "1px solid #cbd5e0" : "none"
-          }}
-          onMouseEnter={(e) => {
-            if (filter !== "CLIENT") {
-              e.currentTarget.style.backgroundColor = "var(--color-hover)";
-              e.currentTarget.style.color = "white";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (filter !== "CLIENT") {
-              e.currentTarget.style.backgroundColor = "#e2e8f0";
-              e.currentTarget.style.color = "#374151";
-            }
-          }}
-        >
-          Clients
-        </button>
-        <button
-          onClick={() => {
-            setFilter(UserRole.EMPLOYEE);
-            setCurrentPage(1);
-          }}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            filter === "EMPLOYEE" 
-              ? "text-white" 
-              : "text-gray-700"
-          }`}
-          style={{
-            backgroundColor: filter === "EMPLOYEE" 
-              ? "var(--color-primary)" 
-              : "#e2e8f0",
-            border: filter !== "EMPLOYEE" ? "1px solid #cbd5e0" : "none"
-          }}
-          onMouseEnter={(e) => {
-            if (filter !== "EMPLOYEE") {
-              e.currentTarget.style.backgroundColor = "var(--color-hover)";
-              e.currentTarget.style.color = "white";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (filter !== "EMPLOYEE") {
-              e.currentTarget.style.backgroundColor = "#e2e8f0";
-              e.currentTarget.style.color = "#374151";
-            }
-          }}
-        >
-          Employees
-        </button>
-        <button
-          onClick={() => {
-            setFilter(UserRole.COURIER);
-            setCurrentPage(1);
-          }}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            filter === "COURIER" 
-              ? "text-white" 
-              : "text-gray-700"
-          }`}
-          style={{
-            backgroundColor: filter === "COURIER" 
-              ? "var(--color-primary)" 
-              : "#e2e8f0",
-            border: filter !== "COURIER" ? "1px solid #cbd5e0" : "none"
-          }}
-          onMouseEnter={(e) => {
-            if (filter !== "COURIER") {
-              e.currentTarget.style.backgroundColor = "var(--color-hover)";
-              e.currentTarget.style.color = "white";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (filter !== "COURIER") {
-              e.currentTarget.style.backgroundColor = "#e2e8f0";
-              e.currentTarget.style.color = "#374151";
-            }
-          }}
-        >
-          Couriers
-        </button>
-      </div>
+  {/* Right: Filter buttons */}
+  <div className="flex gap-3">
+    <button
+      onClick={() => {
+        setFilter("ALL");
+        setCurrentPage(1);
+      }}
+      className={`px-4 py-2 rounded-lg transition-colors ${
+        filter === "ALL" ? "text-white" : "text-gray-700"
+      }`}
+      style={{
+        backgroundColor:
+          filter === "ALL" ? "var(--color-primary)" : "#e2e8f0",
+        border: filter !== "ALL" ? "1px solid #cbd5e0" : "none",
+      }}
+    >
+      All
+    </button>
+
+    <button
+      onClick={() => {
+        setFilter(UserRole.CLIENT);
+        setCurrentPage(1);
+      }}
+      className={`px-4 py-2 rounded-lg transition-colors ${
+        filter === "CLIENT" ? "text-white" : "text-gray-700"
+      }`}
+      style={{
+        backgroundColor:
+          filter === "CLIENT" ? "var(--color-primary)" : "#e2e8f0",
+        border: filter !== "CLIENT" ? "1px solid #cbd5e0" : "none",
+      }}
+    >
+      Clients
+    </button>
+
+    <button
+      onClick={() => {
+        setFilter(UserRole.EMPLOYEE);
+        setCurrentPage(1);
+      }}
+      className={`px-4 py-2 rounded-lg transition-colors ${
+        filter === "EMPLOYEE" ? "text-white" : "text-gray-700"
+      }`}
+      style={{
+        backgroundColor:
+          filter === "EMPLOYEE" ? "var(--color-primary)" : "#e2e8f0",
+        border: filter !== "EMPLOYEE" ? "1px solid #cbd5e0" : "none",
+      }}
+    >
+      Employees
+    </button>
+
+    <button
+      onClick={() => {
+        setFilter(UserRole.COURIER);
+        setCurrentPage(1);
+      }}
+      className={`px-4 py-2 rounded-lg transition-colors ${
+        filter === "COURIER" ? "text-white" : "text-gray-700"
+      }`}
+      style={{
+        backgroundColor:
+          filter === "COURIER" ? "var(--color-primary)" : "#e2e8f0",
+        border: filter !== "COURIER" ? "1px solid #cbd5e0" : "none",
+      }}
+    >
+      Couriers
+    </button>
+  </div>
+</div>
+
 
       {/* Users table */}
       <div className="border rounded-lg overflow-hidden shadow" style={{ backgroundColor: "white" }}>
