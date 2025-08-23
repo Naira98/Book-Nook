@@ -1,43 +1,37 @@
 import { Clock, Filter } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import FilteringSection from "../../components/client/FilteringSection";
 import HorizontalBookCard from "../../components/client/HorizontalBookCard";
 import Pagination from "../../components/shared/pagination/Pagination";
 import SearchBar from "../../components/shared/SearchBar";
 import Spinner from "../../components/shared/Spinner";
-
-// Update the import to use the new hook with filters
 import { useGetBorrowBooks } from "../../hooks/books/useGetBorrowBooks";
 import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 
 const BorrowBooksPage = () => {
-  // State for user input (search, filters, page)
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const [selectedAuthorIds, setSelectedAuthorIds] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterSidebarOpen, setIsFilterSidebarOpen] = useState(false);
 
-  // Define a fixed limit for items per page
   const PAGE_LIMIT = 10;
 
-  // Build the filter object to pass to the hook
   const filters = {
-    search: searchTerm || undefined, // Pass undefined if empty to avoid querying an empty string
-    authors_ids: selectedAuthorIds.join(",") || undefined, // Convert array to comma-separated string
-    categories_ids: selectedCategoryIds.join(",") || undefined, // Convert array to comma-separated string
+    search: searchTerm || undefined,
+    authors_ids: selectedAuthorIds.join(",") || undefined,
+    categories_ids: selectedCategoryIds.join(",") || undefined,
     page: currentPage,
     limit: PAGE_LIMIT,
   };
 
-  // Call the new hook with the filters object
   const {
     books,
     pagination,
     isPending: isPendingGettingBooks,
   } = useGetBorrowBooks(filters);
 
-  // Fetch cart items as before
   const { cartItems, isPending: isPendingGettingCartItems } = useGetCartItems();
 
   const isLoading = isPendingGettingBooks || isPendingGettingCartItems;
@@ -86,11 +80,12 @@ const BorrowBooksPage = () => {
             {books && books.length > 0 ? (
               <div className="flex flex-col gap-4">
                 {books.map((book) => (
-                  <HorizontalBookCard
-                    book={book}
-                    cartItems={cartItems}
+                  <Link
+                    to={`/details/borrow/${book.book_details_id}`}
                     key={book.book_details_id}
-                  />
+                  >
+                    <HorizontalBookCard book={book} cartItems={cartItems} />
+                  </Link>
                 ))}
                 <Pagination
                   currentPage={pagination?.page || 1}

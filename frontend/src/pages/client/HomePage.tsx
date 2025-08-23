@@ -10,6 +10,7 @@ import RecommendationCarousel from "../../components/home/RecommendationCarousel
 import HomeSlider from "../../components/shared/HomeSlider";
 import { useGetBorrowBooks } from "../../hooks/books/useGetBorrowBooks";
 import { useGetPurchaseBooks } from "../../hooks/books/useGetPruchaseBooks";
+import Footer from "./Footer";
 
 export default function HomePage() {
   const { books: borrowBooks } = useGetBorrowBooks();
@@ -38,10 +39,7 @@ export default function HomePage() {
         ))}
       </HomeSlider>
 
-      <HomeSlider
-        title="Available Purchase Books"
-        to="/purchase-books"
-      >
+      <HomeSlider title="Available Purchase Books" to="/purchase-books">
         {purchaseBooks?.map((book) => (
           <SwiperSlide
             onClick={() => {
@@ -61,6 +59,7 @@ export default function HomePage() {
       
       <OurServices />
       <PromoCodeDiscount />
+      <Footer />
     </>
   );
 }

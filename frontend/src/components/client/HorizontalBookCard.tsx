@@ -1,11 +1,10 @@
+import clsx from "clsx";
 import { Star } from "lucide-react";
 import type { IBorrowBook, IPurchaseBook } from "../../types/Book";
 import type { AllCartItemsResponse } from "../../types/Cart";
 import { formatMoney } from "../../utils/formatting";
 import AddToCartButton from "./AddToCartButton";
 import QuantityControl from "./QuantityControl";
-import { Link } from "react-router-dom";
-import clsx from "clsx";
 
 interface BookCardProps {
   book: IPurchaseBook | IBorrowBook;
@@ -43,7 +42,7 @@ const HorizontalBookCard = ({ book, cartItems }: BookCardProps) => {
         { "opacity-60": isOutOfStock },
       )}
     >
-      <Link to={`/book/${book.book_details_id}`} className="flex w-full">
+      <div className="flex w-full">
         {/* Left Section - Book Cover */}
         <div className="w-32 flex-shrink-0 md:w-40">
           <div className="h-full w-full">
@@ -78,7 +77,7 @@ const HorizontalBookCard = ({ book, cartItems }: BookCardProps) => {
               <span className="text-layout">•</span>
               <div className="flex items-center gap-1">
                 <Star className="fill-secondary text-secondary h-4 w-4" />
-                <span className="text-layout text-sm">4.1</span>
+                <span className="text-layout text-sm">{book.rating}</span>
               </div>
             </div>
 
@@ -87,7 +86,7 @@ const HorizontalBookCard = ({ book, cartItems }: BookCardProps) => {
             </p>
           </div>
         </div>
-      </Link>
+      </div>
 
       {/* Right Section - Pricing and Add to Cart/Quantity Controls */}
       <div className="border-accent flex w-60 flex-col items-center justify-between border-l p-4 md:p-6">
