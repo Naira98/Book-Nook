@@ -8,7 +8,13 @@ import {
   Tag,
   Truck,
 } from "lucide-react";
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+} from "react";
 import { Field, Form } from "react-final-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -59,6 +65,16 @@ export default function CheckoutPage() {
     promo_code: new Decimal(0),
     total: new Decimal(0),
   });
+
+  useLayoutEffect(() => {
+    if (
+      cartItems &&
+      cartItems.borrow_items?.length === 0 &&
+      cartItems.purchase_items?.length === 0
+    ) {
+      navigate("/");
+    }
+  }, [cartItems, navigate]);
 
   useEffect(() => {
     if (cartItems) {
@@ -357,7 +373,9 @@ export default function CheckoutPage() {
                   name="pickup"
                   value={PickUpType.SITE}
                   checked={pickupType === "SITE"}
-                  onChange={(e) => setPickupType(e.target.value as PickUpType.SITE)}
+                  onChange={(e) =>
+                    setPickupType(e.target.value as PickUpType.SITE)
+                  }
                   className="form-radio text-secondary h-5 w-5"
                 />
                 <Store className="text-primary h-6 w-6" />
@@ -376,7 +394,9 @@ export default function CheckoutPage() {
                   name="pickup"
                   value={PickUpType.COURIER}
                   checked={pickupType === "COURIER"}
-                  onChange={(e) => setPickupType(e.target.value as PickUpType.COURIER)}
+                  onChange={(e) =>
+                    setPickupType(e.target.value as PickUpType.COURIER)
+                  }
                   className="form-radio text-secondary h-5 w-5"
                 />
                 <Truck className="text-primary h-6 w-6" />
@@ -508,7 +528,10 @@ export default function CheckoutPage() {
                   {/* Submit and Back Buttons */}
                   <div className="flex justify-center gap-4">
                     <MainButton
-                      onClick={() => navigate(-1)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate(-1);
+                      }}
                       className="rounded-xl bg-gray-500 px-6 py-2 text-white transition-colors duration-300 hover:bg-gray-600"
                     >
                       Back

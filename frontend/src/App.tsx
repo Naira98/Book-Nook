@@ -18,6 +18,8 @@ import BorrowBooksPage from "./pages/client/BorrowBooksPage";
 import CartPage from "./pages/client/CartPage";
 import ChechoutPage from "./pages/client/CheckoutPage";
 import CheckoutSuccess from "./pages/client/CheckoutSuccess";
+import ClientOrderDetailsPage from "./pages/client/ClientOrderDetailsPage";
+import ClientReturnOrderDetailsPage from "./pages/client/ClientReturnOrderDetailsPage";
 import CurrentBorrowsPage from "./pages/client/CurrentBorrowsPage";
 import HomePage from "./pages/client/HomePage";
 import Interests from "./pages/client/Interests";
@@ -54,7 +56,6 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
-          <Route path="/interests" element={<Interests />} />
 
           <Route
             path="/reset-password/:reset_token"
@@ -65,6 +66,7 @@ const App = () => {
         {/* CLIENT-only routes */}
         <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}>
           {/* Client pages with navbar */}
+          <Route path="/interests" element={<Interests />} />
           <Route path="/" element={<ClientWithNavbarLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/borrow-books" element={<BorrowBooksPage />} />
@@ -79,6 +81,14 @@ const App = () => {
             <Route path="/transactions" element={<TransactionsPage />} />
             <Route path="/orders-history" element={<OrdersPage />} />
             <Route path="/current-borrows" element={<CurrentBorrowsPage />} />
+            <Route
+              path="/orders-history/order/:orderId"
+              element={<ClientOrderDetailsPage />}
+            />
+            <Route
+              path="/orders-history/return-order/:returnOrderId"
+              element={<ClientReturnOrderDetailsPage />}
+            />
           </Route>
 
           <Route path="/transaction-success" element={<CheckoutSuccess />} />
@@ -146,7 +156,10 @@ const App = () => {
         {/* MANAGER-only routes */}
         <Route element={<RoleBasedRoute allowedRoles={[UserRole.MANAGER]} />}>
           <Route element={<ManagerLayout />}>
-            <Route path="/manager/dashboard" element={<ManagerDashboardPage />} />
+            <Route
+              path="/manager/dashboard"
+              element={<ManagerDashboardPage />}
+            />
             <Route path="/manager/promo-codes" element={<PromoCodesPage />} />
             <Route
               path="/manager/promo-codes/create"

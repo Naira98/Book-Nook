@@ -32,7 +32,7 @@ const Sidebar = ({ navItems }: { navItems: navItem[] }) => {
   return (
     <aside className="text-text flex h-screen w-16 flex-col gap-8 border-r-1 border-slate-100 bg-white p-2 transition-all duration-300 md:w-56 lg:w-72">
       <Link
-        to={getHomePath(me!.role)}
+        to={getHomePath(me!.role, me!.interests)}
         className="flex justify-center pt-4 md:pt-6"
       >
         <img src={logo} alt="logo" className="mb-4 w-16 md:w-20 lg:w-32" />

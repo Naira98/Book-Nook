@@ -1,11 +1,26 @@
+import clsx from "clsx";
 import { LogOut, ShoppingCart, User } from "lucide-react";
+import { useMemo } from "react";
 import { Link, NavLink } from "react-router-dom";
 import logo from "../../assets/logo_without_sharshora.svg";
 import { useLogout } from "../../hooks/auth/useLogout";
-import clsx from "clsx";
+import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 
 const Navbar = () => {
   const { logout } = useLogout();
+  const { cartItems } = useGetCartItems();
+  const cartItemsCount = useMemo(() => {
+    if (!cartItems) return 0;
+    let numOfCartItems = 0;
+
+    cartItems.purchase_items.forEach((item) => {
+      numOfCartItems += item.quantity;
+    });
+    cartItems.borrow_items.forEach((item) => {
+      numOfCartItems += item.borrowing_weeks;
+    });
+    return numOfCartItems;
+  }, [cartItems]);
 
   return (
     <nav className="border-accent border-b-1 py-3 shadow-sm">
@@ -38,12 +53,17 @@ const Navbar = () => {
           <NavLink
             to="/cart"
             className={({ isActive }) =>
-              clsx("text-primary hover:text-secondary duration-200", {
+              clsx("text-primary hover:text-secondary relative duration-200", {
                 "text-secondary": isActive,
               })
             }
           >
             <ShoppingCart />
+            {cartItemsCount > 0 && (
+              <span className="bg-secondary absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full text-xs text-white">
+                {cartItemsCount}
+              </span>
+            )}
           </NavLink>
 
           <NavLink

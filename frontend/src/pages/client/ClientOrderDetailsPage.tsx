@@ -7,7 +7,7 @@ const statusSteps = {
   COURIER: ["CREATED", "ON_THE_WAY", "PICKED_UP"],
 };
 
-export default function OrderDetailsPage() {
+export default function ClientOrderDetailsPage() {
   const { orderId } = useParams<{ orderId: string }>();
   const { order } = useGetUserOrderDetails(orderId);
 

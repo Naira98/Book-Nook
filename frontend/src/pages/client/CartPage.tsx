@@ -122,12 +122,15 @@ const CheckoutPage = () => {
           >
             Back
           </MainButton>
-          <MainButton
-            className="bg-primary hover:bg-hover !w-full cursor-pointer rounded-xl text-white md:!w-[200px]"
-            onClick={() => navigate("/checkout")}
-          >
-            Checkout
-          </MainButton>
+          {(cartItems?.borrow_items.length !== 0 ||
+            cartItems?.purchase_items.length !== 0) && (
+            <MainButton
+              className="bg-primary hover:bg-hover !w-full cursor-pointer rounded-xl text-white md:!w-[200px]"
+              onClick={() => navigate("/checkout")}
+            >
+              Checkout
+            </MainButton>
+          )}
         </div>
       </div>
 

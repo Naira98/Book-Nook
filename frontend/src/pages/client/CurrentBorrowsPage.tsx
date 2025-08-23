@@ -1,5 +1,6 @@
 import { AlertTriangle, BookOpen, Calendar, CheckCircle } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import BorrowedBookItem from "../../components/client/BorrowedBookItem";
 import ReturnOrderForm from "../../components/client/ReturnOrderForm";
 import SummaryCard from "../../components/client/SummaryCard";
@@ -11,8 +12,9 @@ import { formatMoney } from "../../utils/formatting";
 const CurrentBorrowsPage = () => {
   const { clientBorrows, isPending } = useGetClientBorrows();
   const [selectedBooks, setSelectedBooks] = useState<Set<number>>(new Set());
+  const [totalDeposit, setTotalDeposit] = useState(0);
   const [showReturnOrderForm, setShowReturnOrderForm] = useState(false);
-
+  const navigate = useNavigate();
   // Calculate summary statistics
   const summary = useMemo(() => {
     if (!clientBorrows) return null;
@@ -58,12 +60,18 @@ const CurrentBorrowsPage = () => {
     };
   }, [clientBorrows]);
 
-  const handleBookSelection = (bookId: number, selected: boolean) => {
+  const handleBookSelection = (
+    bookId: number,
+    selected: boolean,
+    deposit: number,
+  ) => {
     const newSelection = new Set(selectedBooks);
     if (selected) {
       newSelection.add(bookId);
+      setTotalDeposit(totalDeposit + deposit);
     } else {
       newSelection.delete(bookId);
+      setTotalDeposit(totalDeposit - deposit);
     }
     setSelectedBooks(newSelection);
   };
@@ -85,6 +93,7 @@ const CurrentBorrowsPage = () => {
   const handleReturnOrderSuccess = () => {
     setSelectedBooks(new Set());
     setShowReturnOrderForm(false);
+    navigate("/orders-history");
   };
 
   const summaryCards = [
@@ -207,6 +216,10 @@ const CurrentBorrowsPage = () => {
               <span className="text-sm text-gray-600">
                 {selectedBooks.size} book{selectedBooks.size !== 1 ? "s" : ""}{" "}
                 selected
+              </span>
+              <span className="text-sm text-gray-600">
+                {" "}
+                - Refund: {formatMoney(totalDeposit.toString())} EGP
               </span>
             </div>
             <MainButton
