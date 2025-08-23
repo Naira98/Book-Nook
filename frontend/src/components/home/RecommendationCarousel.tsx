@@ -1,5 +1,5 @@
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Navigation } from "swiper/modules";
+import { Navigation } from "swiper/modules";
 import RecommendationBookCard from "./RecommendBookCard";
 import { useRecommendations } from "../../hooks/recommendations/useRecommendations";
 

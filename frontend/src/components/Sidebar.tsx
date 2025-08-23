@@ -26,6 +26,9 @@ const Sidebar = ({ navItems }: { navItems: navItem[] }) => {
         location.pathname.startsWith("/staff/return-orders/")
       );
     }
+    if (item.to.startsWith("/manager/users")) {
+      return location.pathname.startsWith("/manager/users");
+    }
     return location.pathname.startsWith(item.to);
   };
 
@@ -39,7 +42,7 @@ const Sidebar = ({ navItems }: { navItems: navItem[] }) => {
       </Link>
 
       <div className="flex flex-1 flex-col justify-between">
-        <nav className="flex flex-col space-y-2 md:space-y-3 px-2">
+        <nav className="flex flex-col space-y-2 px-2 md:space-y-3">
           {navItems.map((item) => {
             const isActive = isActiveLink(item);
             return (

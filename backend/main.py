@@ -8,6 +8,7 @@ from decimal import Decimal
 from core.cloudinary import init_cloudinary
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI
+
 # from RAG.data import ensure_vector_store_initialized
 from routers.auth import auth_router
 from routers.book import book_router
@@ -20,9 +21,6 @@ from routers.promo_code import promo_code_router
 from routers.return_order import return_order_router
 from routers.wallet import wallet_router
 from routers.websocket import websocket_router
-from routers.listAllUsers import getUsers 
-from routers.addNewStaff import add_new_staff
-
 from settings import settings
 
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__))))

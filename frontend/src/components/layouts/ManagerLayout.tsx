@@ -18,7 +18,7 @@ const navItems = [
   { to: "/staff/books", label: "Books", icon: <LibraryBig /> },
   { to: "/staff/orders", label: "Orders", icon: <Package /> },
   { to: "/manager/promo-codes", label: "Promo Codes", icon: <Tag /> },
-  { to: "/manager/users", label: "Users", icon: <UsersRound /> },
+  { to: "/manager/users/list-all-users", label: "Users", icon: <UsersRound /> },
   { to: "/manager/settings", label: "Settings", icon: <Settings /> },
 ];
 

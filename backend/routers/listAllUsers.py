@@ -55,7 +55,7 @@ async def add_new_staff(
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(db_error)}")
     except HTTPException:
-        raise  # Re-raise known HTTP exceptions (email/phone/national_id exists)
+        raise
     except Exception as e:
         await db.rollback()
         raise HTTPException(

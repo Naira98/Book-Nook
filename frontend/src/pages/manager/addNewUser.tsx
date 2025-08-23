@@ -1,13 +1,12 @@
 import { Field, Form } from "react-final-form";
-import AuthLayout from "../../components/auth/AuthLayout";
 import MainButton from "../../components/shared/buttons/MainButton";
+import SelectInput from "../../components/shared/formInputs/SelectInput";
 import TextInput from "../../components/shared/formInputs/TextInput";
 import { useAddNewStaff } from "../../hooks/manager/useAddNewStaff";
 import type { AddNewUserFormValues } from "../../types/auth";
 
 export default function AddNewUser() {
-  const {addNewStaff,isPending}=useAddNewStaff();
-
+  const { addNewStaff, isPending } = useAddNewStaff();
 
   const validate = (values: AddNewUserFormValues) => {
     const errors: Partial<AddNewUserFormValues> = {};
@@ -87,58 +86,78 @@ export default function AddNewUser() {
   };
 
   return (
-    <AuthLayout>
-   
+    <div className="p-10">
       <div className="flex flex-1 flex-col overflow-auto">
+        <h1 className="text-primary mb-6 text-3xl font-bold">Add New User</h1>
         <div className="flex w-full flex-col p-6 md:w-1/2 lg:p-8">
           <Form
             onSubmit={onSubmit}
             validate={validate}
-            render={({ handleSubmit, submitting, pristine }) => (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {addNewStaffData.map((field) => (
-                  <Field key={field.name} name={field.name}>
-                    {({ input, meta }) => (
-                      <div className={field.containerClassName}>
-                        {field.type === "select" ? (
-                          <select
-                            {...input}
-                            className="w-full border p-2 rounded"
+            render={({
+              handleSubmit,
+              submitting,
+              pristine,
+              hasValidationErrors,
+            }) => (
+              <form onSubmit={handleSubmit}>
+                <div className="flex flex-wrap gap-x-5">
+                  {addNewStaffData.map((item) => (
+                    <Field name={item.name} key={item.name}>
+                      {({ input, meta }) =>
+                        item.type === "select" ? (
+                          <div
+                            className={`mb-9 flex items-center gap-8 ${item.containerClassName}`}
                           >
-                            <option value="">{field.placeholder}</option>
-                            {field.options?.map((opt) => (
-                              <option key={opt.value} value={opt.value}>
-                                {opt.label}
-                              </option>
-                            ))}
-                          </select>
+                            <SelectInput
+                              {...input}
+                              placeholder={item.placeholder}
+                              options={
+                                item.options
+                                  ? item.options.map((opt) => ({
+                                      id: opt.value,
+                                      name: opt.label,
+                                    }))
+                                  : []
+                              }
+                              error={
+                                meta.touched && meta.error
+                                  ? meta.error
+                                  : undefined
+                              }
+                              containerClassName="flex-1"
+                            />
+                          </div>
                         ) : (
                           <TextInput
                             {...input}
-                            type={field.type}
-                            placeholder={field.placeholder}
-                            error={meta.touched && meta.error}
+                            type={item.type}
+                            placeholder={item.placeholder}
+                            containerClassName={item.containerClassName}
+                            error={
+                              meta.touched && meta.error
+                                ? meta.error
+                                : undefined
+                            }
                           />
-                        )}
-                      
-                      </div>
-                    )}
-                  </Field>
-                ))}
+                        )
+                      }
+                    </Field>
+                  ))}
+                </div>
 
-                <MainButton
-                  // type="submit"
-                  disabled={submitting || pristine || isPending}
-                  className="w-full"
-                  loading={isPending}
-                >Add User</MainButton>
+                <div className="mt-6">
+                  <MainButton
+                    disabled={submitting || pristine || hasValidationErrors}
+                    loading={isPending}
+                  >
+                    Add New Staff Member
+                  </MainButton>
+                </div>
               </form>
             )}
           />
         </div>
       </div>
-    </AuthLayout>
+    </div>
   );
 }
-
-

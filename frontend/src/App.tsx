@@ -41,7 +41,7 @@ import EmployeeReturnOrderDetailsPage from "./pages/employee/EmployeeRetrunOrder
 import PromoCodesPage from "./pages/employee/PromoCodesPage";
 import UpdateBookPage from "./pages/employee/UpdateBookPage";
 import AddNewUser from "./pages/manager/addNewUser";
-import UsersList from './pages/manager/listallUser';
+import UsersList from "./pages/manager/listallUser";
 import ManagerDashboardPage from "./pages/manager/ManagerDashboardPage";
 import ManagerSettingsPage from "./pages/manager/ManagerSettingsPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -74,8 +74,14 @@ const App = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/borrow-books" element={<BorrowBooksPage />} />
             <Route path="/purchase-books" element={<PurchaseBooksPage />} />
-            <Route path="/details/borrow/:bookDetailsId" element={<BorrowDetailsPage />} />
-            <Route path="/details/purchase/:bookDetailsId" element={<PurchaseDetailsPage />} />
+            <Route
+              path="/details/borrow/:bookDetailsId"
+              element={<BorrowDetailsPage />}
+            />
+            <Route
+              path="/details/purchase/:bookDetailsId"
+              element={<PurchaseDetailsPage />}
+            />
 
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<ChechoutPage />} />
@@ -171,8 +177,11 @@ const App = () => {
               element={<CreatePromoCodePage />}
             />
             <Route path="/manager/settings" element={<ManagerSettingsPage />} />
-            <Route path="manager/add-new-user" element={<AddNewUser />} />
-            <Route path="manager/list-all-users" element={<UsersList />} />
+            <Route path="manager/users/add-new-user" element={<AddNewUser />} />
+            <Route
+              path="manager/users/list-all-users"
+              element={<UsersList />}
+            />
           </Route>
         </Route>
 
