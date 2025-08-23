@@ -3,13 +3,16 @@ import "../../node_modules/swiper/modules/navigation.css";
 import "../../node_modules/swiper/modules/pagination.css";
 import "../../node_modules/swiper/swiper.css";
 import HeroSection from "../components/home/HeroSection";
+import OurServices from "../components/home/OurServices";
 import PromoCodeDiscount from "../components/home/PromoCodeDiscount";
+import RecommendationCarousel from "../components/home/RecommendationCarousel";
 import HomeSlider from "../components/shared/HomeSlider";
 import { useGetBorrowBooks } from "../hooks/books/useGetBorrowBooks";
-import OurServices from "../components/home/OurServices";
-
 export default function Home() {
   const { borrowBooks } = useGetBorrowBooks();
+
+  // Fetch full book objects for recommended IDs to get cover_img and other fields
+
   return (
     <>
       <HeroSection />
@@ -47,6 +50,9 @@ export default function Home() {
           </SwiperSlide>
         ))}
       </HomeSlider>
+
+      <RecommendationCarousel />
+
       <OurServices />
       <PromoCodeDiscount />
     </>
