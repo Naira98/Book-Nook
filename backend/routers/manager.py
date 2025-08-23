@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from db.database import get_db
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from models.book import Book, BookDetails
 from models.order import (
     BorrowBookProblem,
@@ -10,6 +10,7 @@ from models.order import (
     PurchaseOrderBook,
     ReturnOrder,
 )
+from models.settings import Settings
 from models.transaction import Transaction, TransactionType
 from models.user import User
 from schemas.manager import (
@@ -20,10 +21,12 @@ from schemas.manager import (
     MostBorrowedBook,
     OrderStats,
     ReturnOrderStats,
+    SettingsResponse,
+    SettingsUpdate,
     TopSellingBook,
     UserStats,
 )
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils.auth import manager_required
 
@@ -36,7 +39,7 @@ manager_router = APIRouter(
 @manager_router.get("/dashboard-stats", response_model=ManagerDashboardStats)
 async def get_manager_dashboard_stats(
     db: AsyncSession = Depends(get_db),
-    _ = Depends(manager_required),
+    _=Depends(manager_required),
 ):
     # --- Order Statistics ---
     total_orders_result = await db.execute(select(func.count(Order.id)))
@@ -206,7 +209,7 @@ async def get_manager_dashboard_stats(
     top_5_most_borrowed_books = [
         MostBorrowedBook(title=title, total_borrows=borrows)
         for title, borrows in top_5_most_borrowed_books_result.all()
-    ]   
+    ]
 
     inventory_stats = InventoryStats(
         total_books=total_books,
@@ -243,3 +246,113 @@ async def get_manager_dashboard_stats(
         inventory_stats=inventory_stats,
         user_stats=user_stats,
     )
+
+
+@manager_router.get(
+    "/settings",
+    response_model=SettingsResponse,
+)
+async def get_settings(_=Depends(manager_required), db: AsyncSession = Depends(get_db)):
+    try:
+        result = await db.execute(select(Settings))
+        settings = result.scalar_one_or_none()
+
+        if not settings:
+            # Create default settings if they don't exist
+            default_settings = Settings(
+                deposit_perc=Decimal("10.00"),
+                borrow_perc=Decimal("5.00"),
+                delay_perc=Decimal("2.00"),
+                delivery_fees=Decimal("5.00"),
+                min_borrow_fee=Decimal("1.00"),
+                max_num_of_borrow_books=5,
+            )
+            db.add(default_settings)
+            await db.commit()
+            await db.refresh(default_settings)
+            return default_settings
+
+        return settings
+
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error retrieving settings: {str(e)}",
+        )
+
+
+@manager_router.patch(
+    "/settings",
+    response_model=SettingsResponse,
+)
+async def update_settings(
+    settings_update: SettingsUpdate,
+    _=Depends(manager_required),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        # Get non-null fields from the update request
+        update_data = settings_update.model_dump(exclude_unset=True, exclude_none=True)
+
+        if not update_data:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No fields provided for update",
+            )
+
+        # Check if settings exist
+        result = await db.execute(select(Settings))
+        settings = result.scalar_one_or_none()
+
+        if not settings:
+            # Create new settings with provided values and defaults for others
+            default_values = {
+                "deposit_perc": Decimal("30.00"),
+                "borrow_perc": Decimal("10.00"),
+                "delay_perc": Decimal("3.00"),
+                "delivery_fees": Decimal("20.00"),
+                "min_borrow_fee": Decimal("5.00"),
+                "max_num_of_borrow_books": 3,
+            }
+            # Merge provided values with defaults (only non-None values)
+            provided_values = {k: v for k, v in update_data.items() if v is not None}
+            create_data = {**default_values, **provided_values}
+            new_settings = Settings(**create_data)
+            db.add(new_settings)
+            await db.commit()
+            await db.refresh(new_settings)
+            return new_settings
+
+        # Update existing settings (only non-None values)
+        valid_update_data = {k: v for k, v in update_data.items() if v is not None}
+
+        if not valid_update_data:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No valid fields provided for update",
+            )
+
+        stmt = (
+            update(Settings)
+            .where(Settings.id == 1)
+            .values(**valid_update_data)
+            .returning(Settings)
+        )
+
+        result = await db.execute(stmt)
+        updated_settings = result.scalar_one()
+        await db.commit()
+
+        # Refresh to get the updated object
+        await db.refresh(updated_settings)
+        return updated_settings
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error updating settings: {str(e)}",
+        )
