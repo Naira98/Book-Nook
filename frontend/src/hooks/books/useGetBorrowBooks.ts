@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import apiReq from "../../services/apiReq";
 import type { IBorrowBook } from "../../types/Book";
 
-// Define a type for the API's paginated response
+// Define a type for the API's paginated response   
 interface PaginatedResponse<T> {
   items: T[];
   total: number;

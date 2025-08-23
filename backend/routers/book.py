@@ -27,9 +27,9 @@ from fastapi import (
     File,
     Form,
     HTTPException,
+    Query,
     UploadFile,
     status,
-    Query,
 )
 from fastapi.responses import JSONResponse
 from schemas.book import (
@@ -40,10 +40,13 @@ from schemas.book import (
     BorrowBookResponse,
     CreateAuthorCategoryRequest,
     CreateBookRequest,
-    PaginatedPurchaseBooksResponse,
-    UpdateBookData,
     PaginatedBorrowBooksResponse,
+    PaginatedPurchaseBooksResponse,
+    PurchaseBookResponse,
+    UpdateBookData,
 )
+
+from models.user_tracker import UserTracker
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from utils.auth import get_user_id_via_session
@@ -89,13 +92,28 @@ async def get_borrow_books(
     )
 
 
-@book_router.get("/borrow/{book_details_id}", response_model=List[BorrowBookResponse])
+@book_router.get("/borrow/{book_details_id}", response_model=BorrowBookResponse)
 async def get_borrow_book_details(
     book_details_id: int,
     db: AsyncSession = Depends(get_db),
-    _=Depends(get_user_id_via_session),
+    user_id: int = Depends(get_user_id_via_session),
 ):
-    return await get_borrow_books_crud(db, book_details_id=book_details_id)
+    book_details = await get_borrow_books_crud(db, book_details_id=book_details_id)
+    if not len(book_details["items"]):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+        )
+
+    book_details_data = book_details["items"][0]
+    user_tracker = UserTracker(
+        category=book_details_data["category"]["name"],
+        user_id=user_id,
+        book_id=book_details_data["book_id"],
+    )
+    db.add(user_tracker)
+    await db.commit()
+
+    return book_details_data
 
 
 @book_router.get("/purchase", response_model=PaginatedPurchaseBooksResponse)
@@ -114,7 +132,7 @@ async def get_purchase_books(
     # Pagination parameters
     page: int = Query(1, ge=1, description="Page number."),
     limit: int = Query(10, ge=1, le=100, description="Number of items per page."),
-    _=Depends(get_user_id_via_session),
+    user_id=Depends(get_user_id_via_session),
 ):
     """
     Retrieves a paginated list of books available for purchase, with optional
@@ -130,15 +148,28 @@ async def get_purchase_books(
     )
 
 
-@book_router.get(
-    "/purchase/{book_details_id}", response_model=PaginatedPurchaseBooksResponse
-)
+@book_router.get("/purchase/{book_details_id}", response_model=PurchaseBookResponse)
 async def get_purchase_book_details(
     book_details_id: int,
     db: AsyncSession = Depends(get_db),
-    _=Depends(get_user_id_via_session),
+    user_id=Depends(get_user_id_via_session),
 ):
-    return await get_purchase_books_crud(db, book_details_id=book_details_id)
+    book_details = await get_purchase_books_crud(db, book_details_id=book_details_id)
+    if not len(book_details["items"]):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+        )
+
+    book_details_data = book_details["items"][0]
+    user_tracker = UserTracker(
+        category=book_details_data["category"]["name"],
+        user_id=user_id,
+        book_id=book_details_data["book_id"],
+    )
+    db.add(user_tracker)
+    await db.commit()
+
+    return book_details_data
 
 
 @book_router.get("/authors", response_model=List[AuthorCategorySchema])

@@ -25,6 +25,7 @@ export interface IPurchaseBook {
   available_stock: number;
   price: string;
   interests: IInterest[]; 
+  rating: string;
 }
 
 export interface IBorrowBook extends Omit<IPurchaseBook, "price"> {

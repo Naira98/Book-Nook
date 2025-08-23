@@ -6,8 +6,9 @@ import Pagination from "../../components/shared/pagination/Pagination";
 import SearchBar from "../../components/shared/SearchBar";
 import Spinner from "../../components/shared/Spinner";
 // Update the import to use the new hook with filters
-import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
+import { Link } from "react-router-dom";
 import { useGetPurchaseBooks } from "../../hooks/books/useGetPruchaseBooks";
+import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 
 const PurchaseBooksPage = () => {
   // State for user input (search, filters, page)
@@ -83,11 +84,12 @@ const PurchaseBooksPage = () => {
             {books && books.length > 0 ? (
               <div className="flex flex-col gap-4">
                 {books.map((book) => (
-                  <HorizontalBookCard
-                    book={book}
-                    cartItems={cartItems}
+                  <Link
+                    to={`/details/purchase/${book.book_details_id}`}
                     key={book.book_details_id}
-                  />
+                  >
+                    <HorizontalBookCard book={book} cartItems={cartItems} />
+                  </Link>
                 ))}
                 <Pagination
                   currentPage={pagination?.page || 1}
