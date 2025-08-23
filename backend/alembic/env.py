@@ -15,7 +15,7 @@ from models import (  # noqa: F401
     user,
     session,
     transaction,
-    UserTracker,
+    user_tracker,
 )
 
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), "..")))
