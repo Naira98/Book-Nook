@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiReq from "../../services/apiReq";
 import type { CreateOrderRequest } from "../../types/Orders";
+import { useGetMe } from "../auth/useGetMe";
 
 export function useCreateOrder() {
   const navigate = useNavigate();
+  const { me } = useGetMe();
   const queryClient = new QueryClient();
 
   const { mutate: createOrder, isPending } = useMutation({
@@ -16,7 +18,8 @@ export function useCreateOrder() {
       toast.success("Order created successfully");
       queryClient.invalidateQueries({ queryKey: ["me"] });
       queryClient.invalidateQueries({ queryKey: ["allOrders"] });
-      navigate("/");
+      queryClient.invalidateQueries({ queryKey: ["cartItems", me?.id] });
+      navigate("/orders-history");
     },
     onError: (err) => {
       console.log(err);

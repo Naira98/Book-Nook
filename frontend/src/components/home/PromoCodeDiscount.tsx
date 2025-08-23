@@ -9,9 +9,9 @@ export default function PromoCodeDiscount() {
       <div className="relative w-full overflow-hidden rounded-lg bg-[url('./assets/hero-banner.jpg')] px-4 py-24 sm:px-8 lg:px-16">
         <div className="relative z-20 w-fit">
           <h2 className="mb-10 w-fit text-4xl font-bold text-white">
-            Get 15% discount
+            Get 20% discount
             <br />
-            with welcome15 promocode
+            with welcome20 promocode
           </h2>
 
           <MainButton

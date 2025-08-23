@@ -14,7 +14,6 @@ export function useChangeOrderStatus() {
       return await apiReq("PATCH", "/order/order-status", values);
     },
     onSuccess: (resp: Order) => {
-      toast("Order status changed successfully", { type: "success" });
 
       queryClient.setQueryData(
         ["allStaffOrders"],

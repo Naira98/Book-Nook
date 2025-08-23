@@ -6,7 +6,7 @@ import logo from '../../assets/light-bg-logo.svg';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-primary mt-12 py-12 text-white relative overflow-hidden">
+    <footer className="bg-primary py-12 text-white relative overflow-hidden">
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
         
         {/* About Section */}

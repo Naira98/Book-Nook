@@ -1,12 +1,13 @@
-import { Calendar, AlertTriangle, CheckCircle } from "lucide-react";
+import { AlertTriangle, Calendar, CheckCircle } from "lucide-react";
+import { useUpdateBorrowOrderBookProblem } from "../../hooks/orders/useUpdateBorrowOrderBookProblem";
+import { BorrowBookProblem } from "../../types/Orders";
 import type { IClientBorrows } from "../../types/ReturnOrder";
 import { formatDate, formatMoney } from "../../utils/formatting";
-import { useMarkBookAsLost } from "../../hooks/orders/useMarkBookAsLost";
 
 interface BorrowedBookItemProps {
   borrowedBook: IClientBorrows;
   isSelected: boolean;
-  onSelect: (bookId: number, selected: boolean) => void;
+  onSelect: (bookId: number, selected: boolean, deposit: number) => void;
   showActions?: boolean;
 }
 
@@ -16,7 +17,8 @@ const BorrowedBookItem = ({
   onSelect,
   showActions = true,
 }: BorrowedBookItemProps) => {
-  const { markBookAsLost, isPending } = useMarkBookAsLost();
+  const { updateBorrowBookProblem, isPending } =
+    useUpdateBorrowOrderBookProblem();
 
   const now = new Date();
   const expectedReturnDate = new Date(borrowedBook.expected_return_date);
@@ -36,9 +38,9 @@ const BorrowedBookItem = ({
   const netRefund = depositAmount - delayFees;
 
   const handleMarkAsLost = async () => {
-    markBookAsLost({
+    updateBorrowBookProblem({
       borrow_order_book_id: borrowedBook.book_details_id,
-      new_status: "LOST",
+      new_status: BorrowBookProblem.LOST,
     });
   };
 
@@ -57,7 +59,11 @@ const BorrowedBookItem = ({
             type="checkbox"
             checked={isSelected}
             onChange={(e) =>
-              onSelect(borrowedBook.book_details_id, e.target.checked)
+              onSelect(
+                borrowedBook.book_details_id,
+                e.target.checked,
+                depositAmount,
+              )
             }
             className="text-primary focus:ring-primary h-5 w-5 rounded border-gray-300"
           />

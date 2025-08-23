@@ -19,7 +19,12 @@ from models.user import User, UserRole
 from schemas.order import (
     UpdateReturnOrderStatusRequest,
 )
-from schemas.return_order import ClientBorrowsResponse, ReturnOrderRequest
+from schemas.return_order import (
+    ClientBorrowsResponse,
+    ReturnOrderRequest,
+    AllUserReturnOrders,
+    UserOrderDetails,
+)
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
@@ -46,6 +51,85 @@ async def get_client_borrows(
 ):
     client_borrows = await get_client_borrows_books_crud(user.id, db)
     return client_borrows
+
+
+@return_order_router.get(
+    "/my", status_code=status.HTTP_200_OK, response_model=AllUserReturnOrders
+)
+async def get_all_user_return_orders(
+    user: Annotated[User, Depends(get_user_via_session)],
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        get_return_orders_query = (
+            select(ReturnOrder)
+            .options(joinedload(ReturnOrder.user))
+            .options(
+                selectinload(ReturnOrder.borrow_order_books_details).options(
+                    joinedload(BorrowOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    ),
+                ),
+            )
+            .where(ReturnOrder.user_id == user.id)
+            .order_by(ReturnOrder.created_at.desc())
+        )
+
+        return_orders_result = await db.execute(get_return_orders_query)
+
+        return_orders = return_orders_result.scalars().unique().all()
+
+        return {"return_orders": return_orders}
+
+    except Exception as e:
+        # For any unexpected error, raise a generic 500 error with the exception details
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred while fetching orders: {str(e)}",
+        )
+
+
+@return_order_router.get(
+    "/my/details/{return_order_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=UserOrderDetails,
+)
+async def get_user_return_order_details(
+    return_order_id: int,
+    user: Annotated[User, Depends(get_user_via_session)],
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        get_return_order_query = (
+            select(ReturnOrder)
+            .options(joinedload(ReturnOrder.user))
+            .options(
+                selectinload(ReturnOrder.borrow_order_books_details).options(
+                    joinedload(BorrowOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    ),
+                ),
+            )
+            .where(ReturnOrder.user_id == user.id, ReturnOrder.id == return_order_id)
+        )
+
+        return_return_order_result = await db.execute(get_return_order_query)
+
+        return_order = return_return_order_result.scalars().unique().first()
+        if not return_order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Return Order with id {return_order_id} not found.",
+            )
+
+        return return_order
+
+    except Exception as e:
+        # For any unexpected error, raise a generic 500 error with the exception details
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred while fetching orders: {str(e)}",
+        )
 
 
 @return_order_router.post("/", status_code=status.HTTP_201_CREATED)

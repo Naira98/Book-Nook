@@ -8,19 +8,20 @@ from decimal import Decimal
 from core.cloudinary import init_cloudinary
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from RAG.data import ensure_vector_store_initialized
+# from RAG.data import ensure_vector_store_initialized
 from routers.auth import auth_router
 from routers.book import book_router
 from routers.cart import cart_router
 from routers.interests import interest_router
+# from routers.list_all_users import get_users
+from routers.manager import manager_router
 from routers.order import order_router
 from routers.promo_code import promo_code_router
 from routers.return_order import return_order_router
 from routers.wallet import wallet_router
 from routers.websocket import websocket_router
+from routers.listAllUsers import getUsers 
 from settings import settings
-from routers import user_interests
 
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__))))
 
@@ -41,7 +42,7 @@ async def lifespan(app: FastAPI):
     # Logic here will run before the application starts receiving requests.
     init_cloudinary()
     print("Application startup...", "🚀🚀🚀")
-    ensure_vector_store_initialized()
+    # ensure_vector_store_initialized()
     print("Vector store initialized successfully!", "✌️✌️✌️")
     # RAG system will be initialized lazily on first use
     print("RAG system will initialize on first use")
@@ -59,14 +60,6 @@ app = FastAPI(
     json_encoder=CustomJSONEncoder,
 )
 
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
-    allow_credentials=False,  # Must be False when using allow_origins=["*"]
-    allow_methods=["*"],  # Allow all methods
-    allow_headers=["*"],  # Allow all headers
-)
 
 api_router = APIRouter(prefix="/api")
 
@@ -79,6 +72,9 @@ api_router.include_router(interest_router)
 api_router.include_router(websocket_router)
 api_router.include_router(wallet_router)
 api_router.include_router(return_order_router)
+api_router.include_router(getUsers)
+# api_router.include_router(get_users)
+api_router.include_router(manager_router)
+api_router.include_router(interest_router)
 
 app.include_router(api_router)
-app.include_router(user_interests.router)

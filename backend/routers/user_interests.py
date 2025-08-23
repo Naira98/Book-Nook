@@ -9,13 +9,13 @@ from RAG.data import get_recommendations
 from utils.rag import extract_and_parse_json
 
 # Router for handling user interests
-router = APIRouter(
-    prefix="/api/interests",
+interests_router = APIRouter(
+    prefix="/interests",
     tags=["Interests"],
 )
 
 
-@router.put("/", response_model=InterestsResponse)
+@interests_router.put("/", response_model=InterestsResponse)
 async def set_user_interests(
     request: InterestsRequest,
     db: AsyncSession = Depends(get_db),
@@ -32,7 +32,7 @@ async def set_user_interests(
         interests=request.interests,
     )
 
-@router.get("/recommend")
+@interests_router.get("/recommend")
 async def recommend_for_current_user(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_user_via_session),
