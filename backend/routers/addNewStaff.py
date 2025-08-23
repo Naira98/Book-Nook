@@ -1,27 +1,34 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+
+from core.auth import (
+    get_password_hash,
+    
+    
+)
 from db.database import get_db
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response, status
+from fastapi.responses import JSONResponse
+from jose import ExpiredSignatureError, JWTError  # type: ignore
+from models.session import Session
 from models.user import User, UserRole, UserStatus
-from schemas.listAllUsers import UserOut
-from typing import List
-from utils.auth import manager_required
-from schemas.addNewStaff import AddNewUserRequest, SuccessMessage
-from core.auth import get_password_hash
+from nanoid import generate  # type: ignore
+
+from settings import settings
+from sqlalchemy import delete, select
 from sqlalchemy.exc import SQLAlchemyError
-from fastapi import HTTPException, BackgroundTasks
+from sqlalchemy.ext.asyncio import AsyncSession
+from routers.listAllUsers import getUsers
+from schemas.addNewStaff import AddNewUserRequest, AddNewUserResponse
 
 getUsers = APIRouter(prefix="/users", tags=["Users"])
 
+@getUsers.post("/add", response_model=AddNewUserResponse)
+# @getUsers.post("/add", response_model=SuccessMessage)
 
-@getUsers.post("/add", response_model=SuccessMessage)
 async def add_new_staff(
     user_data: AddNewUserRequest,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
-
 ):
-    print("Adding new - 🔥🔥🔥🔥 staff member")
     try:
         result = await db.execute(select(User).where(User.email == user_data.email))
         if result.scalars().first():
@@ -63,22 +70,4 @@ async def add_new_staff(
         )
     db.add(new_user)
     await db.commit()
-    print("Adding new - 🔥🔥🔥🔥 staff member")
     await db.refresh(new_user)
-    return SuccessMessage(
-        success=True,
-        status_code=201,
-        message="User added successfully! 🎉"
-    )
-
-
-@getUsers.get("/get-all-users", response_model=List[UserOut])
-async def list_users(
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(manager_required),  # restrict here
-):  
-    users = await db.execute(
-        select(User).where(User.role != UserRole.MANAGER)  # Exclude managers if needed
-    )
-    print("Listing all users")
-    return users.scalars().all()

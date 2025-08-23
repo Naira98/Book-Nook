@@ -14,11 +14,11 @@ export interface RegisterFormData {
 }
 
 export interface AddNewUserFormValues {
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  nationalId: string;
-  phoneNumber: string;
+  national_id: string;
+  phone_number: string;
   password: string;
   confirmPassword: string;
   role:string;
