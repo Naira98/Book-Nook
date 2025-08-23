@@ -536,7 +536,6 @@ def get_all_books_sync(db: Session):
     stmt = select(Book).options(
         selectinload(Book.author),
         selectinload(Book.category),
-        selectinload(Book.book_details),
     )
     result = db.execute(stmt)
     return result.scalars().all()

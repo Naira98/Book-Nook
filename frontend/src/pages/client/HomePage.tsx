@@ -6,6 +6,7 @@ import "../../../node_modules/swiper/swiper.css";
 import HeroSection from "../../components/home/HeroSection";
 import OurServices from "../../components/home/OurServices";
 import PromoCodeDiscount from "../../components/home/PromoCodeDiscount";
+import RecommendationCarousel from "../../components/home/RecommendationCarousel";
 import HomeSlider from "../../components/shared/HomeSlider";
 import { useGetBorrowBooks } from "../../hooks/books/useGetBorrowBooks";
 import { useGetPurchaseBooks } from "../../hooks/books/useGetPruchaseBooks";
@@ -54,6 +55,8 @@ export default function HomePage() {
           </SwiperSlide>
         ))}
       </HomeSlider>
+      <RecommendationCarousel />
+      
       <OurServices />
       <PromoCodeDiscount />
       <Footer />
