@@ -12,8 +12,10 @@ import {
   Rocket,
   Sparkles,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchUserInterests, updateUserInterests } from "../../services/interests";
+import type { IInterest } from "../../types/Book";
 
 const interestsList = [
   { id: 1, name: "Novels", icon: Book, color: "text-red-500" },
@@ -30,25 +32,50 @@ const SelectInterests: React.FC = () => {
   const [selected, setSelected] = useState<number[]>([]);
   const navigate = useNavigate();
 
+  // Load existing user interests
+  useEffect(() => {
+    const loadUserInterests = async () => {
+      try {
+        const userInterests = await fetchUserInterests();
+        const ids = interestsList
+          .filter((item) => userInterests.some((i) => i.name === item.name))
+          .map((item) => item.id);
+        setSelected(ids);
+      } catch (err) {
+        console.error("Failed to fetch user interests", err);
+      }
+    };
+    loadUserInterests();
+  }, []);
+
   const toggleSelect = (id: number) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     navigate("/");
+
+    // Then try to update backend
+    const selectedInterests: IInterest[] = interestsList
+      .filter((item) => selected.includes(item.id))
+      .map((item) => ({ id: item.id, name: item.name }));
+
+    try {
+      await updateUserInterests(selectedInterests);
+    } catch (err) {
+      console.error("Failed to save interests", err);
+    }
   };
 
   return (
     <div className="relative flex min-h-screen flex-col items-center bg-[#dfe8ef] px-4 pt-20 pb-12 sm:px-6">
-      {/* Logo */}
       <img
         alt="logo"
         className="absolute top-4 left-4 w-16 sm:w-20 md:w-24 lg:w-28"
         src="/src/assets/dark-bg-logo.svg"
       />
-      {/* Card */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -59,11 +86,9 @@ const SelectInterests: React.FC = () => {
           Select Your Interests
         </h1>
         <p className="mb-8 text-center text-sm text-gray-600 sm:mb-10 sm:text-base">
-          Choose topics you’re most interested in to personalize your
-          experience.
+          Choose topics you’re most interested in to personalize your experience.
         </p>
 
-        {/* Interests Grid */}
         <div className="mb-10 grid grid-cols-2 gap-4 sm:mb-12 sm:grid-cols-3 sm:gap-6 md:grid-cols-4 md:gap-8">
           {interestsList.map((item) => {
             const Icon = item.icon;
@@ -80,22 +105,13 @@ const SelectInterests: React.FC = () => {
                     : "hover:border-primary border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
                 }`}
               >
-                {/* Icon */}
-                <Icon
-                  className={`mb-2 h-6 w-6 sm:mb-3 sm:h-8 sm:w-8 ${item.color}`}
-                />
+                <Icon className={`mb-2 h-6 w-6 sm:mb-3 sm:h-8 sm:w-8 ${item.color}`} />
                 <span className="text-center">{item.name}</span>
-
-                {/* Checkmark */}
                 {isSelected && (
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 500,
-                      damping: 30,
-                    }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     className="absolute right-2 bottom-2 text-green-500"
                   >
                     <Check size={20} className="sm:h-6 sm:w-6" />
@@ -106,7 +122,6 @@ const SelectInterests: React.FC = () => {
           })}
         </div>
 
-        {/* Buttons */}
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <motion.button
             whileHover={{ scale: 1.02 }}

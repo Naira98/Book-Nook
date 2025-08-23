@@ -2,7 +2,13 @@ interface ICategory {
   id: number;
   name: string;
 }
+
 interface IAuthor {
+  id: number;
+  name: string;
+}
+
+export interface IInterest {
   id: number;
   name: string;
 }
@@ -18,6 +24,7 @@ export interface IPurchaseBook {
   author: IAuthor;
   available_stock: number;
   price: string;
+  interests: IInterest[]; 
 }
 
 export interface IBorrowBook extends Omit<IPurchaseBook, "price"> {
