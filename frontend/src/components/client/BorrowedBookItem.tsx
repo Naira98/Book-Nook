@@ -7,7 +7,11 @@ import { formatDate, formatMoney } from "../../utils/formatting";
 interface BorrowedBookItemProps {
   borrowedBook: IClientBorrows;
   isSelected: boolean;
-  onSelect: (bookId: number, selected: boolean, deposit: number) => void;
+  onSelect: (
+    bookId: IClientBorrows,
+    selected: boolean,
+    deposit: number,
+  ) => void;
   showActions?: boolean;
 }
 
@@ -59,11 +63,7 @@ const BorrowedBookItem = ({
             type="checkbox"
             checked={isSelected}
             onChange={(e) =>
-              onSelect(
-                borrowedBook.book_details_id,
-                e.target.checked,
-                depositAmount,
-              )
+              onSelect(borrowedBook, e.target.checked, depositAmount)
             }
             className="text-primary focus:ring-primary h-5 w-5 rounded border-gray-300"
           />

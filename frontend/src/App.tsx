@@ -47,6 +47,7 @@ import ManagerSettingsPage from "./pages/manager/ManagerSettingsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import { UserRole } from "./types/User";
+import EmailVerification from "./pages/auth/EmailVerificationPage";
 
 const App = () => {
   const { me } = useGetMe();
@@ -59,7 +60,7 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
-
+          <Route path="/verify-email" element={<EmailVerification />} />
           <Route
             path="/reset-password/:reset_token"
             element={<ResetPassword />}

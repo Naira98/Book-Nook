@@ -8,6 +8,7 @@ import MainButton from "../../components/shared/buttons/MainButton";
 import Spinner from "../../components/shared/Spinner";
 import { useGetClientBorrows } from "../../hooks/orders/useGetClientBorrows";
 import { formatMoney } from "../../utils/formatting";
+import type { IClientBorrows } from "../../types/ReturnOrder";
 
 const CurrentBorrowsPage = () => {
   const { clientBorrows, isPending } = useGetClientBorrows();
@@ -61,17 +62,36 @@ const CurrentBorrowsPage = () => {
   }, [clientBorrows]);
 
   const handleBookSelection = (
-    bookId: number,
+    bookId: IClientBorrows,
     selected: boolean,
     deposit: number,
   ) => {
     const newSelection = new Set(selectedBooks);
+    const expectedData = new Date(bookId.expected_return_date);
+    const now = new Date();
     if (selected) {
-      newSelection.add(bookId);
-      setTotalDeposit(totalDeposit + deposit);
+      newSelection.add(bookId.book_details_id);
+
+      if (now > expectedData) {
+        const daysOverdue = Math.ceil(
+          (now.getTime() - expectedData.getTime()) / (1000 * 60 * 60 * 24),
+        );
+        const delayFees = parseFloat(bookId.delay_fees_per_day) * daysOverdue;
+        setTotalDeposit(totalDeposit - Math.abs(delayFees - deposit));
+      } else {
+        setTotalDeposit(totalDeposit + deposit);
+      }
     } else {
-      newSelection.delete(bookId);
-      setTotalDeposit(totalDeposit - deposit);
+      if (now > expectedData) {
+        const daysOverdue = Math.ceil(
+          (now.getTime() - expectedData.getTime()) / (1000 * 60 * 60 * 24),
+        );
+        const delayFees = parseFloat(bookId.delay_fees_per_day) * daysOverdue;
+        setTotalDeposit(totalDeposit + Math.abs(delayFees - deposit));
+      } else {
+        newSelection.delete(bookId.book_details_id);
+        setTotalDeposit(totalDeposit - deposit);
+      }
     }
     setSelectedBooks(newSelection);
   };
@@ -79,9 +99,26 @@ const CurrentBorrowsPage = () => {
   const handleSelectAll = () => {
     if (selectedBooks.size === clientBorrows?.length) {
       setSelectedBooks(new Set());
+      setTotalDeposit(0);
     } else {
       setSelectedBooks(
         new Set(clientBorrows?.map((book) => book.book_details_id) || []),
+      );
+      setTotalDeposit(
+        clientBorrows?.reduce((sum, book) => {
+          const expectedData = new Date(book.expected_return_date);
+          const now = new Date();
+
+          if (now > expectedData) {
+            const daysOverdue = Math.ceil(
+              (now.getTime() - expectedData.getTime()) / (1000 * 60 * 60 * 24),
+            );
+            const delayFees = parseFloat(book.delay_fees_per_day) * daysOverdue;
+            return sum - Math.abs(parseFloat(book.deposit_fees) - delayFees);
+          }
+
+          return sum + parseFloat(book.deposit_fees);
+        }, 0) || 0,
       );
     }
   };

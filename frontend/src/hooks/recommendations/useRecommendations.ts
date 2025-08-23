@@ -4,8 +4,12 @@ import apiReq from "../../services/apiReq";
 export type Recommendation = {
   id: number;
   title: string;
-  author: string;
-  category: string;
+  author: {
+    name: string;
+  };
+  category: {
+    name: string;
+  };
   status: string;
   reason: string;
   cover_img: string;

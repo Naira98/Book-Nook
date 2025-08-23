@@ -230,7 +230,7 @@ const ManagerSettingsPage = () => {
                         htmlFor="min_borrow_fee"
                         className="mb-1 block text-sm font-medium text-gray-700"
                       >
-                        Minimum Borrow Fee
+                        Minimum Borrow Fee (EGP)
                       </label>
                       <TextInput
                         name="min_borrow_fee"
