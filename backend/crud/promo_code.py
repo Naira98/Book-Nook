@@ -1,14 +1,15 @@
 from typing import Optional, Sequence
+
 from fastapi import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 from models.settings import PromoCode
 from schemas.promo_code import PromoCodeCreate, PromoCodeUpdate
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def get_promo_codes(db: AsyncSession) -> Sequence[PromoCode]:
     """Get all active promo codes."""
-    stmt = select(PromoCode).where(PromoCode.is_active)
+    stmt = select(PromoCode).order_by(PromoCode.id.desc())
     result = await db.execute(stmt)
     promo_codes = result.scalars().all()
     return promo_codes

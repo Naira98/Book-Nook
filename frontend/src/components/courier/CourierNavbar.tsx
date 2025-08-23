@@ -1,7 +1,11 @@
 import { useGetMe } from "../../hooks/auth/useGetMe";
 import logo from "../../assets/light-bg-logo.svg";
+import { useLogout } from "../../hooks/auth/useLogout";
+import { LogOut } from "lucide-react";
+
 export default function CourierNav() {
   const { me } = useGetMe();
+  const { logout } = useLogout();
   return (
     <nav className="bg-primary px-4 py-3 shadow-sm">
       <div className="mx-auto flex max-w-6xl items-center justify-between">
@@ -9,8 +13,11 @@ export default function CourierNav() {
           <img src={logo} alt="logo" className="w-20" />
         </div>
 
-        <p className="font-medium text-white">
+        <p className="font-medium text-white flex gap-3">
           {me?.first_name} {me?.last_name}
+        <span className="cursor-pointer text-white" onClick={() => logout()}>
+          <LogOut />
+        </span>
         </p>
       </div>
     </nav>

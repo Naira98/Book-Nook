@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_APP_API_URL;
+const API_BASE_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost/api';
 
 const apiReq = async (method: string, endpoint: string, body?: unknown) => {
   const options: RequestInit = {
@@ -53,3 +53,4 @@ const apiReq = async (method: string, endpoint: string, body?: unknown) => {
 };
 
 export default apiReq;
+

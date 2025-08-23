@@ -1,5 +1,4 @@
 from decimal import Decimal
-from typing import Optional
 
 from fastapi import HTTPException, status
 from models.transaction import Transaction, TransactionType
@@ -12,7 +11,6 @@ async def pay_from_wallet(
     user: User,
     amount: Decimal,
     description: str,
-    order_id: Optional[int] = None,
     apply_negative_balance: bool = False,
 ) -> Transaction:
     if user.wallet < amount and not apply_negative_balance:
@@ -25,7 +23,6 @@ async def pay_from_wallet(
 
     transaction = Transaction(
         user_id=user.id,
-        order_id=order_id,
         amount=amount,
         transaction_type=TransactionType.WITHDRAWING.value,
         description=description,
@@ -40,13 +37,11 @@ async def add_to_wallet(
     user: User,
     amount: Decimal,
     description: str,
-    order_id: Optional[int] = None,
 ) -> Transaction:
     user.wallet += amount
 
     transaction = Transaction(
         user_id=user.id,
-        order_id=order_id,
         amount=amount,
         transaction_type=TransactionType.ADDING.value,
         description=description,

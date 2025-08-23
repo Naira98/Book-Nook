@@ -18,6 +18,7 @@ from models.order import (
 )
 from models.user import User, UserRole
 from schemas.order import (
+    AllOrdersResponse,
     BorrowOrderBookUpdateProblemResponse,
     CreateOrderRequest,
     GetAllOrdersResponse,
@@ -25,6 +26,8 @@ from schemas.order import (
     OrderDetailsResponseSchema,
     OrderResponseSchema,
     UpdateOrderStatusRequest,
+    AllUserOrders,
+    UserOrderDetails,
 )
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -161,6 +164,95 @@ async def get_all_orders(
             "orders": orders,
             "return_orders": return_orders,
         }
+
+    except Exception as e:
+        # For any unexpected error, raise a generic 500 error with the exception details
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred while fetching orders: {str(e)}",
+        )
+
+
+@order_router.get("/my", status_code=status.HTTP_200_OK, response_model=AllUserOrders)
+async def get_all_user_orders(
+    user: Annotated[User, Depends(get_user_via_session)],
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        get_orders_query = (
+            select(Order)
+            .options(joinedload(Order.user))
+            .options(
+                selectinload(Order.borrow_order_books_details).options(
+                    joinedload(BorrowOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    ),
+                    joinedload(BorrowOrderBook.return_order),
+                ),
+                selectinload(Order.purchase_order_books_details).options(
+                    joinedload(PurchaseOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    )
+                ),
+            )
+            .where(Order.user_id == user.id)
+            .order_by(Order.created_at.desc())
+        )
+
+        orders_result = await db.execute(get_orders_query)
+
+        orders = orders_result.scalars().unique().all()
+
+        return {"orders": orders}
+
+    except Exception as e:
+        # For any unexpected error, raise a generic 500 error with the exception details
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred while fetching orders: {str(e)}",
+        )
+
+
+@order_router.get(
+    "/my/details/{order_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=UserOrderDetails,
+)
+async def get_user_order_details(
+    user: Annotated[User, Depends(get_user_via_session)],
+    order_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        get_orders_query = (
+            select(Order)
+            .options(joinedload(Order.user))
+            .options(
+                selectinload(Order.borrow_order_books_details).options(
+                    joinedload(BorrowOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    ),
+                    joinedload(BorrowOrderBook.return_order),
+                ),
+                selectinload(Order.purchase_order_books_details).options(
+                    joinedload(PurchaseOrderBook.book_details).options(
+                        joinedload(BookDetails.book)
+                    )
+                ),
+            )
+            .where(Order.user_id == user.id, Order.id == order_id)
+        )
+
+        order_result = await db.execute(get_orders_query)
+
+        order = order_result.scalars().unique().first()
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Order with id {order_id} not found.",
+            )
+
+        return order
 
     except Exception as e:
         # For any unexpected error, raise a generic 500 error with the exception details
@@ -336,7 +428,6 @@ async def create_order(
             user=user,
             amount=total_order_value,
             description=f"Payment for Order ID: {order.id}",
-            order_id=order.id,
         )
         user.current_borrowed_books += borrowing_book_count
 
@@ -413,7 +504,7 @@ async def get_order_details(
 
 @order_router.patch(
     "/order-status",
-    response_model=UpdateOrderStatusRequest,
+    response_model=AllOrdersResponse,
     status_code=status.HTTP_200_OK,
 )
 async def update_order_status(
@@ -424,7 +515,7 @@ async def update_order_status(
     try:
         query = (
             select(Order)
-            .where(Order.id == order_data.id)
+            .where(Order.id == order_data.order_id)
             .options(joinedload(Order.user))
             .options(
                 selectinload(Order.borrow_order_books_details),
@@ -437,12 +528,9 @@ async def update_order_status(
         if not order:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Order with id {order_data.id} not found.",
+                detail=f"Order with id {order_data.order_id} not found.",
             )
-        if (
-            order_data.status == OrderStatus.ON_THE_WAY
-            and order_data.courier_id is None
-        ):
+        if order_data.status == OrderStatus.ON_THE_WAY and order.courier_id is None:
             if staff_user.role != UserRole.COURIER:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
@@ -507,6 +595,7 @@ async def update_order_status(
 async def update_borrow_order_book_status(
     borrow_order_book_id: Annotated[int, Body()],
     new_status: Annotated[BorrowBookProblem, Body()],
+    user: Annotated[User, Depends(get_user_via_session)],
     db: AsyncSession = Depends(get_db),
 ):
     try:
@@ -524,45 +613,51 @@ async def update_borrow_order_book_status(
                 detail=f"Borrow order book with id {borrow_order_book_id} not found.",
             )
 
-        if borrow_order_book.borrow_book_problem != BorrowBookProblem.NORMAL:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Cannot update status from {borrow_order_book.borrow_book_problem.value} to {new_status.value}. Only updates from NORMAL are allowed to a non-NORMAL state.",
-            )
+        if user.role == UserRole.CLIENT:
+            if borrow_order_book.borrow_book_problem != BorrowBookProblem.NORMAL:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Cannot update status from {borrow_order_book.borrow_book_problem.value} to {new_status.value}. Only updates from NORMAL are allowed to a non-NORMAL state.",
+                )
 
-        if (
-            new_status == BorrowBookProblem.LOST
-            or new_status == BorrowBookProblem.DAMAGED
-        ):
-            # TODO: send notification to user about the problem
+            if (
+                new_status == BorrowBookProblem.LOST
+                or new_status == BorrowBookProblem.DAMAGED
+            ):
+                # TODO: send notification to user about the problem
 
-            # TODO: what if book is damaged should all its fees be charged?        no deposit returned
-            # TODO: What should happen if user has insufficient funds in wallet?
-            # TODO: if promocode applied, should it be considered in the fees?     no deposit returned
-            # TODO: if it's lost => wallet can be negative
+                # TODO: what if book is damaged should all its fees be charged?        no deposit returned
+                # TODO: What should happen if user has insufficient funds in wallet?
+                # TODO: if promocode applied, should it be considered in the fees?     no deposit returned
+                # TODO: if it's lost => wallet can be negative
 
-            plenty_fees = borrow_order_book.original_book_price - (
-                borrow_order_book.deposit_fees + borrow_order_book.borrow_fees
-            )
-            await pay_from_wallet(
-                db=db,
-                user=borrow_order_book.user,
-                amount=plenty_fees,
-                description=f"Charge for lost or damaged book (ID: {borrow_order_book.book_details_id})",
-                order_id=None,
-            )
+                borrow_order_book.user.current_borrowed_books -= 1
 
-        borrow_order_book.actual_return_date = datetime.now()
+                plenty_fees = borrow_order_book.original_book_price - (
+                    borrow_order_book.deposit_fees + borrow_order_book.borrow_fees
+                )
+                await pay_from_wallet(
+                    db=db,
+                    user=borrow_order_book.user,
+                    amount=plenty_fees,
+                    description=f"Charge for lost or damaged book (ID: {borrow_order_book.book_details_id})",
+                    apply_negative_balance=True,
+                )
 
-        borrow_order_book.borrow_book_problem = new_status
+            borrow_order_book.actual_return_date = datetime.now()
+
+            borrow_order_book.borrow_book_problem = new_status
+
+        # Any staff member
+        else:
+            borrow_order_book.borrow_book_problem = new_status
+
         await db.commit()
-        await db.refresh(borrow_order_book)
 
         return {
             "message": f"Borrow order book status updated successfully to {new_status.value}",
             "borrow_order_book_id": borrow_order_book.id,
         }
-
     except HTTPException as e:
         await db.rollback()
         raise e

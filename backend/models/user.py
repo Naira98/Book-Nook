@@ -30,7 +30,9 @@ class UserRole(Enum):
 
 class User(Base):
     __tablename__ = "users"
-    __table_args__ = (UniqueConstraint("stripe_session_id", name="uq_user_stripe_session_id"),)
+    __table_args__ = (
+        UniqueConstraint("stripe_session_id", name="uq_user_stripe_session_id"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     first_name: Mapped[str] = mapped_column(String(25))

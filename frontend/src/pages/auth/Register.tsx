@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Field, Form } from "react-final-form";
 import { Link } from "react-router-dom";
+import image from "../../assets/register.svg";
 import AuthLayout from "../../components/auth/AuthLayout";
 import MainButton from "../../components/shared/buttons/MainButton";
 import TextInput from "../../components/shared/formInputs/TextInput";
 import { useRegister } from "../../hooks/auth/useRegister";
 import type { RegisterFormData } from "../../types/auth";
-import image from "../../assets/register.svg";
 
 export default function Register() {
   const [resendCountdown, setResendCountdown] = useState<number>(30);
@@ -36,18 +36,18 @@ export default function Register() {
   const validate = (values: RegisterFormData) => {
     const errors: Partial<RegisterFormData> = {};
 
-    if (!values.firstName) errors.firstName = "First Name is required";
-    if (!values.lastName) errors.lastName = "Last Name is required";
+    if (!values.first_name) errors.first_name = "First Name is required";
+    if (!values.last_name) errors.last_name = "Last Name is required";
     if (!values.email) {
       errors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
       errors.email = "Invalid email address";
     }
-    if (!values.nationalId) {
-      errors.nationalId = "National ID is required";
+    if (!values.national_id) {
+      errors.national_id = "National ID is required";
     }
-    if (!values.phoneNumber) {
-      errors.phoneNumber = "Phone Number is required";
+    if (!values.phone_number) {
+      errors.phone_number = "Phone Number is required";
     }
     if (!values.password) errors.password = "Password is required";
     if (!values.confirmPassword) {
@@ -106,8 +106,9 @@ export default function Register() {
                       <MainButton
                         disabled={submitting || pristine || hasValidationErrors}
                         loading={isPending}
-                        label="Register"
-                      />
+                      >
+                        Register
+                      </MainButton>
                     </div>
                   </form>
                 )}
@@ -133,7 +134,7 @@ export default function Register() {
                 Please check your inbox.
               </p>
               {resendCountdown == 0 ? (
-                <MainButton onClick={onResend} label="Re-send email" />
+                <MainButton onClick={onResend}>Re-send email</MainButton>
               ) : (
                 <p className="text-sm text-gray-500">
                   You can re-send the email in {resendCountdown} seconds.
@@ -156,13 +157,13 @@ export default function Register() {
 
 const RegisterformData = [
   {
-    name: "firstName",
+    name: "first_name",
     type: "text",
     placeholder: "First Name",
     containerClassName: "!w-full sm:!w-[calc(50%-10px)]",
   },
   {
-    name: "lastName",
+    name: "last_name",
     type: "text",
     placeholder: "Last Name",
     containerClassName: "!w-full sm:!w-[calc(50%-10px)]",
@@ -173,13 +174,13 @@ const RegisterformData = [
     placeholder: "Email Address",
   },
   {
-    name: "nationalId",
+    name: "national_id",
     type: "text",
     placeholder: "National ID",
     containerClassName: "!w-full sm:!w-[calc(50%-10px)]",
   },
   {
-    name: "phoneNumber",
+    name: "phone_number",
     type: "text",
     placeholder: "Phone Number",
     containerClassName: "!w-full sm:!w-[calc(50%-10px)]",

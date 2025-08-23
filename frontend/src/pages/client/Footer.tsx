@@ -1,12 +1,12 @@
+import { Facebook, Instagram, Mail, MapPin, Phone, Twitter } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Mail, Phone, Facebook, Instagram, Twitter } from 'lucide-react';
-import logo from '../../assets/dark-bg-logo.svg';
 import mapImage from '../../assets/africa.svg';
+import logo from '../../assets/light-bg-logo.svg';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-primary mt-12 py-12 text-white relative overflow-hidden">
+    <footer className="bg-primary py-12 text-white relative overflow-hidden">
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
         
         {/* About Section */}

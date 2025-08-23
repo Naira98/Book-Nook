@@ -16,7 +16,7 @@ export function useLogin() {
     },
     onSuccess: (user: IUser) => {
       queryClient.setQueryData(["me"], user);
-      navigate(getHomePath(user.role), { replace: true });
+      navigate(getHomePath(user.role, user.interests), { replace: true });
     },
     onError: (err) => {
       console.log(err);

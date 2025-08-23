@@ -14,6 +14,7 @@ class BookBase(BaseModel):
     price: Decimal
     description: str
     cover_img: str | None = None
+    publish_year: int
 
 
 class CreateAuthorCategoryRequest(BaseModel):
@@ -55,6 +56,56 @@ class UpdateBookData(BaseModel):
     author_id: int
     purchase_available_stock: int
     borrow_available_stock: int
+
+
+""" NEW CLEAN SCHEMAS FOR REACTORING """
+
+
+class AuthorBase(BaseModel):
+    id: int
+    name: str
+
+
+class CategoryBase(BaseModel):
+    id: int
+    name: str
+
+
+class GetBookBase(BaseModel):
+    book_details_id: int
+    title: str
+    description: str
+    cover_img: str
+    publish_year: int
+    category: CategoryBase
+    author: AuthorBase
+    available_stock: int
+    book_id: int
+
+
+class BorrowBookResponse(GetBookBase):
+    borrow_fees_per_week: Decimal
+    deposit_fees: Decimal
+
+
+class PaginatedBorrowBooksResponse(BaseModel):
+    items: list[BorrowBookResponse]
+    total: int
+    page: int
+    limit: int
+    pages: int
+
+
+class PurchaseBookResponse(GetBookBase):
+    price: Decimal
+
+
+class PaginatedPurchaseBooksResponse(BaseModel):
+    items: list[PurchaseBookResponse]
+    total: int
+    page: int
+    limit: int
+    pages: int
 
 
 """ Employee-only schema for book management """

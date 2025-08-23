@@ -8,6 +8,7 @@ export const useGetTransactions = (user_id: number) => {
     queryFn: async () => await apiReq("GET", "/wallet/transactions"),
     retry: false,
     staleTime: 1000 * 60 * 5,
+    refetchOnMount: "always",
   });
 
   return {

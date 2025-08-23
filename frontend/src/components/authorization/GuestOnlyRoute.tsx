@@ -8,7 +8,7 @@ export default function GuestOnlyRoute() {
 
   if (isPending) return <Spinner />;
 
-  if (me) return <Navigate to={getHomePath(me.role)} replace />;
+  if (me) return <Navigate to={getHomePath(me.role, me.interests)} replace />;
 
   return <Outlet />;
 }

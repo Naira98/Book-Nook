@@ -1,6 +1,7 @@
 import type { AllCartItemsResponse, BorrowItem } from "../../types/Cart";
 import { Minus, Plus, Trash2 } from "lucide-react";
-import { formatMoney, performDecimalOperation } from "../../utils/formatting";
+import { formatMoney } from "../../utils/formatting";
+import { performDecimalOperation } from "../../utils/performDecimalOperation";
 import { useUpdateCartItem } from "../../hooks/cart/useUpdateCartItem";
 import { useQueryClient } from "@tanstack/react-query";
 import Spinner from "../shared/Spinner";
@@ -22,7 +23,7 @@ export default function BorrowCartItem({
     return borrowingWeeks >= 1 && borrowingWeeks <= 4;
   }
 
-  function changeQuantity(newBorrowingWeeks: number) {
+  function changeBorrowingWeeks(newBorrowingWeeks: number) {
     if (!isBetweenBorrowingWeeksLimit(newBorrowingWeeks)) return;
     updateCartItem(
       {
@@ -61,6 +62,7 @@ export default function BorrowCartItem({
               newData.borrow_items = newData.borrow_items.filter(
                 (item) => item.id !== borrowItem.id,
               );
+              newData.remaining_borrow_books_count += 1;
               return newData;
             }
           },
@@ -94,7 +96,7 @@ export default function BorrowCartItem({
               isPending
             }
             onClick={() => {
-              changeQuantity(borrowItem.borrowing_weeks - 1);
+              changeBorrowingWeeks(borrowItem.borrowing_weeks - 1);
             }}
             className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 transition-colors hover:bg-gray-50"
           >
@@ -113,7 +115,7 @@ export default function BorrowCartItem({
               isPending
             }
             onClick={() => {
-              changeQuantity(borrowItem.borrowing_weeks + 1);
+              changeBorrowingWeeks(borrowItem.borrowing_weeks + 1);
             }}
             className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 transition-colors hover:bg-gray-50"
           >

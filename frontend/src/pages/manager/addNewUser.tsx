@@ -130,9 +130,8 @@ export default function AddNewUser() {
                   // type="submit"
                   disabled={submitting || pristine || isPending}
                   className="w-full"
-                  label="Add User"
                   loading={isPending}
-                />
+                >Add User</MainButton>
               </form>
             )}
           />
