@@ -1,9 +1,13 @@
-from fastapi import HTTPException, APIRouter
-from RAG.data import get_recommendations, update_book_index, build_or_update_index_async
-from schemas.interest import InterestInput
 import logging
-from utils.rag import extract_and_parse_json
 
+from db.database import get_db
+from fastapi import APIRouter, Depends, HTTPException
+from models.book import Book
+from RAG.data import get_recommendations
+from schemas.interest import InterestInput
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 logger = logging.getLogger(__name__)
 
@@ -11,51 +15,38 @@ interest_router = APIRouter(prefix="/interests", tags=["Interests"])
 
 
 @interest_router.post("/recommend")
-async def recommend_endpoint(input: InterestInput):
+async def recommend_endpoint(input: InterestInput, db: AsyncSession = Depends(get_db)):
     """
     Get book recommendations based on user interests
     """
     try:
-        print(f"Getting recommendations for interests: {input.interests}")
-        recommendations = await get_recommendations(input.interests)
+        print(
+            f"Getting recommendations for interests 😂😂😂: {' or '.join(input.interests)}"
+        )
+        recommendations = await get_recommendations(" or ".join(input.interests))
         if not recommendations:
             raise HTTPException(status_code=404, detail="No recommendations found")
+        ids = [r["id"] for r in recommendations]
+        stmt = (
+            select(Book)
+            .options(
+                selectinload(Book.author),
+                selectinload(Book.category),
+                selectinload(Book.book_details),
+            )
+            .where(Book.id.in_(ids))
+        )
+        result = await db.execute(stmt)
+        result = result.scalars().all()
+
         return {
             "status": "success",
-            "recommendations": extract_and_parse_json(recommendations),
+            "recommendations": result,
             "interests": input.interests,
         }
     except Exception as e:
         logger.error(f"Recommendation failed: {e}")
         raise HTTPException(status_code=500, detail=f"Recommendation failed: {str(e)}")
-
-
-@interest_router.post("/index_books")
-async def index_books():
-    """
-    Update the book index with new data from the API
-    """
-    try:
-        print("Updating book index...")
-        result = await update_book_index()
-        return result
-    except Exception as e:
-        logger.error(f"Index update failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Index update failed: {str(e)}")
-
-
-@interest_router.post("/rebuild_index")
-async def rebuild_index():
-    """
-    Rebuild the entire book index (clears existing data)
-    """
-    try:
-        print("Rebuilding book index...")
-        await build_or_update_index_async(clear_existing=True)
-        return {"status": "success", "message": "Book index rebuilt successfully"}
-    except Exception as e:
-        logger.error(f"Index rebuild failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Index rebuild failed: {str(e)}")
 
 
 @interest_router.get("/health")

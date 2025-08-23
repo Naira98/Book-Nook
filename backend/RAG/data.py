@@ -1,5 +1,6 @@
 import logging
 import os
+import json
 
 from crud.book import get_all_books_sync
 from db.database import get_db_sync
@@ -40,38 +41,41 @@ llm = ChatOpenAI(
     model="gpt-4o-mini", api_key=SecretStr(OPENAI_API_KEY), temperature=0.7
 )
 
-# Global vector store variable
+# Global vector store + chain
 vector_store = None
 vector_store_initialized = False
+rag_chain = None
 
 
 def fetch_books_from_database():
-    """Fetch books directly from the database"""
+    """Fetch books directly from the database and deduplicate by ID"""
     try:
         db = get_db_sync()
         books = get_all_books_sync(db)
         documents = []
+        seen_ids = set()
 
         for book in books:
-            # Extract status info from book_details
+            if book.id in seen_ids:
+                continue
+            seen_ids.add(book.id)
+
             status_info = ", ".join(
                 f"{detail.status} (Stock: {detail.available_stock})"
                 for detail in book.book_details
             )
 
-            # Combine fields for embedding
             content = (
+                f"id: {book.id}\n"
                 f"Title: {book.title}\n"
                 f"Description: {book.description}\n"
                 f"Author: {book.author.name}\n"
                 f"Category: {book.category.name}\n"
                 f"Publish Year: {book.publish_year}\n"
                 f"Status: {status_info}\n"
-                f"id: {book.id}\n"
                 f"cover_img: {book.cover_img}\n"
             )
 
-            # Metadata for filtering/display
             metadata = {
                 "id": book.id,
                 "title": book.title,
@@ -80,141 +84,145 @@ def fetch_books_from_database():
                 "publish_year": book.publish_year,
             }
 
-            doc = Document(page_content=content, metadata=metadata)
-            documents.append(doc)
+            documents.append(Document(page_content=content, metadata=metadata))
 
-            print(f"Fetched {len(documents)} books from database")
+        print(f"Fetched {len(documents)} unique books from database")
         return documents
     except Exception as e:
         logger.error(f"Failed to fetch books from database: {e}")
-        raise Exception(f"Failed to fetch books from database: {e}")
-
-
-def ensure_vector_store_initialized():
-    global vector_store, vector_store_initialized
-    print("Ensuring vector store is initialized...", "🔥🔥🔥")
-    if vector_store_initialized and vector_store is not None:
-        return vector_store
-
-    try:
-        print("Initializing vector store...", "🙂🙂")
-        documents = fetch_books_from_database()
-
-        if not documents:
-            print("No documents to index", "🤢🤢")
-            return None
-        print("Documents fetched from database:", len(documents), "😄😄😄")
-        # Direct async init
-        vector_store = PGVector(
-            embeddings=embeddings,
-            collection_name="books",
-            connection=CONNECTION_STRING,  # async engine
-        )
-
-        print("Adding documents to vector store...", "🙈🙈")
-        vector_store.add_documents(documents)  # use async add
-
-        vector_store_initialized = True
-        print("Vector store initialized successfully!", "🙈🙈")
-        return vector_store
-
-    except Exception as e:
-        logger.error(f"Failed to initialize vector store: {e}", "🙈🙈")
         raise
 
 
-async def build_or_update_index_async(
-    api_url="http://127.0.0.1:8000/api/books/", clear_existing=False
-):
-    """Async version of build_or_update_index"""
-    return ensure_vector_store_initialized()
+def ensure_vector_store_initialized():
+    """Make sure PGVector store is ready and populated"""
+    global vector_store, vector_store_initialized
+    if vector_store_initialized and vector_store is not None:
+        return vector_store
+
+    documents = fetch_books_from_database()
+    if not documents:
+        logger.warning("No documents fetched from DB for vector store")
+        return None
+
+    vector_store = PGVector(
+        embeddings=embeddings,
+        collection_name="books",
+        connection=CONNECTION_STRING,
+    )
+    vector_store.add_documents(documents)
+
+    vector_store_initialized = True
+    logger.info("Vector store initialized with %d unique documents", len(documents))
+    return vector_store
 
 
 def initialize_rag_chain():
-    """Initialize the RAG chain with the vector store"""
-    global vector_store
+    """Initialize the full RAG chain"""
+    global rag_chain, vector_store
 
+    vector_store = ensure_vector_store_initialized()
     if vector_store is None:
-        logger.warning("Vector store not initialized, will initialize on first use")
-        # Don't initialize here - let it be done lazily
+        raise RuntimeError("Vector store could not be initialized")
 
-    # Create the prompt template
     system_prompt = (
-        "You are a book recommendation assistant. Based on the user's interests and these book details:\n"
+        "You are a book recommendation assistant for a RAG system. "
+        "The user's interests may contain multiple topics. "
+        "Use ONLY the following book details as the source of truth:\n"
         "{context}\n"
-        "Recommend 3-5 books with a brief reason for each recommendation. "
-        "Include title, author, category, price , cover image URL and availability status. "
+        "TASK:\n"
+        "- Recommend **between 5 and 10 unique books** related to ANY of the user's interests. "
+        "- If exact matches are not found, suggest the most similar or popular books from context instead. "
+        "- Always return at least 5 books if context is not empty.\n"
+        "OUTPUT:\n"
+        "- Return ONLY a JSON array of objects. "
+        "- Each object must contain exactly two fields: 'id' (integer from context) and 'title' (string from context).\n"
+        "RULES:\n"
+        "- Use ONLY books from {context}. Do NOT invent or fabricate books or IDs.\n"
+        "- Copy 'id' and 'title' exactly from context.\n"
+        "- All 'id' values must be unique (no duplicates).\n"
+        "- If fewer than 5 books are relevant, return the top 5 closest matches from {context}.\n"
     )
 
     prompt = ChatPromptTemplate.from_messages(
         [("system", system_prompt), ("human", "{input}")]
     )
 
-    # Create the document chain
     question_answer_chain = create_stuff_documents_chain(llm, prompt)
-
-    # Create the retrieval chain (will be initialized when needed)
     rag_chain = create_retrieval_chain(
-        None,  # Will be set when vector store is ready
+        vector_store.as_retriever(search_kwargs={"k": 200}),
         question_answer_chain,
     )
-    print(rag_chain, "🤢🤢0🤢🤢")
 
-    return rag_chain
-
-
-# Initialize the RAG chain
-rag_chain = None
-
-
-def get_rag_chain():
-    """Get the initialized RAG chain"""
-    global rag_chain
-    if rag_chain is None:
-        rag_chain = initialize_rag_chain()
+    logger.info("RAG chain initialized")
     return rag_chain
 
 
 async def get_recommendations(interests: str):
     """Get book recommendations based on user interests"""
     try:
-        # Ensure vector store is initialized
-        # Create the prompt template
+        vector = ensure_vector_store_initialized()
+        if not vector:
+            raise Exception("Vector store could not be initialized")
+
         system_prompt = (
-            "You are a book recommendation assistant. Based on the user's interests and these book details:\n"
+            "You are a book recommendation assistant for a RAG system. "
+            "The user's interests may contain multiple topics. "
+            "Use ONLY the following book details as the source of truth:\n"
             "{context}\n"
-            "Recommend 3-5 books "
-            "Include book details id  , title, author, category , available purchase stock and cover image URL. "
-            "Format your response as json object with fields:'id','title', 'author', 'category', 'status', 'cover_img' , 'available_stock' , 'description'."
-            "If no relevant books are found, suggest alternative interests or categories."
+            "TASK:\n"
+            "- Recommend **between 5 and 10 unique books** related to ANY of the user's interests. "
+            "- If exact matches are not found, suggest the most similar or popular books from context instead. "
+            "- Always return at least 5 books if context is not empty.\n"
+            "OUTPUT:\n"
+            "- Return ONLY a JSON array of objects. "
+            "- Each object must contain exactly two fields: 'id' (integer from context) and 'title' (string from context).\n"
+            "RULES:\n"
+            "- Use ONLY books from {context}. Do NOT invent or fabricate books or IDs.\n"
+            "- Copy 'id' and 'title' exactly from context.\n"
+            "- All 'id' values must be unique (no duplicates).\n"
+            "- If fewer than 5 books are relevant, return the top 5 closest matches from {context}.\n"
         )
 
         prompt = ChatPromptTemplate.from_messages(
             [("system", system_prompt), ("human", "{input}")]
         )
 
-        # Create the document chain
         question_answer_chain = create_stuff_documents_chain(llm, prompt)
-        # Create the retrieval chain with the initialized vector store
-        if vector_store is not None:
-            rag_chain = create_retrieval_chain(
-                vector_store.as_retriever(search_kwargs={"k": 8}), question_answer_chain
-            )
+        rag_chain = create_retrieval_chain(
+            vector.as_retriever(search_kwargs={"k": 200}),
+            question_answer_chain,
+        )
 
-            response = rag_chain.invoke({"input": interests})
-            return response["answer"]
+        response = rag_chain.invoke({"input": interests})
+
+        # ✅ post-process to ensure uniqueness + 5–10 length
+        recs = []
+        try:
+            recs = json.loads(response.get("answer", "[]"))
+            seen = set()
+            unique_recs = []
+            for r in recs:
+                if r["id"] not in seen:
+                    seen.add(r["id"])
+                    unique_recs.append(r)
+            recs = unique_recs[:10]
+        except Exception as e:
+            logger.error(f"Failed to parse recommendations: {e}")
+            recs = []
+
+        if len(recs) < 5:
+            logger.warning("Fewer than 5 recs, padding with extra results")
+            extra_docs = vector.similarity_search(interests, k=200)
+            seen = {r["id"] for r in recs}
+            for d in extra_docs:
+                if d.metadata["id"] not in seen:
+                    recs.append({"id": d.metadata["id"], "title": d.metadata["title"]})
+                    seen.add(d.metadata["id"])
+                if len(recs) >= 5:
+                    break
+
+        return recs
+
     except Exception as e:
         logger.error(f"Error getting recommendations: {e}")
         raise Exception(f"Failed to get recommendations: {e}")
-
-
-async def update_book_index():
-    """Update the book index with new data"""
-    try:
-        global vector_store_initialized
-        vector_store_initialized = False  # Force re-initialization
-        ensure_vector_store_initialized()
-        return {"status": "success", "message": "Book index updated successfully"}
-    except Exception as e:
-        logger.error(f"Error updating book index: {e}")
-        raise Exception(f"Failed to update book index: {e}")
