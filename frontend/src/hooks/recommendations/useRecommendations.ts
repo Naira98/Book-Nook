@@ -8,14 +8,14 @@ export type Recommendation = {
   category: string;
   status: string;
   reason: string;
-  cover_img: string; 
+  cover_img: string;
   description: string;
   available_stock: number;
 };
 
 type RecommendResponse = {
   status: string;
-  recommendations: Recommendation[] ;
+  recommendations: Recommendation[];
   interests: string;
 };
 
@@ -23,23 +23,23 @@ export function useRecommendations() {
   const { data, isPending, error } = useQuery<Recommendation[]>({
     queryKey: ["recommendations"],
     queryFn: async () => {
-      // Call backend GET endpoint that uses the current user's saved interests
       try {
         const rec: RecommendResponse = await apiReq(
           "GET",
-          "/interests/recommend",
+          "/interests",
         );
 
         // Support both shapes:
         // 1) { recommendations: { recommendations: [...] } }
         // 2) { recommendations: [...] }
-        const maybeNested = (rec as any)?.recommendations;
+        const maybeNested = (rec as RecommendResponse)?.recommendations;
         if (Array.isArray(maybeNested)) return maybeNested as Recommendation[];
         if (
           maybeNested &&
-          Array.isArray((maybeNested as any).recommendations)
+          Array.isArray((maybeNested as RecommendResponse).recommendations)
         ) {
-          return (maybeNested as any).recommendations as Recommendation[];
+          return (maybeNested as RecommendResponse)
+            .recommendations as Recommendation[];
         }
         return [];
       } catch {

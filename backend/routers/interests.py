@@ -1,28 +1,35 @@
 import logging
 
 from db.database import get_db
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from models.book import Book
+from models.user import User
 from RAG.data import get_recommendations
 from schemas.interest import InterestInput
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from utils.auth import get_user_via_session
 
 logger = logging.getLogger(__name__)
 
 interest_router = APIRouter(prefix="/interests", tags=["Interests"])
 
 
-@interest_router.post("/recommend")
-async def recommend_endpoint(input: InterestInput, db: AsyncSession = Depends(get_db)):
-    """
-    Get book recommendations based on user interests
-    """
+@interest_router.get("/")
+async def recommend_endpoint(
+    user: User = Depends(get_user_via_session),
+    db: AsyncSession = Depends(get_db),
+):
     try:
-        print(
-            f"Getting recommendations for interests 😂😂😂: {' or '.join(input.interests)}"
-        )
+        if not user.interests:
+            raise HTTPException(
+                status_code=400, detail="User has not set any interests"
+            )
+
+        interests = user.interests.split(", ")
+        input = InterestInput(interests=interests)
+
         recommendations = await get_recommendations(" or ".join(input.interests))
         if not recommendations:
             raise HTTPException(status_code=404, detail="No recommendations found")
@@ -49,56 +56,19 @@ async def recommend_endpoint(input: InterestInput, db: AsyncSession = Depends(ge
         raise HTTPException(status_code=500, detail=f"Recommendation failed: {str(e)}")
 
 
-@interest_router.get("/health")
-async def health_check():
-    """
-    Health check endpoint for the RAG system
-    """
+@interest_router.post("/")
+async def add_interests(
+    input: InterestInput,
+    user: User = Depends(get_user_via_session),
+    db: AsyncSession = Depends(get_db),
+):
+    user.interests = ", ".join(input.interests)
+
     try:
-        # Check if basic imports work
-
-        # Check if environment variables are set
-        import os
-
-        if not os.getenv("OPENAI_API_KEY"):
-            return {
-                "status": "unhealthy",
-                "message": "OpenAI API key not configured",
-                "details": "Please set OPENAI_API_KEY environment variable",
-            }
-
-        if not os.getenv("SQLALCHEMY_DATABASE_URL"):
-            return {
-                "status": "unhealthy",
-                "message": "Database URL not configured",
-                "details": "Please set SQLALCHEMY_DATABASE_URL environment variable",
-            }
-
-        # Try to get the RAG chain to check if everything is working
-
-        try:
-            return {
-                "status": "healthy",
-                "message": "RAG system is operational",
-                "details": "All components are working correctly",
-            }
-        except Exception as chain_error:
-            return {
-                "status": "degraded",
-                "message": "RAG system partially operational",
-                "details": f"Chain initialization failed: {str(chain_error)}",
-            }
-
-    except ImportError as e:
-        return {
-            "status": "unhealthy",
-            "message": "RAG dependencies not available",
-            "details": f"Import error: {str(e)}",
-        }
+        await db.commit()
+        return {"message": "Interests updated successfully"}
     except Exception as e:
-        logger.error(f"Health check failed: {e}")
-        return {
-            "status": "unhealthy",
-            "message": "RAG system is not healthy",
-            "details": str(e),
-        }
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred while saving interests: {e}",
+        )

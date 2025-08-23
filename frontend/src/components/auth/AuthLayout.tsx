@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
 import clsx from "clsx";
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import logo from "../../assets/dark-bg-logo.svg";
 

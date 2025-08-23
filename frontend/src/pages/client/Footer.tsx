@@ -62,13 +62,13 @@ const Footer: React.FC = () => {
               <div className="flex items-center gap-3">
                 <a href="tel:+201006641942" className="flex items-center gap-3 hover:text-gray-400">
                   <Phone className="w-5 h-5" />
-                  <span>+20 100 664 1942</span>
+                  <span>+20 123 456 7890</span>
                 </a>
               </div>
               <div className="flex items-center gap-3">
                 <a href="mailto:booknook@gmail.com" className="flex items-center gap-3 hover:text-gray-400">
                   <Mail className="w-5 h-5" />
-                  <span>booknook@gmail.com</span>
+                  <span>book.nook.eglib@gmail.com</span>
                 </a>
               </div>
             </div>

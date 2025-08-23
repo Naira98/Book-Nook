@@ -74,6 +74,5 @@ api_router.include_router(wallet_router)
 api_router.include_router(return_order_router)
 api_router.include_router(getUsers)
 api_router.include_router(manager_router)
-api_router.include_router(interest_router)
 
 app.include_router(api_router)
