@@ -2,7 +2,7 @@ import { Star } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import AddToCartButton from "../../components/client/AddToCartButton";
 import QuantityControl from "../../components/client/QuantityControl";
-import Spinner from "../../components/shared/Spinner";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import { useGetPurchaseBookDetails } from "../../hooks/books/useGetPurchaseBookDetails";
 import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 import { formatMoney } from "../../utils/formatting";
@@ -16,7 +16,12 @@ const PurchaseDetailsPage = () => {
   const { cartItems, isPending: isPendingGettingCartItems } = useGetCartItems();
 
   if (isPendingGettingPurchaseDetails || isPendingGettingCartItems) {
-    return <Spinner />;
+    return (
+      <FullScreenSpinner
+        minDisplayTime={3000}
+        message="Loading Book Details..."
+      />
+    );
   }
 
   const bookInCart = cartItems!.purchase_items.find(

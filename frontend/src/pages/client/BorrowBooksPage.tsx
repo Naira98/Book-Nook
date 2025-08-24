@@ -8,6 +8,8 @@ import SearchBar from "../../components/shared/SearchBar";
 import Spinner from "../../components/shared/Spinner";
 import { useGetBorrowBooks } from "../../hooks/books/useGetBorrowBooks";
 import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
+import { useGetCategories } from "../../hooks/books/useGetCategories";
+import { useGetAuthors } from "../../hooks/books/useGetAuthors";
 
 const BorrowBooksPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,10 +33,16 @@ const BorrowBooksPage = () => {
     pagination,
     isPending: isPendingGettingBooks,
   } = useGetBorrowBooks(filters);
+  const { isPending: isPendingCategories } = useGetCategories();
+  const { isPending: isPendingAuthors } = useGetAuthors();
 
   const { cartItems, isPending: isPendingGettingCartItems } = useGetCartItems();
 
-  const isLoading = isPendingGettingBooks || isPendingGettingCartItems;
+  const isLoading =
+    isPendingGettingBooks ||
+    isPendingGettingCartItems ||
+    isPendingCategories ||
+    isPendingAuthors;
 
   if (isLoading) return <Spinner />;
 

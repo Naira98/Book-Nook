@@ -4,7 +4,7 @@ import AddToCartButton from "../../components/client/AddToCartButton";
 import { useGetBorrowBookDetails } from "../../hooks/books/useGetBorrowBookDetails";
 import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 import { formatMoney } from "../../utils/formatting";
-import Spinner from "../../components/shared/Spinner";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 
 const BorrowDetailsPage = () => {
   const { bookDetailsId } = useParams<{ bookDetailsId: string }>();
@@ -15,7 +15,12 @@ const BorrowDetailsPage = () => {
   const { cartItems, isPending: isPendingGettingCartItems } = useGetCartItems();
 
   if (isPendingGettingBorrowDetails || isPendingGettingCartItems) {
-    return <Spinner />;
+    return (
+      <FullScreenSpinner
+        minDisplayTime={3000}
+        message="Loading Book Details..."
+      />
+    );
   }
 
   const bookInCart = cartItems!.borrow_items.find(

@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import Spinner from "../../components/shared/Spinner";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import { useGetMe } from "../../hooks/auth/useGetMe";
 import { useCreateCheckoutSession } from "../../hooks/transactions/useCreateCheckoutSession";
 import { useGetTransactions } from "../../hooks/transactions/useGetTransactions";
@@ -17,7 +17,6 @@ import { formatClock, formatMoney } from "../../utils/formatting";
 import { groupTransactionsByDate } from "../../utils/transactions";
 
 const TransactionsPage = () => {
-  // Replace useState with useSearchParams
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "balance";
 
@@ -30,7 +29,13 @@ const TransactionsPage = () => {
   const { createCheckoutSession, isPending: isCheckoutPending } =
     useCreateCheckoutSession();
 
-  if (isTransactionsPending) return <Spinner />;
+  if (isTransactionsPending)
+    return (
+      <FullScreenSpinner
+        minDisplayTime={3000}
+        message="Loading your account..."
+      />
+    );
 
   const addFund = () => {
     const amount = parseFloat(fundAmount) * 100; /* in piaster 100 for 1 EGP */

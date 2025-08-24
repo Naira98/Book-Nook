@@ -193,7 +193,7 @@ async def register(
                 margin: 32px auto;
                 padding: 14px 28px;
                 background: #111827;
-                color: #ffffff;
+                color: #ffffff !important;
                 text-decoration: none;
                 border-radius: 6px;
                 text-align: center;
@@ -307,24 +307,6 @@ async def register(
                     <p class="verification-link">{verification_link}</p>
                 </div>
                 
-                <div class="features">
-                    <div class="feature">
-                        <div class="feature-icon">📖</div>
-                        <p class="feature-text">Access thousands of books</p>
-                    </div>
-                    <div class="feature">
-                        <div class="feature-icon">📚</div>
-                        <p class="feature-text">Build your library</p>
-                    </div>
-                    <div class="feature">
-                        <div class="feature-icon">🔍</div>
-                        <p class="feature-text">Discover new titles</p>
-                    </div>
-                    <div class="feature">
-                        <div class="feature-icon">⭐</div>
-                        <p class="feature-text">Personalized recommendations</p>
-                    </div>
-                </div>
             </div>
             
             <div class="email-footer">
@@ -565,7 +547,7 @@ async def forget_password(
                 margin: 32px auto;
                 padding: 14px 28px;
                 background: #111827;
-                color: #ffffff;
+                color: #ffffff !important;
                 text-decoration: none;
                 border-radius: 6px;
                 text-align: center;

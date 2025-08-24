@@ -59,8 +59,13 @@ const ManagerDashboardPage = () => {
     );
   }
 
-  const { order_stats, financial_stats, inventory_stats, user_stats } =
-    dashboardStats;
+  const {
+    order_stats,
+    return_order_stats,
+    financial_stats,
+    inventory_stats,
+    user_stats,
+  } = dashboardStats;
 
   // Order Status Chart Data with vibrant colors
   const orderStatusData = {
@@ -285,14 +290,10 @@ const ManagerDashboardPage = () => {
             </div>
             <div className="border-secondary rounded-lg border-l-6 bg-white p-6 shadow-md">
               <h3 className="text-layout text-lg font-semibold">
-                Total Revenue
+                Total Returns
               </h3>
               <p className="text-secondary text-3xl font-bold">
-                {(
-                  financial_stats.total_purchase_revenue +
-                  financial_stats.total_borrowing_revenue
-                ).toLocaleString()}{" "}
-                EGP
+                {return_order_stats.total_return_orders}
               </p>
             </div>
             <div className="border-success rounded-lg border-l-6 bg-white p-6 shadow-md">
@@ -366,7 +367,7 @@ const ManagerDashboardPage = () => {
                 Purchase Revenue
               </h3>
               <p className="text-success text-2xl font-bold">
-                ${financial_stats.total_purchase_revenue.toLocaleString()}
+                {financial_stats.total_purchase_revenue.toLocaleString()} EGP
               </p>
             </div>
             <div className="border-success rounded-lg border-l-6 bg-white p-6 shadow-md">
@@ -374,7 +375,7 @@ const ManagerDashboardPage = () => {
                 Borrowing Revenue
               </h3>
               <p className="text-success text-2xl font-bold">
-                ${financial_stats.total_borrowing_revenue.toLocaleString()}
+                {financial_stats.total_borrowing_revenue.toLocaleString()} EGP
               </p>
             </div>
             <div className="border-success rounded-lg border-l-6 bg-white p-6 shadow-md">
@@ -382,7 +383,7 @@ const ManagerDashboardPage = () => {
                 Delivery Revenue
               </h3>
               <p className="text-success text-2xl font-bold">
-                ${financial_stats.total_delivery_revenue.toLocaleString()}
+                {financial_stats.total_delivery_revenue.toLocaleString()} EGP
               </p>
             </div>
             <div className="border-error rounded-lg border-l-6 bg-white p-6 shadow-md">
@@ -390,7 +391,8 @@ const ManagerDashboardPage = () => {
                 Promo Code Discounts
               </h3>
               <p className="text-error text-2xl font-bold">
-                -${financial_stats.total_promo_code_discounts.toLocaleString()}
+                - {financial_stats.total_promo_code_discounts.toLocaleString()}{" "}
+                EGP
               </p>
             </div>
             <div className="border-primary rounded-lg border-l-6 bg-white p-6 shadow-md">
@@ -398,7 +400,7 @@ const ManagerDashboardPage = () => {
                 Wallet Deposits
               </h3>
               <p className="text-primary text-2xl font-bold">
-                ${financial_stats.total_wallet_deposits.toLocaleString()}
+                {financial_stats.total_wallet_deposits.toLocaleString()} EGP
               </p>
             </div>
             <div className="border-error rounded-lg border-l-6 bg-white p-6 shadow-md">
@@ -406,7 +408,7 @@ const ManagerDashboardPage = () => {
                 Wallet Withdrawals
               </h3>
               <p className="text-error text-2xl font-bold">
-                -${financial_stats.total_wallet_withdrawals.toLocaleString()}
+                - {financial_stats.total_wallet_withdrawals.toLocaleString()} EGP
               </p>
             </div>
           </div>

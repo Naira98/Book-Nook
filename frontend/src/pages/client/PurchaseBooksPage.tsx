@@ -7,6 +7,8 @@ import SearchBar from "../../components/shared/SearchBar";
 import Spinner from "../../components/shared/Spinner";
 // Update the import to use the new hook with filters
 import { Link } from "react-router-dom";
+import { useGetAuthors } from "../../hooks/books/useGetAuthors";
+import { useGetCategories } from "../../hooks/books/useGetCategories";
 import { useGetPurchaseBooks } from "../../hooks/books/useGetPruchaseBooks";
 import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 
@@ -36,11 +38,17 @@ const PurchaseBooksPage = () => {
     pagination,
     isPending: isPendingGettingBooks,
   } = useGetPurchaseBooks(filters);
+  const { isPending: isPendingCategories } = useGetCategories();
+  const { isPending: isPendingAuthors } = useGetAuthors();
 
   // Fetch cart items as before
   const { cartItems, isPending: isPendingGettingCartItems } = useGetCartItems();
 
-  const isLoading = isPendingGettingBooks || isPendingGettingCartItems;
+  const isLoading =
+    isPendingGettingBooks ||
+    isPendingGettingCartItems ||
+    isPendingCategories ||
+    isPendingAuthors;
 
   if (isLoading) return <Spinner />;
 

@@ -8,11 +8,11 @@ import "../../../node_modules/swiper/swiper.css";
 import HeroSection from "../../components/home/HeroSection";
 import OurServices from "../../components/home/OurServices";
 import PromoCodeDiscount from "../../components/home/PromoCodeDiscount";
-import HomeSlider from "../../components/shared/HomeSlider";
 import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
+import HomeSlider from "../../components/shared/HomeSlider";
 import { useGetMe } from "../../hooks/auth/useGetMe";
-import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 import { useGetBestSeller } from "../../hooks/books/useGetBestSeller";
+import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 import Footer from "./Footer";
 
 // Lazy load the recommendations component to prevent blocking
@@ -102,7 +102,7 @@ export default function HomePage() {
 
       {/* Combined Best Borrow and Purchase Books Section */}
       <motion.section
-        className="pt-30 bg-gradient-to-br from-gray-50 to-white py-12 md:py-16"
+        className="bg-gradient-to-br from-gray-50 to-white py-12 pt-30 md:py-16"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-30px" }}
@@ -117,7 +117,7 @@ export default function HomePage() {
             >
               <div className="mb-8 text-center">
                 <h2 className="text-2xl font-bold text-gray-900 md:text-3xl lg:text-4xl">
-                  Most Borrowed Books
+                  Best Borrowed Books
                 </h2>
                 <p className="mt-2 text-base text-gray-600 md:text-lg">
                   Discover our most popular books for borrowing
@@ -161,7 +161,7 @@ export default function HomePage() {
                         transition={{ duration: 0.2 }}
                         className="h-full rounded-lg p-3 transition-colors hover:bg-gray-100 sm:p-4"
                       >
-                        <div className="aspect-3/4 mb-3 h-48 w-full overflow-hidden rounded-lg shadow-md sm:h-52 md:h-56">
+                        <div className="mb-3 aspect-3/4 h-48 w-full overflow-hidden rounded-lg shadow-md sm:h-52 md:h-56">
                           <img
                             src={book.book.cover_img}
                             alt={book.book.title}
@@ -171,6 +171,10 @@ export default function HomePage() {
                         <div className="text-center">
                           <p className="text-primary truncate text-base font-semibold sm:text-lg">
                             {book.book.title}
+                          </p>
+                          {/* Added price display for borrow books */}
+                          <p className="text-secondary mt-1 text-sm font-medium">
+                            ${book.book.price}/week
                           </p>
                           {book.total_count > 0 && (
                             <p className="mt-1 text-xs text-gray-500">
@@ -236,7 +240,7 @@ export default function HomePage() {
                         transition={{ duration: 0.2 }}
                         className="h-full rounded-lg p-3 transition-colors hover:bg-gray-100 sm:p-4"
                       >
-                        <div className="aspect-3/4 mb-3 h-48 w-full overflow-hidden rounded-lg shadow-md sm:h-52 md:h-56">
+                        <div className="mb-3 aspect-3/4 h-48 w-full overflow-hidden rounded-lg shadow-md sm:h-52 md:h-56">
                           <img
                             src={book.book.cover_img}
                             alt={book.book.title}
@@ -249,6 +253,10 @@ export default function HomePage() {
                           </p>
                           <p className="text-primary truncate text-base font-semibold sm:text-lg">
                             {book.book.title}
+                          </p>
+                          {/* Added price display for purchase books */}
+                          <p className="text-secondary mt-1 text-sm font-medium">
+                            ${book.book.price}
                           </p>
                           {book.total_count > 0 && (
                             <p className="mt-1 text-xs text-gray-500">

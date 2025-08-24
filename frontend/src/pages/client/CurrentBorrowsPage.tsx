@@ -12,10 +12,10 @@ import BorrowedBookItem from "../../components/client/BorrowedBookItem";
 import ReturnOrderForm from "../../components/client/ReturnOrderForm";
 import SummaryCard from "../../components/client/SummaryCard";
 import MainButton from "../../components/shared/buttons/MainButton";
-import Spinner from "../../components/shared/Spinner";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import { useGetClientBorrows } from "../../hooks/orders/useGetClientBorrows";
-import { formatMoney } from "../../utils/formatting";
 import type { IClientBorrows } from "../../types/ReturnOrder";
+import { formatMoney } from "../../utils/formatting";
 
 const CurrentBorrowsPage = () => {
   const { clientBorrows, isPending } = useGetClientBorrows();
@@ -168,7 +168,10 @@ const CurrentBorrowsPage = () => {
     },
   ];
 
-  if (isPending) return <Spinner size={500} className="h-screen" />;
+  if (isPending) return  <FullScreenSpinner
+        minDisplayTime={3000}
+        message="Loading your account..."
+      />
 
   if (!clientBorrows || clientBorrows.length === 0) {
     return (

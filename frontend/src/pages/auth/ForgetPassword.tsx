@@ -47,7 +47,7 @@ const ForgetPassword = () => {
   };
 
   return (
-    <AuthLayout title="Forget Password">
+    <AuthLayout title="Reset Password">
       <div className="flex flex-1 flex-col overflow-auto md:flex-row-reverse">
         {!emailSent ? (
           <>
