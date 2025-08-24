@@ -23,7 +23,7 @@ const Navbar = () => {
   }, [cartItems]);
 
   return (
-    <nav className="border-accent border-b-1 py-3 shadow-sm">
+    <nav className="border-accent sticky top-0 z-40 border-b-1 bg-white py-3 shadow-sm">
       <div className="container mx-auto flex items-center justify-between">
         <Link to="/">
           <img src={logo} alt="logo" className="w-20" />
@@ -33,7 +33,7 @@ const Navbar = () => {
             to="/borrow-books"
             className={({ isActive }) =>
               clsx("text-primary hover:text-secondary duration-200", {
-                "text-secondary": isActive,
+                "text-secondary font-semibold": isActive,
               })
             }
           >
@@ -43,7 +43,7 @@ const Navbar = () => {
             to="/purchase-books"
             className={({ isActive }) =>
               clsx("text-primary hover:text-secondary duration-200", {
-                "text-secondary": isActive,
+                "text-secondary font-semibold": isActive,
               })
             }
           >

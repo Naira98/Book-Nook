@@ -1,96 +1,164 @@
-import { CheckCircle, Mail, RotateCw, XCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import Lottie, { type LottieRefCurrentProps } from "lottie-react";
+import { RotateCw, XCircle } from "lucide-react";
+import { useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import animationData from "../../assets/json/Success.json";
+import logo from "../../assets/logo_without_sharshora.svg";
 import { useEmailVerification } from "../../hooks/auth/useEmailVerification";
 
-const EmailVerification = () => {
-  const [hasVerified, setHasVerified] = useState(false);
+const EmailVerificationSuccess = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const lottieRef = useRef<LottieRefCurrentProps>(null);
+  const [hasNavigated, setHasNavigated] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { emailVerification, isPending } = useEmailVerification();
-
-  useEffect(() => {
-    // Extract token from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get("token");
-
-    if (!token) {
-      setError("No verification token found in URL");
-      return;
-    }
-
-    // Only verify once
-    if (!hasVerified) {
-      setHasVerified(true);
-
-      // Call the verification mutation with error handling
-      emailVerification(
-        { token },
-        {
-          onError: () => {
-            setError("Invalid or expired verification token");
-          },
+  
+  // Extract token from URL
+  const token = searchParams.get("token");
+  
+  // Process verification immediately (runs once when component mounts)
+  if (token && !error && !isPending) {
+    emailVerification(
+      { token },
+      {
+        onError: (err: Error) => {
+          setError(err.message || "Invalid or expired verification token");
         },
-      );
-    }
-  }, [emailVerification, hasVerified]);
+      },
+    );
+  } else if (!token) {
+    setError("No verification token found in URL");
+  }
+
+  const handleAnimationComplete = () => {
+    setTimeout(() => {
+      if (!hasNavigated && !error) {
+        setHasNavigated(true);
+        navigate("/login");
+      }
+    }, 1000);
+  };
+
+  if (!token) {
+    return (
+      <div className="text-text relative flex min-h-screen items-center justify-center bg-gradient-to-br p-8 text-center">
+        <img
+          src={logo}
+          alt="logo"
+          className="absolute top-4 left-4 w-24 md:w-28 lg:w-32"
+        />
+        <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl md:p-12">
+          <div className="mx-auto mb-6 flex h-32 w-32 items-center justify-center">
+            <XCircle className="h-full w-full text-[#fb923c]" />
+          </div>
+          <h1 className="mb-4 text-3xl font-bold md:text-4xl">
+            Verification Failed
+          </h1>
+          <p className="mb-6 text-lg text-gray-600">No verification token found in URL</p>
+          <button
+            onClick={() => navigate("/login")}
+            className="rounded-md border border-[#012e4a] px-6 py-3 text-[#012e4a] transition-colors hover:bg-[#012e4a] hover:text-white"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isPending) {
+    return (
+      <div className="text-text relative flex min-h-screen items-center justify-center bg-gradient-to-br p-8 text-center">
+        <img
+          src={logo}
+          alt="logo"
+          className="absolute top-4 left-4 w-24 md:w-28 lg:w-32"
+        />
+        <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl md:p-12">
+          <div className="mx-auto mb-6 flex h-32 w-32 items-center justify-center">
+            <RotateCw className="h-16 w-16 animate-spin text-[#012e4a]" />
+          </div>
+          <h1 className="mb-4 text-3xl font-bold md:text-4xl">
+            Verifying Email...
+          </h1>
+          <p className="mb-8 text-lg text-gray-600">
+            Please wait while we verify your email address
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-text relative flex min-h-screen items-center justify-center bg-gradient-to-br p-8 text-center">
+        <img
+          src={logo}
+          alt="logo"
+          className="absolute top-4 left-4 w-24 md:w-28 lg:w-32"
+        />
+        <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl md:p-12">
+          <div className="mx-auto mb-6 flex h-32 w-32 items-center justify-center">
+            <XCircle className="h-full w-full text-[#fb923c]" />
+          </div>
+          <h1 className="mb-4 text-3xl font-bold md:text-4xl">
+            Verification Failed
+          </h1>
+          <p className="mb-6 text-lg text-gray-600">{error}</p>
+          <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+            <button
+              onClick={() => window.location.reload()}
+              className="rounded-md bg-[#012e4a] px-6 py-3 text-white transition-colors hover:bg-[#036280]"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => navigate("/login")}
+              className="rounded-md border border-[#012e4a] px-6 py-3 text-[#012e4a] transition-colors hover:bg-[#012e4a] hover:text-white"
+            >
+              Go to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex min-h-screen flex-col justify-center bg-[#f1f5f9] py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <div className="rounded-full bg-[#012e4a] p-3">
-            <Mail className="h-10 w-10 text-white" />
-          </div>
+    <div className="text-text relative flex min-h-screen items-center justify-center bg-gradient-to-br p-8 text-center">
+      <img
+        src={logo}
+        alt="logo"
+        className="absolute top-4 left-4 w-24 md:w-28 lg:w-32"
+      />
+      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl md:p-12">
+        <div className="mx-auto mb-6 flex h-32 w-32 items-center justify-center">
+          <Lottie
+            lottieRef={lottieRef}
+            animationData={animationData}
+            loop={false}
+            autoplay={true}
+            onComplete={handleAnimationComplete}
+            className="h-full w-full"
+          />
         </div>
-
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-[#012e4a]">
-          Email Verification
-        </h2>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
-          <div className="flex flex-col items-center justify-center">
-            {isPending ? (
-              <div className="flex flex-col items-center">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center">
-                  <RotateCw className="h-12 w-12 animate-spin text-[#012e4a]" />
-                </div>
-                <p className="text-[#4f536c]">
-                  Verifying your email address...
-                </p>
-              </div>
-            ) : error ? (
-              <div className="flex flex-col items-center">
-                <XCircle className="mb-4 h-16 w-16 text-[#fb923c]" />
-                <p className="mb-4 text-center text-[#4f536c]">{error}</p>
-                <div className="flex space-x-4">
-                  <button
-                    onClick={() => window.location.reload()}
-                    className="rounded-md border border-transparent bg-[#012e4a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#036280] focus:ring-2 focus:ring-[#012e4a] focus:ring-offset-2 focus:outline-none"
-                  >
-                    Try Again
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center">
-                <CheckCircle className="mb-4 h-16 w-16 text-[#012e4a]" />
-                <p className="mb-4 text-center text-[#4f536c]">
-                  Your email has been successfully verified!
-                </p>
-                <button
-                  onClick={() => (window.location.href = "/login")}
-                  className="flex w-full justify-center rounded-md border border-transparent bg-[#012e4a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#036280] focus:ring-2 focus:ring-[#012e4a] focus:ring-offset-2 focus:outline-none"
-                >
-                  Continue to Login
-                </button>
-              </div>
-            )}
-          </div>
+        <h1 className="mb-4 text-3xl font-bold md:text-4xl">Email Verified!</h1>
+        <p className="mb-8 text-lg text-gray-600">
+          Your email has been successfully verified
+        </p>
+        <div className="mb-6 rounded-lg bg-blue-50 p-4 text-sm text-blue-700">
+          <p>Redirecting to login in a few seconds...</p>
         </div>
+        <button
+          onClick={() => navigate("/login")}
+          className="w-full rounded-md bg-[#012e4a] px-6 py-3 text-white transition-colors hover:bg-[#036280]"
+        >
+          Continue to Login
+        </button>
       </div>
     </div>
   );
 };
 
-export default EmailVerification;
+export default EmailVerificationSuccess;

@@ -57,11 +57,31 @@ const PurchaseDetailsPage = () => {
           <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-3">
             {/* Left Column - Book Info */}
             <div className="flex h-full flex-col lg:col-span-2">
-              {/* Rating and Title */}
-              <div className="mb-4 flex items-center space-x-4">
-                <div className="flex items-center space-x-1">
-                  <Star className="text-secondary h-5 w-5 fill-current" />
-                  <span className="text-lg font-semibold">{rating}</span>
+              {/* Enhanced Rating and Title */}
+              <div className="mb-6 flex items-center space-x-4">
+                <div className="flex items-center space-x-2 rounded-full bg-gradient-to-r from-yellow-50 to-orange-50 px-4 py-2 shadow-sm">
+                  <div className="flex items-center space-x-1">
+                    {[...Array(5)].map((_, index) => {
+                      const filled = index < Math.floor(rating);
+                      const isHalf =
+                        rating - Math.floor(rating) > 0 &&
+                        index === Math.floor(rating);
+                      return (
+                        <Star
+                          key={index}
+                          className={`h-5 w-5 transition-all duration-200 ${
+                            filled || isHalf
+                              ? "text-yellow-500"
+                              : "text-gray-300"
+                          } ${filled ? "fill-current" : isHalf ? "fill-yellow-500" : ""}`}
+                        />
+                      );
+                    })}
+                  </div>
+                  <span className="ml-2 text-lg font-bold text-gray-800">
+                    {rating.toFixed(1)}
+                  </span>
+                  <span className="text-sm text-gray-600">/ 5</span>
                 </div>
               </div>
 
@@ -168,17 +188,21 @@ const PurchaseDetailsPage = () => {
             </div>
           </div>
 
-          {/* Customer Reviews Section */}
-          <div className="w-full rounded-lg bg-white p-8 shadow-sm lg:w-1/3">
-            <h2 className="text-primary mb-6 text-2xl font-bold">
+          {/* Enhanced Customer Reviews Section */}
+          <div className="w-full rounded-lg bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg lg:w-1/3">
+            <h2 className="text-primary mb-6 flex items-center text-2xl font-bold">
+              <Star className="mr-2 h-6 w-6 text-yellow-500" />
               Customer Reviews
             </h2>
-            <div className="grid grid-cols-1 gap-8">
-              <div className="text-center">
-                <div className="text-primary mb-2 text-4xl font-bold">
+            <div className="text-center">
+              {/* Main Rating Display */}
+              <div className="mb-6">
+                <div className="mb-2 bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-5xl font-bold text-transparent">
                   {rating.toFixed(1)}
                 </div>
-                <div className="text-primary mb-2">out of 5</div>
+                <div className="mb-4 text-lg text-gray-600">out of 5</div>
+
+                {/* Enhanced Star Display */}
                 <div className="mb-4 flex justify-center space-x-1">
                   {[...Array(5)].map((_, index) => {
                     const filled = index < Math.floor(rating);
@@ -188,9 +212,9 @@ const PurchaseDetailsPage = () => {
                     return (
                       <Star
                         key={index}
-                        className={`h-6 w-6 ${
-                          filled || isHalf ? "text-secondary" : "text-accent"
-                        } ${filled ? "fill-current" : isHalf ? "fill-accent" : ""}`}
+                        className={`h-8 w-8 transition-all duration-300 hover:scale-110 ${
+                          filled || isHalf ? "text-yellow-500" : "text-gray-300"
+                        } ${filled ? "fill-current" : isHalf ? "fill-yellow-500" : ""}`}
                       />
                     );
                   })}

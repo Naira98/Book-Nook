@@ -1,4 +1,11 @@
-import { AlertTriangle, BookOpen, Calendar, CheckCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  BookOpen,
+  Calendar,
+  CheckCircle,
+  CheckSquare,
+  Square,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BorrowedBookItem from "../../components/client/BorrowedBookItem";
@@ -16,6 +23,7 @@ const CurrentBorrowsPage = () => {
   const [totalDeposit, setTotalDeposit] = useState(0);
   const [showReturnOrderForm, setShowReturnOrderForm] = useState(false);
   const navigate = useNavigate();
+
   // Calculate summary statistics
   const summary = useMemo(() => {
     if (!clientBorrows) return null;
@@ -130,7 +138,7 @@ const CurrentBorrowsPage = () => {
   const handleReturnOrderSuccess = () => {
     setSelectedBooks(new Set());
     setShowReturnOrderForm(false);
-    navigate("/orders-history");
+    navigate("/orders-history?tab=returnOrders");
   };
 
   const summaryCards = [
@@ -160,7 +168,7 @@ const CurrentBorrowsPage = () => {
     },
   ];
 
-  if (isPending) return <Spinner />;
+  if (isPending) return <Spinner size={500} className="h-screen" />;
 
   if (!clientBorrows || clientBorrows.length === 0) {
     return (
@@ -234,17 +242,20 @@ const CurrentBorrowsPage = () => {
       {/* Action Bar */}
       <div className="mb-6 flex flex-col items-start justify-between space-y-4 rounded-lg bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:space-y-0">
         <div className="flex h-10 items-center space-x-4">
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={selectedBooks.size === clientBorrows.length}
-              onChange={handleSelectAll}
-              className="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300"
-            />
+          <button
+            type="button"
+            onClick={handleSelectAll}
+            className="flex w-full items-center gap-2 rounded px-1 py-1 text-left text-sm text-gray-800 hover:bg-gray-50"
+          >
+            {selectedBooks.size === clientBorrows.length ? (
+              <CheckSquare className="text-primary h-5 w-5" />
+            ) : (
+              <Square className="h-5 w-5 text-gray-400" />
+            )}
             <span className="text-sm font-medium text-gray-700">
               Select All ({selectedBooks.size}/{clientBorrows.length})
             </span>
-          </label>
+          </button>
         </div>
 
         {selectedBooks.size > 0 && (

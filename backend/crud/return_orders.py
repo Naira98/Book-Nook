@@ -104,7 +104,7 @@ async def create_return_order_crud(
             db=db,
             user=user,
             amount=delivery_fees,
-            description=f"Delivery fees for Return Order #{return_order.id}",
+            description=f"Delivery fees for Return Order ID:{return_order.id}",
             apply_negative_balance=False,
         )
 

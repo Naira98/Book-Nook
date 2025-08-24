@@ -5,7 +5,7 @@ import type { BorrowBookProblem } from "../../types/Orders";
 
 const statusSteps = {
   SITE: ["CREATED", "CHICKING", "DONE"],
-  COURIER: ["CREATED", "ON_THE_WAY", "PICKED_UP", "CHICKING", "DONE"],
+  COURIER: ["CREATED", "ON_THE_WAY", "PICKED_UP", "CHECKING", "DONE"],
 };
 
 export default function ClientReturnOrderDetailsPage() {
@@ -70,8 +70,7 @@ export default function ClientReturnOrderDetailsPage() {
     <div className="min-h-screen w-full p-6">
       {/* Header */}
       <h1 className="text-primary mb-6 flex items-center justify-between text-2xl font-bold">
-        returnOrder #{returnOrder.id}
-        {statusFormat(returnOrder.status)}
+        Return Order #{returnOrder.id} {statusFormat(returnOrder.status)}
       </h1>
 
       {/* Timeline */}
@@ -108,7 +107,7 @@ export default function ClientReturnOrderDetailsPage() {
                 {step === "CREATED" && <Circle />}
                 {step === "ON_THE_WAY" && <Truck />}
                 {step === "PICKED_UP" && <PackageCheck />}
-                {step === "CHICKING" && <Search />}
+                {step === "CHECKING" && <Search />}
                 {step === "DONE" && <CheckCircle />}
               </div>
               <p

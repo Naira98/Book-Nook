@@ -11,7 +11,7 @@ export default function PromoCodeDiscount() {
           <h2 className="mb-10 w-fit text-4xl font-bold text-white">
             Get 20% discount
             <br />
-            with welcome20 promocode
+            with WELCOME20 promocode
           </h2>
 
           <MainButton

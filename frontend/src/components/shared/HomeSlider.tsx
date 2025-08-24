@@ -38,14 +38,14 @@ export default function HomeSlider({
       </div>
       <div className="relative w-full">
         <button
-          className="bg-accent text-layout absolute top-1/2 left-0 z-10 flex h-12 w-12 translate-x-1/2 -translate-y-full cursor-pointer items-center justify-center rounded-full text-4xl opacity-70 hover:bg-slate-200"
+          className="bg-accent text-layout absolute top-1/2 left-0 z-10 flex h-12 w-12 translate-x-1/2 -translate-y-full cursor-pointer items-center justify-center rounded-full text-4xl opacity-80 hover:bg-slate-200"
           ref={navigationPrevRef}
         >
           <ChevronLeft />
         </button>
 
         <button
-          className="bg-accent text-layout absolute top-1/2 right-0 z-10 flex h-12 w-12 -translate-x-1/2 -translate-y-full cursor-pointer items-center justify-center rounded-full text-4xl opacity-70 hover:bg-slate-200"
+          className="bg-accent text-layout absolute top-1/2 right-0 z-10 flex h-12 w-12 -translate-x-1/2 -translate-y-full cursor-pointer items-center justify-center rounded-full text-4xl opacity-80 hover:bg-slate-200"
           ref={navigationNextRef}
         >
           <ChevronRight />

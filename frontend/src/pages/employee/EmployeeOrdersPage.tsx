@@ -54,9 +54,11 @@ const EmployeeOrdersPage = () => {
         };
       case "Done Orders":
         return {
-          orders: orders.orders.filter((o) => o.status === "PICKED_UP"),
+          orders: orders.orders.filter(
+            (o) => o.status === "PICKED_UP" || o.status === "PROBLEM",
+          ),
           return_orders: orders.return_orders.filter(
-            (o) => o.status === "DONE",
+            (o) => o.status === "DONE" || o.status === "PROBLEM",
           ),
         };
       default:
@@ -139,36 +141,35 @@ const tabs = [
   "Done Orders",
 ];
 
+const getStatusColor = (status: OrderStatus | ReturnOrderStatus) => {
+  switch (status) {
+    case "CREATED":
+      return "bg-blue-100 text-primary";
+    case "ON_THE_WAY":
+    case "CHECKING":
+      return "bg-orange-100 text-orange-800";
+    case "PICKED_UP":
+    case "DONE":
+      return "bg-green-100 text-green-800";
+    case "PROBLEM":
+      return "bg-red-100 text-red-800";
+    default:
+      return "bg-accent text-layout";
+  }
+};
 
-  const getStatusColor = (status: OrderStatus | ReturnOrderStatus) => {
-    switch (status) {
-      case "CREATED":
-        return "bg-blue-100 text-primary";
-      case "ON_THE_WAY":
-      case "CHECKING":
-        return "bg-orange-100 text-orange-800";
-      case "PICKED_UP":
-      case "DONE":
-        return "bg-green-100 text-green-800";
-      case "PROBLEM":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-accent text-layout";
-    }
-  };
-
-  const getStatusIcon = (status: OrderStatus | ReturnOrderStatus) => {
-    switch (status) {
-      case "CREATED":
-        return <ClockPlus size={16} />;
-      case "PICKED_UP":
-      case "DONE":
-        return <CheckCircle size={16} />;
-      case "PROBLEM":
-        return <AlertTriangle size={16} />;
-      case "CHECKING":
-        return <Loader size={16} />;
-      default:
-        return <Info size={16} />;
-    }
-  };
+const getStatusIcon = (status: OrderStatus | ReturnOrderStatus) => {
+  switch (status) {
+    case "CREATED":
+      return <ClockPlus size={16} />;
+    case "PICKED_UP":
+    case "DONE":
+      return <CheckCircle size={16} />;
+    case "PROBLEM":
+      return <AlertTriangle size={16} />;
+    case "CHECKING":
+      return <Loader size={16} />;
+    default:
+      return <Info size={16} />;
+  }
+};

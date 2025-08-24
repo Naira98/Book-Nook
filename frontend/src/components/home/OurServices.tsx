@@ -31,10 +31,10 @@ const services: Service[] = [
 ];
 export default function OurServices() {
   return (
-    <div className="bg-hover container mx-auto my-24 grid grid-cols-1 gap-8 rounded-lg p-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {services.map((service) => (
-        <div className="flex w-full items-center gap-4">
-          <div className="bg-primary flex h-[80px] w-[80px] shrink-0 items-center justify-center rounded-lg text-white">
+    <div className="bg-primary container mx-auto my-24 grid cursor-default grid-cols-1 gap-8 rounded-lg p-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {services.map((service, index) => (
+        <div className="flex w-full items-center gap-4" key={index}>
+          <div className="bg-hover flex h-[80px] w-[80px] shrink-0 items-center justify-center rounded-lg text-white">
             {service.icon}
           </div>
           <div>

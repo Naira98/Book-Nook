@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from typing import Annotated, List, Optional
 
@@ -8,6 +9,7 @@ from crud.book import (
     create_book_details,
     create_category_crud,
     get_all_books,
+    get_any_books_as_fallback,
     get_author_by_id,
     get_authors_crud,
     get_book_details,
@@ -17,6 +19,8 @@ from crud.book import (
     get_categories_crud,
     get_category_by_id,
     get_purchase_books_crud,
+    get_top_borrow_books,
+    get_top_purchase_books,
     is_book_exists,
     update_book_crud,
 )
@@ -32,8 +36,10 @@ from fastapi import (
     status,
 )
 from fastapi.responses import JSONResponse
+from models.user_tracker import UserTracker
 from schemas.book import (
     AuthorCategorySchema,
+    BestSellersResponse,
     BookDetailsForUpdateResponse,
     BookResponse,
     BookTableSchema,
@@ -45,8 +51,6 @@ from schemas.book import (
     PurchaseBookResponse,
     UpdateBookData,
 )
-
-from models.user_tracker import UserTracker
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils.auth import get_user_id_via_session
 
@@ -178,6 +182,24 @@ async def get_authors(db: AsyncSession = Depends(get_db)):
 @book_router.get("/categories", response_model=List[AuthorCategorySchema])
 async def get_categories(db: AsyncSession = Depends(get_db)):
     return await get_categories_crud(db)
+
+
+@book_router.get("/bestsellers", response_model=BestSellersResponse)
+async def get_best_sellers(limit: int = 8, db: AsyncSession = Depends(get_db)):
+    borrow_books = await get_top_borrow_books(db, limit)
+    purchase_books = await get_top_purchase_books(db, limit)
+
+    # Final fallback - if still empty, get any books
+    if not borrow_books:
+        borrow_books = await get_any_books_as_fallback(db, limit, "borrow")
+    if not purchase_books:
+        purchase_books = await get_any_books_as_fallback(db, limit, "purchase")
+
+    return BestSellersResponse(
+        borrow_books=borrow_books,
+        purchase_books=purchase_books,
+        last_updated=datetime.now(),
+    )
 
 
 """ Employee-only endpoints for book management """

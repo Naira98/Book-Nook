@@ -35,7 +35,7 @@ const SearchBar = ({
           onClick={() => {
             handleSearchChange(search);
           }}
-          className="!h-[38px] !w-[200px] !rounded-l-none !border-transparent"
+          className="!bg-accent !text-primary !h-[38px] !w-[200px] !rounded-l-none !border-transparent"
         >
           Search
         </MainButton>

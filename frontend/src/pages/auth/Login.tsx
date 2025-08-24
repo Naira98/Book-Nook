@@ -68,21 +68,7 @@ const LoginPage = () => {
                     )}
                   </Field>
                 ))}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Field name="rememberMe" type="checkbox">
-                      {({ input }) => (
-                        <label className="flex items-center">
-                          <input
-                            {...input}
-                            type="checkbox"
-                            className="text-primary focus:ring-primary mr-2 h-4 w-4 rounded border-gray-300"
-                          />
-                          Remember me
-                        </label>
-                      )}
-                    </Field>
-                  </div>
+                <div className="flex items-end justify-end">
                   <div className="text-sm">
                     <Link
                       to="/forget-password"

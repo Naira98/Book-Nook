@@ -19,6 +19,7 @@
     "final-form": "^5.0.0",
     "flowbite-react": "^0.12.6",
     "framer-motion": "^12.23.12",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.536.0",
     "react": "^19.1.1",
     "react-chartjs-2": "^5.3.0",

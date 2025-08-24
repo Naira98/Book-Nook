@@ -82,8 +82,14 @@ const QuantityControl = ({ item }: QuantityControlProps) => {
       <button
         onClick={
           isDeleteButton
-            ? () => onDeleteItem()
-            : () => onUpdateQuantity(currentQuantity - 1)
+            ? (e) => {
+                e.preventDefault();
+                onDeleteItem();
+              }
+            : (e) => {
+                e.preventDefault();
+                onUpdateQuantity(currentQuantity - 1);
+              }
         }
         disabled={isDisabled}
         className={
@@ -98,7 +104,10 @@ const QuantityControl = ({ item }: QuantityControlProps) => {
 
       {/* Plus Button */}
       <button
-        onClick={() => onUpdateQuantity(currentQuantity + 1)}
+        onClick={(e) => {
+          e.preventDefault();
+          onUpdateQuantity(currentQuantity + 1);
+        }}
         disabled={isPendingUpdatingCartItem}
         className={
           "bg-accent text-layout flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors duration-200 hover:bg-slate-200 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"

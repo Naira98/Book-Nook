@@ -28,10 +28,7 @@ export function useRecommendations() {
     queryKey: ["recommendations"],
     queryFn: async () => {
       try {
-        const rec: RecommendResponse = await apiReq(
-          "GET",
-          "/interests",
-        );
+        const rec: RecommendResponse = await apiReq("GET", "/interests");
 
         // Support both shapes:
         // 1) { recommendations: { recommendations: [...] } }
@@ -51,6 +48,11 @@ export function useRecommendations() {
       }
     },
     staleTime: 60_000,
+    // Lowest priority - should not block other requests
+    enabled: true, // Always enabled but with low priority
+    gcTime: 1000 * 60 * 30, // 30 minutes - longer cache time
+    refetchOnWindowFocus: false, // Don't refetch on focus to reduce load
+    refetchOnMount: false, // Don't refetch on mount if data exists
   });
 
   return { recommendations: data ?? [], isPending, error };

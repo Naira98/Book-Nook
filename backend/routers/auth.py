@@ -115,17 +115,239 @@ async def register(
         raise HTTPException(
             status_code=500, detail=f"Token generation failed: {str(e)}"
         )
+
+    verification_link = f"{settings.APP_HOST}/verify-email?token={token}"
+
+    email_body = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Verify Your Email - Book Nook</title>
+        <style>
+            * {{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }}
+            body {{
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                line-height: 1.6;
+                color: #374151;
+                background-color: #f9fafb;
+                padding: 24px;
+                -webkit-font-smoothing: antialiased;
+            }}
+            .email-container {{
+                max-width: 600px;
+                margin: 0 auto;
+                background: #ffffff;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                border: 1px solid #e5e7eb;
+            }}
+            .email-header {{
+                background: #f8fafc;
+                padding: 32px 30px;
+                text-align: center;
+                border-bottom: 1px solid #e5e7eb;
+            }}
+            .logo {{
+                font-size: 24px;
+                font-weight: 600;
+                margin-bottom: 12px;
+                color: #111827;
+            }}
+            .email-title {{
+                font-size: 20px;
+                font-weight: 500;
+                margin-bottom: 8px;
+                color: #111827;
+            }}
+            .email-subtitle {{
+                font-size: 14px;
+                color: #6b7280;
+            }}
+            .email-content {{
+                padding: 40px 30px;
+            }}
+            .welcome-text {{
+                font-size: 18px;
+                color: #111827;
+                margin-bottom: 20px;
+                text-align: center;
+                font-weight: 500;
+            }}
+            .message {{
+                font-size: 15px;
+                color: #6b7280;
+                margin-bottom: 28px;
+                text-align: center;
+                line-height: 1.6;
+            }}
+            .verification-button {{
+                display: block;
+                width: 220px;
+                margin: 32px auto;
+                padding: 14px 28px;
+                background: #111827;
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 6px;
+                text-align: center;
+                font-weight: 500;
+                font-size: 15px;
+                transition: background-color 0.2s ease;
+            }}
+            .verification-button:hover {{
+                background: #374151;
+            }}
+            .link-backup {{
+                background: #f9fafb;
+                padding: 20px;
+                border-radius: 6px;
+                margin: 28px 0;
+                text-align: center;
+                border: 1px solid #e5e7eb;
+            }}
+            .backup-title {{
+                margin-bottom: 12px;
+                color: #6b7280;
+                font-size: 14px;
+                font-weight: 500;
+            }}
+            .verification-link {{
+                color: #111827;
+                font-size: 13px;
+                word-break: break-all;
+                font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+                line-height: 1.4;
+            }}
+            .features {{
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+                margin: 32px 0;
+            }}
+            .feature {{
+                text-align: center;
+                padding: 20px 16px;
+                background: #f9fafb;
+                border-radius: 6px;
+                border: 1px solid #e5e7eb;
+            }}
+            .feature-icon {{
+                font-size: 20px;
+                margin-bottom: 12px;
+                color: #4b5563;
+            }}
+            .feature-text {{
+                font-size: 13px;
+                color: #6b7280;
+                font-weight: 500;
+            }}
+            .email-footer {{
+                background: #f8fafc;
+                padding: 28px 30px;
+                text-align: center;
+                border-top: 1px solid #e5e7eb;
+            }}
+            .footer-text {{
+                color: #6b7280;
+                font-size: 13px;
+                margin-bottom: 12px;
+                line-height: 1.5;
+            }}
+            .support-link {{
+                color: #111827;
+                text-decoration: none;
+                font-weight: 500;
+            }}
+            .support-link:hover {{
+                text-decoration: underline;
+            }}
+            @media (max-width: 600px) {{
+                .features {{
+                    grid-template-columns: 1fr;
+                }}
+                .email-content {{
+                    padding: 32px 24px;
+                }}
+                .verification-button {{
+                    width: 100%;
+                    max-width: 220px;
+                }}
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="email-header">
+                <div class="logo">📚 Book Nook</div>
+                <h1 class="email-title">Verify Your Email</h1>
+                <p class="email-subtitle">Welcome to our reading community</p>
+            </div>
+            
+            <div class="email-content">
+                <h2 class="welcome-text">Hello {new_user.first_name},</h2>
+                
+                <p class="message">
+                    Thank you for joining Book Nook. We're excited to have you as part of our 
+                    community of readers. To complete your registration, please verify your email address.
+                </p>
+                
+                <a href="{verification_link}" class="verification-button">
+                    Verify Email Address
+                </a>
+                
+                <div class="link-backup">
+                    <p class="backup-title">If the button doesn't work, copy and paste this link:</p>
+                    <p class="verification-link">{verification_link}</p>
+                </div>
+                
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">📖</div>
+                        <p class="feature-text">Access thousands of books</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">📚</div>
+                        <p class="feature-text">Build your library</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🔍</div>
+                        <p class="feature-text">Discover new titles</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">⭐</div>
+                        <p class="feature-text">Personalized recommendations</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="email-footer">
+                <p class="footer-text">
+                    If you didn't create this account, please ignore this email.
+                </p>
+                <p class="footer-text">
+                    Need assistance? <a href="mailto:book.nook.eglib@gmail.com" class="support-link">Contact Support</a>
+                </p>
+                <p class="footer-text">
+                    © 2025 Book Nook. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
     # Send verification email
     try:
-        verification_link = f"{settings.APP_HOST}/verify-email?token={token}"
-        email_body = f"""
-            <h2>Welcome {new_user.first_name}!</h2>
-            <p>Please verify your email by clicking the link below:</p>
-            <a href="{verification_link}">Verify Email</a>
-        """
         await send_email(
             new_user.email,
-            "Verify Your Email",
+            "Verify Your Book Nook Account Email",
             email_body,
             background_tasks,
         )
@@ -146,6 +368,7 @@ async def register(
 async def verify_email(
     email_verification: EmailVerificationRequest, db: AsyncSession = Depends(get_db)
 ):
+    print("IN VERIFY EMAIL🔥🔥🔥🔥🔥")
     try:
         # Decode the token to extract email
         email = decode_token_generic(
@@ -268,16 +491,225 @@ async def forget_password(
     )
 
     html_body = f"""
-        <html>
-            <body>
-                <p>You have requested to reset your password. Click the link below to reset it:</p>
-                <p><a href="{reset_link}">Reset Password</a></p>
-                <p>This link will expire in {settings.RESET_PASSWORD_TOKEN_EXPIRATION_MINUTES} minutes.</p>
-                <p>If you did not request a password reset, please ignore this email.</p>
-            </body>
-        </html>
-        """
-
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Reset Your Password - Book Nook</title>
+        <style>
+            * {{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }}
+            body {{
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                line-height: 1.6;
+                color: #374151;
+                background-color: #f9fafb;
+                padding: 24px;
+                -webkit-font-smoothing: antialiased;
+            }}
+            .email-container {{
+                max-width: 600px;
+                margin: 0 auto;
+                background: #ffffff;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                border: 1px solid #e5e7eb;
+            }}
+            .email-header {{
+                background: #f8fafc;
+                padding: 32px 30px;
+                text-align: center;
+                border-bottom: 1px solid #e5e7eb;
+            }}
+            .logo {{
+                font-size: 24px;
+                font-weight: 600;
+                margin-bottom: 12px;
+                color: #111827;
+            }}
+            .email-title {{
+                font-size: 20px;
+                font-weight: 500;
+                margin-bottom: 8px;
+                color: #111827;
+            }}
+            .email-subtitle {{
+                font-size: 14px;
+                color: #6b7280;
+            }}
+            .email-content {{
+                padding: 40px 30px;
+            }}
+            .alert-text {{
+                font-size: 18px;
+                color: #111827;
+                margin-bottom: 20px;
+                text-align: center;
+                font-weight: 500;
+            }}
+            .message {{
+                font-size: 15px;
+                color: #6b7280;
+                margin-bottom: 28px;
+                text-align: center;
+                line-height: 1.6;
+            }}
+            .reset-button {{
+                display: block;
+                width: 220px;
+                margin: 32px auto;
+                padding: 14px 28px;
+                background: #111827;
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 6px;
+                text-align: center;
+                font-weight: 500;
+                font-size: 15px;
+                transition: background-color 0.2s ease;
+            }}
+            .reset-button:hover {{
+                background: #374151;
+            }}
+            .link-backup {{
+                background: #f9fafb;
+                padding: 20px;
+                border-radius: 6px;
+                margin: 28px 0;
+                text-align: center;
+                border: 1px solid #e5e7eb;
+            }}
+            .backup-title {{
+                margin-bottom: 12px;
+                color: #6b7280;
+                font-size: 14px;
+                font-weight: 500;
+            }}
+            .reset-link {{
+                color: #111827;
+                font-size: 13px;
+                word-break: break-all;
+                font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+                line-height: 1.4;
+            }}
+            .security-section {{
+                background: #f8fafc;
+                padding: 20px;
+                border-radius: 6px;
+                margin: 28px 0;
+                text-align: center;
+                border: 1px solid #e5e7eb;
+            }}
+            .security-text {{
+                color: #6b7280;
+                font-size: 13px;
+                font-weight: 500;
+                line-height: 1.5;
+            }}
+            .warning-section {{
+                background: #fef2f2;
+                padding: 20px;
+                border-radius: 6px;
+                margin: 28px 0;
+                text-align: center;
+                border: 1px solid #fecaca;
+            }}
+            .warning-text {{
+                color: #991b1b;
+                font-size: 13px;
+                font-weight: 500;
+                line-height: 1.5;
+            }}
+            .email-footer {{
+                background: #f8fafc;
+                padding: 28px 30px;
+                text-align: center;
+                border-top: 1px solid #e5e7eb;
+            }}
+            .footer-text {{
+                color: #6b7280;
+                font-size: 13px;
+                margin-bottom: 12px;
+                line-height: 1.5;
+            }}
+            .support-link {{
+                color: #111827;
+                text-decoration: none;
+                font-weight: 500;
+            }}
+            .support-link:hover {{
+                text-decoration: underline;
+            }}
+            @media (max-width: 600px) {{
+                .email-content {{
+                    padding: 32px 24px;
+                }}
+                .reset-button {{
+                    width: 100%;
+                    max-width: 220px;
+                }}
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="email-header">
+                <div class="logo">📚 Book Nook</div>
+                <h1 class="email-title">Password Reset Request</h1>
+                <p class="email-subtitle">Secure your account access</p>
+            </div>
+            
+            <div class="email-content">
+                <h2 class="alert-text">Reset Your Password</h2>
+                
+                <p class="message">
+                    We received a request to reset your Book Nook account password. 
+                    Click the button below to create a new secure password.
+                </p>
+                
+                <a href="{reset_link}" class="reset-button">
+                    Reset Password
+                </a>
+                
+                <div class="link-backup">
+                    <p class="backup-title">Or copy and paste this link into your browser:</p>
+                    <p class="reset-link">{reset_link}</p>
+                </div>
+                
+                <div class="security-section">
+                    <p class="security-text">
+                        ⏰ This link will expire in {settings.RESET_PASSWORD_TOKEN_EXPIRATION_MINUTES} minutes
+                    </p>
+                </div>
+                
+                <div class="warning-section">
+                    <p class="warning-text">
+                        ⚠️ If you didn't request this password reset, please ignore this email. 
+                        Your account security is important to us.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="email-footer">
+                <p class="footer-text">
+                    This is an automated message. Please do not reply to this email.
+                </p>
+                <p class="footer-text">
+                    Need help? <a href="mailto:book.nook.eglib@gmail.com" class="support-link">Contact our support team</a>
+                </p>
+                <p class="footer-text">
+                    © 2025 Book Nook. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
     await send_email(user.email, "Password Reset Request", html_body, background_tasks)
 
     return {"message": "Password reset email has been sent."}

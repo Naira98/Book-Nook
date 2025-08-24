@@ -292,13 +292,17 @@ export default function CheckoutPage() {
                         {item.book.author.name}
                       </p>
                       <p className="text-layout/70 mt-1 text-sm">
-                        <span className="text-success font-bold">
+                        <span className="font-bold text-slate-600">
                           {item.quantity}
                         </span>{" "}
-                        × {item.book_price} EGP
+                        ×{" "}
+                        <span className="text-slate-700">
+                          {item.book_price}
+                        </span>{" "}
+                        EGP
                       </p>
                     </div>
-                    <p className="text-success font-bold">
+                    <p className="text-lg font-bold text-slate-600">
                       {(parseFloat(item.book_price) * item.quantity).toFixed(2)}{" "}
                       EGP
                     </p>
@@ -333,17 +337,21 @@ export default function CheckoutPage() {
                         {item.book.author.name}
                       </p>
                       <p className="text-layout/70 mt-1 text-sm">
-                        <span className="text-secondary font-bold">
+                        <span className="font-bold text-slate-600">
                           {item.borrowing_weeks}
                         </span>{" "}
-                        weeks × {item.borrow_fees_per_week} EGP + deposit{" "}
-                        <span className="text-success font-bold">
+                        weeks ×{" "}
+                        <span className="text-slate-700">
+                          {item.borrow_fees_per_week}
+                        </span>{" "}
+                        EGP + deposit{" "}
+                        <span className="text-primary font-bold">
                           {item.deposit_fees}
                         </span>{" "}
                         EGP
                       </p>
                     </div>
-                    <p className="text-success font-bold">
+                    <p className="text-lg font-bold text-slate-600">
                       {(
                         parseFloat(item.borrow_fees_per_week) *
                           item.borrowing_weeks +
@@ -401,7 +409,7 @@ export default function CheckoutPage() {
                 />
                 <Truck className="text-primary h-6 w-6" />
                 <span className="font-medium">Courier Delivery</span>
-                <span className="text-layout ml-auto text-sm font-bold">
+                <span className="ml-auto text-sm font-bold text-amber-700">
                   (+{cartItems.delevary_fees || 0} EGP)
                 </span>
               </label>
@@ -516,7 +524,23 @@ export default function CheckoutPage() {
                           <span className="text-layout/80 font-medium">
                             {key.replace("_", " ")}:
                           </span>
-                          <span className="text-success">
+                          <span
+                            className={`font-bold ${
+                              key === "total"
+                                ? "text-primary text-2xl"
+                                : key === "promo_code"
+                                  ? "text-green-700"
+                                  : key === "delivery"
+                                    ? "text-amber-700"
+                                    : key === "deposit_total"
+                                      ? "text-slate-600"
+                                      : key === "borrow_total"
+                                        ? "text-slate-600"
+                                        : key === "purchase_total"
+                                          ? "text-slate-600"
+                                          : "text-gray-600"
+                            }`}
+                          >
                             {key === "promo_code" ? "-" : ""}{" "}
                             {prices[key as keyof Prices]?.toFixed(2)} EGP
                           </span>

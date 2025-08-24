@@ -1,197 +1,266 @@
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import GuestOnlyRoute from "./components/authorization/GuestOnlyRoute";
-import RoleBasedRoute from "./components/authorization/RoleBasedRoute";
-import CourierLayout from "./components/courier/CourierLayout";
-import ClientWithNavbarLayout from "./components/layouts/ClientWithNavbarLayout";
-import ClientWithSidebarLayout from "./components/layouts/ClientWithSidebarLayout";
-import ManagerLayout from "./components/layouts/ManagerLayout";
-import EmployeeLayout from "./components/staff/EmployeeLayout";
 import { useGetMe } from "./hooks/auth/useGetMe";
-import ForgetPassword from "./pages/auth/ForgetPassword";
-import Login from "./pages/auth/Login";
-import OrdersListPage from "./pages/auth/OrdersListPage";
-import Register from "./pages/auth/Register";
-import ResetPassword from "./pages/auth/ResetPassword";
-import BorrowBooksPage from "./pages/client/BorrowBooksPage";
-import BorrowDetailsPage from "./pages/client/BorrowDetailsPage";
-import CartPage from "./pages/client/CartPage";
-import ChechoutPage from "./pages/client/CheckoutPage";
-import CheckoutSuccess from "./pages/client/CheckoutSuccess";
-import ClientOrderDetailsPage from "./pages/client/ClientOrderDetailsPage";
-import ClientReturnOrderDetailsPage from "./pages/client/ClientReturnOrderDetailsPage";
-import CurrentBorrowsPage from "./pages/client/CurrentBorrowsPage";
-import HomePage from "./pages/client/HomePage";
-import Interests from "./pages/client/Interests";
-import OrdersPage from "./pages/client/OrdersPage";
-import PurchaseBooksPage from "./pages/client/PurchaseBooksPage";
-import PurchaseDetailsPage from "./pages/client/PurchaseDetailsPage";
-import TransactionsPage from "./pages/client/TransactionsPage";
-import CourierOrderDetailsPage from "./pages/courier/CourierOrderDetailsPage";
-import CourierOrdersPage from "./pages/courier/CourierOrdersPage";
-import CourierReturnOrderDetailsPage from "./pages/courier/CourierRetrunOrderDetailsPage";
-import AddAuthorPage from "./pages/employee/AddAuthorPage";
-import AddBookPage from "./pages/employee/AddBookPage";
-import AddCategoryPage from "./pages/employee/AddCategoryPage";
-import BooksTablePage from "./pages/employee/BooksTablePage";
-import CreatePromoCodePage from "./pages/employee/CreatePromoCodePage";
-import EmployeeOrderDetailsPage from "./pages/employee/EmployeeOrderDetailsPage";
-import EmployeeOrdersPage from "./pages/employee/EmployeeOrdersPage";
-import EmployeeReturnOrderDetailsPage from "./pages/employee/EmployeeRetrunOrderDetailsPage";
-import PromoCodesPage from "./pages/employee/PromoCodesPage";
-import UpdateBookPage from "./pages/employee/UpdateBookPage";
-import AddNewUser from "./pages/manager/addNewUser";
-import UsersList from "./pages/manager/listallUser";
-import ManagerDashboardPage from "./pages/manager/ManagerDashboardPage";
-import ManagerSettingsPage from "./pages/manager/ManagerSettingsPage";
-import NotFoundPage from "./pages/NotFoundPage";
-import UnauthorizedPage from "./pages/UnauthorizedPage";
 import { UserRole } from "./types/User";
-import EmailVerification from "./pages/auth/EmailVerificationPage";
+import Spinner from "./components/shared/Spinner";
+
+// Lazy load components
+const GuestOnlyRoute = lazy(
+  () => import("./components/authorization/GuestOnlyRoute"),
+);
+const RoleBasedRoute = lazy(
+  () => import("./components/authorization/RoleBasedRoute"),
+);
+const CourierLayout = lazy(() => import("./components/courier/CourierLayout"));
+const ClientWithNavbarLayout = lazy(
+  () => import("./components/layouts/ClientWithNavbarLayout"),
+);
+const ClientWithSidebarLayout = lazy(
+  () => import("./components/layouts/ClientWithSidebarLayout"),
+);
+const ManagerLayout = lazy(() => import("./components/layouts/ManagerLayout"));
+const EmployeeLayout = lazy(() => import("./components/staff/EmployeeLayout"));
+
+// Lazy load auth pages
+const Login = lazy(() => import("./pages/auth/Login"));
+const Register = lazy(() => import("./pages/auth/Register"));
+const ForgetPassword = lazy(() => import("./pages/auth/ForgetPassword"));
+const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
+const OrdersListPage = lazy(() => import("./pages/auth/OrdersListPage"));
+const EmailVerification = lazy(
+  () => import("./pages/auth/EmailVerificationPage"),
+);
+
+// Lazy load client pages
+const HomePage = lazy(() => import("./pages/client/HomePage"));
+const BorrowBooksPage = lazy(() => import("./pages/client/BorrowBooksPage"));
+const BorrowDetailsPage = lazy(
+  () => import("./pages/client/BorrowDetailsPage"),
+);
+const CartPage = lazy(() => import("./pages/client/CartPage"));
+const ChechoutPage = lazy(() => import("./pages/client/CheckoutPage"));
+const CheckoutSuccess = lazy(() => import("./pages/client/CheckoutSuccess"));
+const ClientOrderDetailsPage = lazy(
+  () => import("./pages/client/ClientOrderDetailsPage"),
+);
+const ClientReturnOrderDetailsPage = lazy(
+  () => import("./pages/client/ClientReturnOrderDetailsPage"),
+);
+const CurrentBorrowsPage = lazy(
+  () => import("./pages/client/CurrentBorrowsPage"),
+);
+const Interests = lazy(() => import("./pages/client/Interests"));
+const OrdersPage = lazy(() => import("./pages/client/OrdersPage"));
+const PurchaseBooksPage = lazy(
+  () => import("./pages/client/PurchaseBooksPage"),
+);
+const PurchaseDetailsPage = lazy(
+  () => import("./pages/client/PurchaseDetailsPage"),
+);
+const TransactionsPage = lazy(() => import("./pages/client/TransactionsPage"));
+
+// Lazy load courier pages
+const CourierOrderDetailsPage = lazy(
+  () => import("./pages/courier/CourierOrderDetailsPage"),
+);
+const CourierOrdersPage = lazy(
+  () => import("./pages/courier/CourierOrdersPage"),
+);
+const CourierReturnOrderDetailsPage = lazy(
+  () => import("./pages/courier/CourierRetrunOrderDetailsPage"),
+);
+
+// Lazy load employee pages
+const AddAuthorPage = lazy(() => import("./pages/employee/AddAuthorPage"));
+const AddBookPage = lazy(() => import("./pages/employee/AddBookPage"));
+const AddCategoryPage = lazy(() => import("./pages/employee/AddCategoryPage"));
+const BooksTablePage = lazy(() => import("./pages/employee/BooksTablePage"));
+const CreatePromoCodePage = lazy(
+  () => import("./pages/employee/CreatePromoCodePage"),
+);
+const EmployeeOrderDetailsPage = lazy(
+  () => import("./pages/employee/EmployeeOrderDetailsPage"),
+);
+const EmployeeOrdersPage = lazy(
+  () => import("./pages/employee/EmployeeOrdersPage"),
+);
+const EmployeeReturnOrderDetailsPage = lazy(
+  () => import("./pages/employee/EmployeeRetrunOrderDetailsPage"),
+);
+const PromoCodesPage = lazy(() => import("./pages/employee/PromoCodesPage"));
+const UpdateBookPage = lazy(() => import("./pages/employee/UpdateBookPage"));
+
+// Lazy load manager pages
+const AddNewUser = lazy(() => import("./pages/manager/addNewUser"));
+const UsersList = lazy(() => import("./pages/manager/listallUser"));
+const ManagerDashboardPage = lazy(
+  () => import("./pages/manager/ManagerDashboardPage"),
+);
+const ManagerSettingsPage = lazy(
+  () => import("./pages/manager/ManagerSettingsPage"),
+);
+
+// Lazy load error pages
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
+const UnauthorizedPage = lazy(() => import("./pages/UnauthorizedPage"));
+
+const LoadingSpinner = () => <Spinner size={500} className="h-screen" />;
 
 const App = () => {
   const { me } = useGetMe();
 
   return (
     <>
-      <Routes>
-        {/* GUEST-only routes */}
-        <Route element={<GuestOnlyRoute />}>
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/forget-password" element={<ForgetPassword />} />
-          <Route path="/verify-email" element={<EmailVerification />} />
-          <Route
-            path="/reset-password/:reset_token"
-            element={<ResetPassword />}
-          />
-        </Route>
-
-        {/* CLIENT-only routes */}
-        <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}>
-          {/* Client pages with navbar */}
-          <Route path="/interests" element={<Interests />} />
-          <Route path="/" element={<ClientWithNavbarLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/borrow-books" element={<BorrowBooksPage />} />
-            <Route path="/purchase-books" element={<PurchaseBooksPage />} />
+      <Suspense fallback={<LoadingSpinner />}>
+        <Routes>
+          {/* GUEST-only routes */}
+          <Route element={<GuestOnlyRoute />}>
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/forget-password" element={<ForgetPassword />} />
+            <Route path="/verify-email" element={<EmailVerification />} />
             <Route
-              path="/details/borrow/:bookDetailsId"
-              element={<BorrowDetailsPage />}
-            />
-            <Route
-              path="/details/purchase/:bookDetailsId"
-              element={<PurchaseDetailsPage />}
-            />
-
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<ChechoutPage />} />
-          </Route>
-
-          {/* Client pages with sidebar */}
-          <Route path="/" element={<ClientWithSidebarLayout />}>
-            <Route path="/transactions" element={<TransactionsPage />} />
-            <Route path="/orders-history" element={<OrdersPage />} />
-            <Route path="/current-borrows" element={<CurrentBorrowsPage />} />
-            <Route
-              path="/orders-history/order/:orderId"
-              element={<ClientOrderDetailsPage />}
-            />
-            <Route
-              path="/orders-history/return-order/:returnOrderId"
-              element={<ClientReturnOrderDetailsPage />}
+              path="/reset-password/:reset_token"
+              element={<ResetPassword />}
             />
           </Route>
 
-          <Route path="/transaction-success" element={<CheckoutSuccess />} />
-        </Route>
+          {/* CLIENT-only routes */}
+          <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}>
+            {/* Client pages with navbar */}
+            <Route path="/interests" element={<Interests />} />
+            <Route path="/" element={<ClientWithNavbarLayout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/borrow-books" element={<BorrowBooksPage />} />
+              <Route path="/purchase-books" element={<PurchaseBooksPage />} />
+              <Route
+                path="/details/borrow/:bookDetailsId"
+                element={<BorrowDetailsPage />}
+              />
+              <Route
+                path="/details/purchase/:bookDetailsId"
+                element={<PurchaseDetailsPage />}
+              />
 
-        {/* EMPLOYEE and MANAGER routes */}
-        <Route
-          element={
-            <RoleBasedRoute
-              allowedRoles={[UserRole.EMPLOYEE, UserRole.MANAGER]}
-            />
-          }
-        >
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<ChechoutPage />} />
+            </Route>
+
+            {/* Client pages with sidebar */}
+            <Route path="/" element={<ClientWithSidebarLayout />}>
+              <Route path="/transactions" element={<TransactionsPage />} />
+              <Route path="/orders-history" element={<OrdersPage />} />
+              <Route path="/current-borrows" element={<CurrentBorrowsPage />} />
+              <Route
+                path="/orders-history/order/:orderId"
+                element={<ClientOrderDetailsPage />}
+              />
+              <Route
+                path="/orders-history/return-order/:returnOrderId"
+                element={<ClientReturnOrderDetailsPage />}
+              />
+            </Route>
+
+            <Route path="/transaction-success" element={<CheckoutSuccess />} />
+          </Route>
+
+          {/* EMPLOYEE and MANAGER routes */}
           <Route
             element={
-              me?.role === UserRole.EMPLOYEE ? (
-                <EmployeeLayout />
-              ) : (
-                <ManagerLayout />
-              )
+              <RoleBasedRoute
+                allowedRoles={[UserRole.EMPLOYEE, UserRole.MANAGER]}
+              />
             }
           >
-            <Route path="/staff/books" element={<BooksTablePage />} />
-            <Route path="/staff/books/create-book" element={<AddBookPage />} />
             <Route
-              path="/staff/books/create-author"
-              element={<AddAuthorPage />}
-            />
-            <Route
-              path="/staff/books/create-category"
-              element={<AddCategoryPage />}
-            />
-            <Route
-              path="/staff/books/update-book/:book_id"
-              element={<UpdateBookPage />}
-            />
-            <Route path="/staff/orders" element={<EmployeeOrdersPage />} />
-            <Route
-              path="/staff/order/:orderId"
-              element={<EmployeeOrderDetailsPage />}
-            />
-            <Route
-              path="/staff/return-order/:orderId"
-              element={<EmployeeReturnOrderDetailsPage />}
-            />
+              element={
+                me?.role === UserRole.EMPLOYEE ? (
+                  <EmployeeLayout />
+                ) : (
+                  <ManagerLayout />
+                )
+              }
+            >
+              <Route path="/staff/books" element={<BooksTablePage />} />
+              <Route
+                path="/staff/books/create-book"
+                element={<AddBookPage />}
+              />
+              <Route
+                path="/staff/books/create-author"
+                element={<AddAuthorPage />}
+              />
+              <Route
+                path="/staff/books/create-category"
+                element={<AddCategoryPage />}
+              />
+              <Route
+                path="/staff/books/update-book/:book_id"
+                element={<UpdateBookPage />}
+              />
+              <Route path="/staff/orders" element={<EmployeeOrdersPage />} />
+              <Route
+                path="/staff/order/:orderId"
+                element={<EmployeeOrderDetailsPage />}
+              />
+              <Route
+                path="/staff/return-order/:orderId"
+                element={<EmployeeReturnOrderDetailsPage />}
+              />
+            </Route>
           </Route>
-        </Route>
 
-        {/* COURIER-only routes */}
-        <Route element={<RoleBasedRoute allowedRoles={[UserRole.COURIER]} />}>
-          <Route element={<CourierLayout />}>
-            <Route path="/courier/orders" element={<CourierOrdersPage />} />
-            <Route
-              path="/courier/order/:orderId"
-              element={<CourierOrderDetailsPage />}
-            />
-            <Route
-              path="/courier/return-order/:orderId"
-              element={<CourierReturnOrderDetailsPage />}
-            />
-            <Route path="/orders" element={<OrdersListPage />} />
+          {/* COURIER-only routes */}
+          <Route element={<RoleBasedRoute allowedRoles={[UserRole.COURIER]} />}>
+            <Route element={<CourierLayout />}>
+              <Route path="/courier/orders" element={<CourierOrdersPage />} />
+              <Route
+                path="/courier/order/:orderId"
+                element={<CourierOrderDetailsPage />}
+              />
+              <Route
+                path="/courier/return-order/:orderId"
+                element={<CourierReturnOrderDetailsPage />}
+              />
+              <Route path="/orders" element={<OrdersListPage />} />
+            </Route>
           </Route>
-        </Route>
 
-        {/* MANAGER-only routes */}
-        <Route element={<RoleBasedRoute allowedRoles={[UserRole.MANAGER]} />}>
-          <Route element={<ManagerLayout />}>
-            <Route
-              path="/manager/dashboard"
-              element={<ManagerDashboardPage />}
-            />
-            <Route path="/manager/promo-codes" element={<PromoCodesPage />} />
-            <Route
-              path="/manager/promo-codes/create"
-              element={<CreatePromoCodePage />}
-            />
-            <Route path="/manager/settings" element={<ManagerSettingsPage />} />
-            <Route path="manager/users/add-new-user" element={<AddNewUser />} />
-            <Route
-              path="manager/users/list-all-users"
-              element={<UsersList />}
-            />
+          {/* MANAGER-only routes */}
+          <Route element={<RoleBasedRoute allowedRoles={[UserRole.MANAGER]} />}>
+            <Route element={<ManagerLayout />}>
+              <Route
+                path="/manager/dashboard"
+                element={<ManagerDashboardPage />}
+              />
+              <Route path="/manager/promo-codes" element={<PromoCodesPage />} />
+              <Route
+                path="/manager/promo-codes/create"
+                element={<CreatePromoCodePage />}
+              />
+              <Route
+                path="/manager/settings"
+                element={<ManagerSettingsPage />}
+              />
+              <Route
+                path="manager/users/add-new-user"
+                element={<AddNewUser />}
+              />
+              <Route
+                path="manager/users/list-all-users"
+                element={<UsersList />}
+              />
+            </Route>
           </Route>
-        </Route>
 
-        {/* Unauthorized route */}
-        <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          {/* Unauthorized route */}
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-        {/* Notfound route */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+          {/* Notfound route */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
 
       <ToastContainer
         position="top-right"

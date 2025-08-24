@@ -1,15 +1,18 @@
-from typing import Optional
+from typing import List, Optional
 
 import requests
 from fastapi import HTTPException, status
 from langchain_core.documents import Document
 from models.book import Author, Book, BookDetails, BookStatus, Category
+from models.order import BorrowOrderBook, PurchaseOrderBook
 from schemas.book import (
+    BestSellerBookSchema,
     BookDetailsForUpdateResponse,
     BookResponse,
     BookTableSchema,
     CreateAuthorCategoryRequest,
     CreateBookRequest,
+    SimpleBookSchema,
     UpdateBookData,
 )
 from settings import settings
@@ -576,3 +579,294 @@ def fetch_books_from_api(api_url=f"{settings.SERVER_DOMAIN}/books/"):
         return documents
     except requests.RequestException as e:
         raise Exception(f"Failed to fetch books: {e}")
+
+
+async def get_top_borrow_books(
+    db: AsyncSession, limit: int = 8
+) -> List[BestSellerBookSchema]:
+    try:
+        query = (
+            select(
+                Book.id,
+                BookDetails.id.label("book_details_id"),
+                Book.title,
+                Book.price,
+                Book.cover_img,
+                Book.publish_year,
+                Book.rating,
+                Author.name.label("author_name"),
+                Category.name.label("category_name"),
+                func.count(BorrowOrderBook.id).label("borrow_count"),
+            )
+            .join(BookDetails, BookDetails.book_id == Book.id)
+            .join(BorrowOrderBook, BorrowOrderBook.book_details_id == BookDetails.id)
+            .join(Author, Book.author_id == Author.id)
+            .join(Category, Book.category_id == Category.id)
+            .where(BookDetails.status == "BORROW")
+            .group_by(Book.id, BookDetails.id, Author.name, Category.name)
+            .order_by(func.count(BorrowOrderBook.id).desc())
+            .limit(limit)
+        )
+
+        result = await db.execute(query)
+        results = result.all()
+
+        bestseller_books = [
+            BestSellerBookSchema(
+                book=SimpleBookSchema(
+                    id=row[0],
+                    book_details_id=row[1],
+                    title=row[2],
+                    price=row[3],
+                    cover_img=row[4],
+                    publish_year=row[5],
+                    rating=row[6],
+                    author_name=row[7],
+                    category_name=row[8],
+                ),
+                total_count=row[9],
+            )
+            for row in results
+        ]
+
+        # If we don't have enough books, get random books to fill the gap
+        if len(bestseller_books) < limit:
+            missing_count = limit - len(bestseller_books)
+            random_books = await get_random_borrow_books(
+                db, missing_count, [book.book.id for book in bestseller_books]
+            )
+            bestseller_books.extend(random_books)
+
+        return bestseller_books
+
+    except Exception as e:
+        print(f"Error fetching top borrow books: {str(e)}")
+        # Ensure we always return a list, even on error
+        return await get_random_borrow_books(db, limit)
+
+
+async def get_top_purchase_books(
+    db: AsyncSession, limit: int = 8
+) -> List[BestSellerBookSchema]:
+    try:
+        query = (
+            select(
+                Book.id,
+                BookDetails.id.label("book_details_id"),
+                Book.title,
+                Book.price,
+                Book.cover_img,
+                Book.publish_year,
+                Book.rating,
+                Author.name.label("author_name"),
+                Category.name.label("category_name"),
+                func.sum(PurchaseOrderBook.quantity).label("purchase_count"),
+            )
+            .join(BookDetails, BookDetails.book_id == Book.id)
+            .join(
+                PurchaseOrderBook, PurchaseOrderBook.book_details_id == BookDetails.id
+            )
+            .join(Author, Book.author_id == Author.id)
+            .join(Category, Book.category_id == Category.id)
+            .where(BookDetails.status == "PURCHASE")
+            .group_by(Book.id, BookDetails.id, Author.name, Category.name)
+            .order_by(func.sum(PurchaseOrderBook.quantity).desc())
+            .limit(limit)
+        )
+
+        result = await db.execute(query)
+        results = result.all()
+
+        bestseller_books = [
+            BestSellerBookSchema(
+                book=SimpleBookSchema(
+                    id=row[0],
+                    book_details_id=row[1],
+                    title=row[2],
+                    price=row[3],
+                    cover_img=row[4],
+                    publish_year=row[5],
+                    rating=row[6],
+                    author_name=row[7],
+                    category_name=row[8],
+                ),
+                total_count=int(row[9] or 0),
+            )
+            for row in results
+        ]
+
+        # If we don't have enough books, get random books to fill the gap
+        if len(bestseller_books) < limit:
+            missing_count = limit - len(bestseller_books)
+            random_books = await get_random_purchase_books(
+                db, missing_count, [book.book.id for book in bestseller_books]
+            )
+            bestseller_books.extend(random_books)
+
+        return bestseller_books
+
+    except Exception as e:
+        print(f"Error fetching top purchase books: {str(e)}")
+        # Ensure we always return a list, even on error
+        return await get_random_purchase_books(db, limit)
+
+
+async def get_random_borrow_books(
+    db: AsyncSession, limit: int, exclude_book_ids: Optional[List[int]] = None
+) -> List[BestSellerBookSchema]:
+    """Get random books that are available for borrowing"""
+    try:
+        query = (
+            select(
+                Book.id,
+                BookDetails.id.label("book_details_id"),
+                Book.title,
+                Book.price,
+                Book.cover_img,
+                Book.publish_year,
+                Book.rating,
+                Author.name.label("author_name"),
+                Category.name.label("category_name"),
+            )
+            .join(BookDetails, BookDetails.book_id == Book.id)
+            .join(Author, Book.author_id == Author.id)
+            .join(Category, Book.category_id == Category.id)
+            .where(BookDetails.status == "BORROW")
+        )
+
+        if exclude_book_ids:
+            query = query.where(Book.id.notin_(exclude_book_ids))
+
+        query = query.order_by(func.random()).limit(limit)
+
+        result = await db.execute(query)
+        results = result.all()
+
+        return [
+            BestSellerBookSchema(
+                book=SimpleBookSchema(
+                    id=row[0],
+                    book_details_id=row[1],
+                    title=row[2],
+                    price=row[3],
+                    cover_img=row[4],
+                    publish_year=row[5],
+                    rating=row[6],
+                    author_name=row[7],
+                    category_name=row[8],
+                ),
+                total_count=0,
+            )
+            for row in results
+        ]
+
+    except Exception as e:
+        print(f"Error fetching random borrow books: {str(e)}")
+        # Return empty list instead of None
+        return []
+
+
+async def get_random_purchase_books(
+    db: AsyncSession, limit: int, exclude_book_ids: Optional[List[int]] = None
+) -> List[BestSellerBookSchema]:
+    """Get random books that are available for purchase"""
+    try:
+        query = (
+            select(
+                Book.id,
+                BookDetails.id.label("book_details_id"),
+                Book.title,
+                Book.price,
+                Book.cover_img,
+                Book.publish_year,
+                Book.rating,
+                Author.name.label("author_name"),
+                Category.name.label("category_name"),
+            )
+            .join(BookDetails, BookDetails.book_id == Book.id)
+            .join(Author, Book.author_id == Author.id)
+            .join(Category, Book.category_id == Category.id)
+            .where(BookDetails.status == "PURCHASE")
+        )
+
+        if exclude_book_ids:
+            query = query.where(Book.id.notin_(exclude_book_ids))
+
+        query = query.order_by(func.random()).limit(limit)
+
+        result = await db.execute(query)
+        results = result.all()
+
+        return [
+            BestSellerBookSchema(
+                book=SimpleBookSchema(
+                    id=row[0],
+                    book_details_id=row[1],
+                    title=row[2],
+                    price=row[3],
+                    cover_img=row[4],
+                    publish_year=row[5],
+                    rating=row[6],
+                    author_name=row[7],
+                    category_name=row[8],
+                ),
+                total_count=0,
+            )
+            for row in results
+        ]
+
+    except Exception as e:
+        print(f"Error fetching random purchase books: {str(e)}")
+        # Return empty list instead of None
+        return []
+
+
+async def get_any_books_as_fallback(
+    db: AsyncSession, limit: int, book_type: str
+) -> List[BestSellerBookSchema]:
+    """Fallback to get any books when no specific type is available"""
+    try:
+        query = (
+            select(
+                Book.id,
+                BookDetails.id.label("book_details_id"),
+                Book.title,
+                Book.price,
+                Book.cover_img,
+                Book.publish_year,
+                Book.rating,
+                Author.name.label("author_name"),
+                Category.name.label("category_name"),
+            )
+            .join(BookDetails, BookDetails.book_id == Book.id)
+            .join(Author, Book.author_id == Author.id)
+            .join(Category, Book.category_id == Category.id)
+            .order_by(func.random())
+            .limit(limit)
+        )
+
+        result = await db.execute(query)
+        results = result.all()
+
+        return [
+            BestSellerBookSchema(
+                book=SimpleBookSchema(
+                    id=row[0],
+                    book_details_id=row[1],
+                    title=row[2],
+                    price=row[3],
+                    cover_img=row[4],
+                    publish_year=row[5],
+                    rating=row[6],
+                    author_name=row[7],
+                    category_name=row[8],
+                ),
+                total_count=0,
+            )
+            for row in results
+        ]
+
+    except Exception as e:
+        print(f"Error in fallback for {book_type} books: {str(e)}")
+        # Return empty list instead of None
+        return []

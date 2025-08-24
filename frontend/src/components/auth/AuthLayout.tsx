@@ -13,7 +13,7 @@ export default function AuthLayout({
   title?: string;
 }) {
   return (
-    <div className="bg-background relative flex h-screen w-screen flex-col items-center justify-start gap-4 p-4 md:justify-center">
+    <div className="bg-background bg-accent relative flex h-screen w-screen flex-col items-center justify-start gap-4 p-4 md:justify-center">
       <Link to="/login">
         <img
           src={logo}

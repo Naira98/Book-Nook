@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiReq from "../../services/apiReq";
 import type { PickUpType } from "../../types/Orders";
@@ -14,6 +15,7 @@ interface CreateReturnOrderRequest {
 export const useCreateReturnOrder = () => {
   const queryClient = useQueryClient();
   const userId = queryClient.getQueryData<IUser>(["me"])!.id;
+  const navigate = useNavigate();
 
   const { mutate: createReturnOrder, isPending } = useMutation({
     mutationFn: async (values: CreateReturnOrderRequest) => {
@@ -23,6 +25,7 @@ export const useCreateReturnOrder = () => {
       toast("Return order created successfully", { type: "success" });
       queryClient.invalidateQueries({ queryKey: ["clientBorrows", userId] });
       queryClient.invalidateQueries({ queryKey: ["me"] });
+      navigate("/orders-history?tab=returnOrders");
     },
     onError: (error) => {
       console.log(error);

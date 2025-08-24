@@ -19,7 +19,7 @@ export function useCreateOrder() {
       queryClient.invalidateQueries({ queryKey: ["me"] });
       queryClient.invalidateQueries({ queryKey: ["allOrders"] });
       queryClient.invalidateQueries({ queryKey: ["cartItems", me?.id] });
-      navigate("/orders-history");
+      navigate("/orders-history?tab=orders");
     },
     onError: (err) => {
       console.log(err);

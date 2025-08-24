@@ -7,6 +7,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Spinner from "../../components/shared/Spinner";
 import { useGetMe } from "../../hooks/auth/useGetMe";
 import { useCreateCheckoutSession } from "../../hooks/transactions/useCreateCheckoutSession";
@@ -16,7 +17,10 @@ import { formatClock, formatMoney } from "../../utils/formatting";
 import { groupTransactionsByDate } from "../../utils/transactions";
 
 const TransactionsPage = () => {
-  const [activeTab, setActiveTab] = useState<"balance" | "history">("balance");
+  // Replace useState with useSearchParams
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "balance";
+
   const [fundAmount, setFundAmount] = useState<string>("");
   const { me } = useGetMe();
   const { transactions, isPending: isTransactionsPending } = useGetTransactions(
@@ -56,7 +60,7 @@ const TransactionsPage = () => {
       <div className="mb-8 border-b border-gray-200">
         <div className="flex space-x-8">
           <button
-            onClick={() => setActiveTab("balance")}
+            onClick={() => setSearchParams({ tab: "balance" })}
             className={`cursor-pointer px-1 pb-4 font-semibold transition-colors duration-200 ${
               activeTab === "balance"
                 ? "text-secondary border-secondary border-b"
@@ -66,7 +70,7 @@ const TransactionsPage = () => {
             Balance
           </button>
           <button
-            onClick={() => setActiveTab("history")}
+            onClick={() => setSearchParams({ tab: "history" })}
             className={`cursor-pointer px-1 pb-4 font-semibold transition-colors duration-200 ${
               activeTab === "history"
                 ? "text-secondary border-secondary border-b"

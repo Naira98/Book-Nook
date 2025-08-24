@@ -1,4 +1,10 @@
-import { AlertTriangle, Calendar, CheckCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  Calendar,
+  CheckCircle,
+  CheckSquare,
+  Square,
+} from "lucide-react";
 import { useUpdateBorrowOrderBookProblem } from "../../hooks/orders/useUpdateBorrowOrderBookProblem";
 import { BorrowBookProblem } from "../../types/Orders";
 import type { IClientBorrows } from "../../types/ReturnOrder";
@@ -59,18 +65,21 @@ const BorrowedBookItem = ({
       {/* Selection Checkbox */}
       {showActions && (
         <div className="absolute top-3 left-3">
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={(e) =>
-              onSelect(borrowedBook, e.target.checked, depositAmount)
-            }
-            className="text-primary focus:ring-primary h-5 w-5 rounded border-gray-300"
-          />
+          <button
+            type="button"
+            onClick={() => onSelect(borrowedBook, !isSelected, depositAmount)}
+            className="flex items-center gap-2 rounded p-1 text-gray-800 hover:bg-gray-50"
+          >
+            {isSelected ? (
+              <CheckSquare className="text-primary h-5 w-5" />
+            ) : (
+              <Square className="h-5 w-5 text-gray-400" />
+            )}
+          </button>
         </div>
       )}
 
-      <div className="flex p-4">
+      <div className="flex p-4 pl-10">
         {/* Book Cover */}
         <div className="mr-4 w-24 flex-shrink-0">
           <img

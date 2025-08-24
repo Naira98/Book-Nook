@@ -124,16 +124,16 @@ export default function BorrowCartItem({
         </div>
       </td>
       <td className="px-2 py-4 text-center font-medium text-gray-900">
-        ${formatMoney(borrowItem.borrow_fees_per_week)}
+        {formatMoney(borrowItem.borrow_fees_per_week)} EGP
       </td>
 
       <td className="px-2 py-4 text-center font-medium text-gray-900">
-        $
         {performDecimalOperation(
           borrowItem.borrow_fees_per_week,
           "*",
           borrowItem.borrowing_weeks,
-        )}
+        )}{" "}
+        EGP
       </td>
       <td className="px-2 py-4 text-center">
         <button

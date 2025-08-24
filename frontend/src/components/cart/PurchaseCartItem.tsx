@@ -118,15 +118,15 @@ export default function PurchaseCartItem({
         </div>
       </td>
       <td className="px-2 py-4 text-center font-medium text-gray-900">
-        ${formatMoney(purchaseItem.book_price)}
+        {formatMoney(purchaseItem.book_price)} EGP
       </td>
       <td className="px-2 py-4 text-center font-medium text-gray-900">
-        $
         {performDecimalOperation(
           purchaseItem.book_price,
           "*",
           purchaseItem.quantity,
-        )}
+        )}{" "}
+        EGP
       </td>
       <td className="px-2 py-4 text-center">
         <button

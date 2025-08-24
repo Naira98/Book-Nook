@@ -10,9 +10,7 @@ const NotFoundPage = () => {
         className="relative top-0 left-0 mr-auto w-22 sm:block md:absolute md:top-4 md:left-4 md:w-28 lg:w-30"
       />
       <div className="rounded-lg bg-white p-8 shadow-xl md:p-12">
-        <h1 className="text-9xl font-bold tracking-widest text-gray-800">
-          404
-        </h1>
+        <h1 className="text-9xl font-bold text-gray-800">404</h1>
         <div className="bg-primary absolute rotate-12 rounded-full px-2 text-sm text-white">
           Page Not Found
         </div>

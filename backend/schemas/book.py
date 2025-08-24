@@ -1,5 +1,6 @@
+from datetime import datetime
 from decimal import Decimal
-from typing import Optional
+from typing import List, Optional
 
 from models.book import Book, BookStatus
 from pydantic import BaseModel, ConfigDict, Field
@@ -107,7 +108,28 @@ class PaginatedPurchaseBooksResponse(BaseModel):
     page: int
     limit: int
     pages: int
+    
 
+class SimpleBookSchema(BaseModel):
+    id: int
+    title: str
+    price: Decimal
+    cover_img: str
+    publish_year: int
+    rating: Decimal
+    author_name: str
+    category_name: str
+    book_details_id: int
+
+
+class BestSellerBookSchema(BaseModel):
+    book: SimpleBookSchema
+    total_count: int
+
+class BestSellersResponse(BaseModel):
+    borrow_books: List[BestSellerBookSchema]
+    purchase_books: List[BestSellerBookSchema]
+    last_updated: datetime
 
 """ Employee-only schema for book management """
 

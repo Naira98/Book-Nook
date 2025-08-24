@@ -1,17 +1,38 @@
 import { Star } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface Recommendation {
   id: number;
   title: string;
   author: { name: string };
   category: { name: string };
-  status: string;
+  book_details: {
+    id: number;
+    available_stock: number;
+    status: "BORROW" | "PURCHASE";
+    book_id: number;
+  }[];
   cover_img: string;
   description: string;
-  available_stock: number;
+  available_stock: number; // This is redundant with book_details, but kept for context.
+  status: string; // This is also redundant. The true status is in book_details.
 }
 
 const RecommendationBookCard = ({ rec }: { rec: Recommendation }) => {
+  // Find the purchase book details from the array
+  const purchaseBookDetails = rec.book_details.find(
+    (detail) => detail.status === "PURCHASE",
+  );
+
+  // Conditionally render the link if a purchase option exists
+  if (!purchaseBookDetails) {
+    // Or you can return a different component or a message
+    return <div>No purchase option available.</div>;
+  }
+
+  // Use the ID from the found object
+  const purchaseBookId = purchaseBookDetails.id;
+
   return (
     <div className="h-[600 px] w-[800 px] flex flex-row rounded-2xl bg-white p-6 shadow-lg">
       {/* Left Section - Text Content */}
@@ -33,9 +54,11 @@ const RecommendationBookCard = ({ rec }: { rec: Recommendation }) => {
         </div>
 
         {/* Title */}
-        <h3 className="mb-2 line-clamp-2 text-lg font-bold text-gray-800">
-          {rec.title}
-        </h3>
+        <Link to={`/details/purchase/${purchaseBookId}`}>
+          <h3 className="mb-2 line-clamp-2 text-lg font-bold text-gray-800">
+            {rec.title}
+          </h3>
+        </Link>
 
         {/* Author */}
         <div className="mb-2 flex items-center">
