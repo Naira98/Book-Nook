@@ -17,16 +17,15 @@ const CheckoutSuccess = () => {
         setHasNavigated(true);
         navigate("/transactions?tab=history");
       }
-    }, 1000); // 1 second delay after animation
+    }, 3000); // 1 second delay after animation
   };
-
 
   return (
     <div className="text-text relative flex min-h-screen items-center justify-center bg-gradient-to-br p-8 text-center">
       <img
         src={logo}
         alt="logo"
-        className="absolute left-4 top-4 w-24 md:w-28 lg:w-32"
+        className="absolute top-4 left-4 w-24 md:w-28 lg:w-32"
       />
 
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl md:p-12">

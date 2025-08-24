@@ -1,6 +1,6 @@
 import Lottie, { type LottieRefCurrentProps } from "lottie-react";
 import { RotateCw, XCircle } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import animationData from "../../assets/json/Success.json";
 import logo from "../../assets/logo_without_sharshora.svg";
@@ -13,23 +13,6 @@ const EmailVerificationSuccess = () => {
   const [hasNavigated, setHasNavigated] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { emailVerification, isPending } = useEmailVerification();
-  
-  // Extract token from URL
-  const token = searchParams.get("token");
-  
-  // Process verification immediately (runs once when component mounts)
-  if (token && !error && !isPending) {
-    emailVerification(
-      { token },
-      {
-        onError: (err: Error) => {
-          setError(err.message || "Invalid or expired verification token");
-        },
-      },
-    );
-  } else if (!token) {
-    setError("No verification token found in URL");
-  }
 
   const handleAnimationComplete = () => {
     setTimeout(() => {
@@ -37,8 +20,29 @@ const EmailVerificationSuccess = () => {
         setHasNavigated(true);
         navigate("/login");
       }
-    }, 1000);
+    }, 3000);
   };
+
+  // Extract token from URL
+  const token = searchParams.get("token");
+
+  useEffect(() => {
+    if (token) {
+      emailVerification(
+        { token },
+        {
+          onSuccess: () => {
+            handleAnimationComplete();
+          },
+          onError: (err: Error) => {
+            setError(err.message || "Invalid or expired verification token");
+          },
+        },
+      );
+    } else if (!token) {
+      setError("No verification token found in URL");
+    }
+  }, [token]);
 
   if (!token) {
     return (
@@ -55,7 +59,9 @@ const EmailVerificationSuccess = () => {
           <h1 className="mb-4 text-3xl font-bold md:text-4xl">
             Verification Failed
           </h1>
-          <p className="mb-6 text-lg text-gray-600">No verification token found in URL</p>
+          <p className="mb-6 text-lg text-gray-600">
+            No verification token found in URL
+          </p>
           <button
             onClick={() => navigate("/login")}
             className="rounded-md border border-[#012e4a] px-6 py-3 text-[#012e4a] transition-colors hover:bg-[#012e4a] hover:text-white"

@@ -115,11 +115,11 @@ const App = () => {
       <Suspense fallback={<LoadingSpinner />}>
         <Routes>
           {/* GUEST-only routes */}
+          <Route path="/verify-email" element={<EmailVerification />} />
           <Route element={<GuestOnlyRoute />}>
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
-            <Route path="/verify-email" element={<EmailVerification />} />
             <Route
               path="/reset-password/:reset_token"
               element={<ResetPassword />}

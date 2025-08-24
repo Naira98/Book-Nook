@@ -53,7 +53,8 @@ async def recommend_endpoint(
         recommendations = await get_recommendations(" or ".join(chosen_interests))
         if not recommendations:
             raise HTTPException(status_code=404, detail="No recommendations found")
-        ids = [r["id"] for r in recommendations]
+        # get the unique ids only
+        ids = list(set([rec["id"] for rec in recommendations]))
         stmt = (
             select(Book)
             .options(
