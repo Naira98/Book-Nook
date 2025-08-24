@@ -174,7 +174,7 @@ class ReturnOrder(Base):
 
     # Relationships
     borrow_order_books_details: Mapped[list[BorrowOrderBook]] = relationship(
-        back_populates="return_order"
+        back_populates="return_order", order_by=BorrowOrderBook.id, uselist=True
     )
     # Explicitly specify foreign_keys for the 'user' relationship
     user: Mapped[User] = relationship(  # noqa: F821 # type: ignore

@@ -14,6 +14,14 @@ export default function RecommendationSlider() {
 
         <Swiper
           slidesPerView={2}
+          breakpoints={{
+            0: {
+              slidesPerView: 1,
+            },
+            1060: {
+              slidesPerView: 2,
+            },
+          }}
           spaceBetween={30}
           autoplay={{
             delay: 1500,

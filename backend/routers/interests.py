@@ -1,9 +1,11 @@
 import logging
+import random
 
 from db.database import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from models.book import Book
 from models.user import User
+from models.user_tracker import UserTracker
 from RAG.data import get_recommendations
 from schemas.interest import InterestInput
 from sqlalchemy import select
@@ -29,8 +31,26 @@ async def recommend_endpoint(
 
         interests = user.interests.split(", ")
         input = InterestInput(interests=interests)
+        stmt = (
+            select(UserTracker.category)
+            .where(UserTracker.user_id == user.id)
+            .order_by(UserTracker.id.desc())
+            .limit(3)
+        )
+        result = await db.execute(stmt)
+        latest_categories = [row for row in result.scalars().all()]
 
-        recommendations = await get_recommendations(" or ".join(input.interests))
+        # --- 3) Merge interests + latest categories ---
+        combined_interests = list(set(interests + latest_categories))
+
+        if not combined_interests:
+            raise HTTPException(status_code=404, detail="No interests found")
+
+        # --- 4) Pick 3 random interests ---
+        chosen_interests = random.sample(
+            combined_interests, min(3, len(combined_interests))
+        )
+        recommendations = await get_recommendations(" or ".join(chosen_interests))
         if not recommendations:
             raise HTTPException(status_code=404, detail="No recommendations found")
         ids = [r["id"] for r in recommendations]

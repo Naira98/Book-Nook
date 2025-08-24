@@ -49,6 +49,7 @@ async def send_created_return_order(
         "user": {
             "first_name": return_order.user.first_name,
             "last_name": return_order.user.last_name,
+            "email": return_order.user.email,
         },
         "number_of_books": len(borrow_order_books_ids),
         "courier_id": return_order.courier_id,
