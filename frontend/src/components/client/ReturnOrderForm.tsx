@@ -121,38 +121,41 @@ const ReturnOrderForm = ({
               </label>
             </div>
           </div>
+          {formData.pickup_type === "COURIER" && (
+            <>
+              {/* Address */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  <MapPin className="mr-2 inline h-4 w-4" />
+                  Address
+                </label>
+                <TextInput
+                  type="text"
+                  name="address"
+                  placeholder="Enter your address"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
+                />
+              </div>
 
-          {/* Address */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              <MapPin className="mr-2 inline h-4 w-4" />
-              Address
-            </label>
-            <TextInput
-              type="text"
-              name="address"
-              placeholder="Enter your address"
-              value={formData.address}
-              onChange={(e) => handleInputChange("address", e.target.value)}
-            />
-          </div>
-
-          {/* Phone Number */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              <Phone className="mr-2 inline h-4 w-4" />
-              Phone Number
-            </label>
-            <TextInput
-              type="tel"
-              name="phone_number"
-              placeholder="Enter your phone number"
-              value={formData.phone_number}
-              onChange={(e) =>
-                handleInputChange("phone_number", e.target.value)
-              }
-            />
-          </div>
+              {/* Phone Number */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  <Phone className="mr-2 inline h-4 w-4" />
+                  Phone Number
+                </label>
+                <TextInput
+                  type="tel"
+                  name="phone_number"
+                  placeholder="Enter your phone number"
+                  value={formData.phone_number}
+                  onChange={(e) =>
+                    handleInputChange("phone_number", e.target.value)
+                  }
+                />
+              </div>
+            </>
+          )}
 
           {/* Form Actions */}
           <div className="flex justify-end space-x-3 pt-4">

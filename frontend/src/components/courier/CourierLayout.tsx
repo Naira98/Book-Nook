@@ -50,19 +50,10 @@ const CourierLayout = () => {
     );
   }
 
-  function removeAccepetedReturnOrder(returnOrderId: number) {
-    queryClient.setQueryData(
-      ["allStaffOrders"],
-      (oldData: AllOrdersResponse) => {
-        if (oldData != undefined) {
-          const newData = { ...oldData };
-          newData.return_orders = oldData.return_orders.filter(
-            (order) => order.id !== returnOrderId,
-          );
-          return newData;
-        }
-      },
-    );
+  function removeAccepetedReturnOrder() {
+    queryClient.invalidateQueries({
+      queryKey: ["allStaffOrders", { courierId: me?.id }],
+    });
   }
 
   function onSocketOpen() {
@@ -93,7 +84,7 @@ const CourierLayout = () => {
       data.message == "return_order_status_updated" &&
       data.courier_id != me?.id
     ) {
-      removeAccepetedReturnOrder(data.return_order_id);
+      removeAccepetedReturnOrder();
     }
   }
 

@@ -377,7 +377,7 @@ async def verify_email(
         # Activate user and clear verification token
         user.status = UserStatus.ACTIVATED
         user.email_verified = True  # if you have this field
-        user.email_verification_token = None
+        # user.email_verification_token = None
 
         await db.commit()
 

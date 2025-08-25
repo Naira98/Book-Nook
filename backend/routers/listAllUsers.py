@@ -19,7 +19,6 @@ async def add_new_staff(
     user_data: AddNewUserRequest,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
-
 ):
     print("Adding new - 🔥🔥🔥🔥 staff member")
     try:
@@ -48,7 +47,9 @@ async def add_new_staff(
             status=UserStatus.ACTIVATED.value,
             phone_number=user_data.phone_number,
             national_id=user_data.national_id,
-            role=UserRole.COURIER.value if user_data.role == "courier" else UserRole.EMPLOYEE.value,
+            role=UserRole.COURIER.value
+            if user_data.role == "courier"
+            else UserRole.EMPLOYEE.value,
         )
 
     except SQLAlchemyError as db_error:
@@ -66,17 +67,17 @@ async def add_new_staff(
     print("Adding new - 🔥🔥🔥🔥 staff member")
     await db.refresh(new_user)
     return SuccessMessage(
-        success=True,
-        status_code=201,
-        message="User added successfully! 🎉"
+        success=True, status_code=201, message="User added successfully! 🎉"
     )
 
 
-@getUsers.get("/get-all-users", response_model=List[UserOut])
+@getUsers.get(
+    "/get-all-users",
+)
 async def list_users(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(manager_required),  # restrict here
-):  
+):
     users = await db.execute(
         select(User).where(User.role != UserRole.MANAGER)  # Exclude managers if needed
     )

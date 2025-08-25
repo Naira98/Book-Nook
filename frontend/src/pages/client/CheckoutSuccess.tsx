@@ -17,7 +17,7 @@ const CheckoutSuccess = () => {
         setHasNavigated(true);
         navigate("/transactions?tab=history");
       }
-    }, 3000); // 1 second delay after animation
+    }, 1500); // 1 second delay after animation
   };
 
   return (

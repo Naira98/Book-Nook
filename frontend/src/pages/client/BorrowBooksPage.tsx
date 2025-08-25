@@ -49,7 +49,7 @@ const BorrowBooksPage = () => {
   if (!cartItems) return <div>No cart data available.</div>;
 
   return (
-    <div className="min-h-screen font-sans">
+    <div className="relative z-10 min-h-screen font-sans">
       <div className="container mx-auto py-8">
         <div className="flex gap-6 lg:flex-row">
           {/* Left: Filters */}

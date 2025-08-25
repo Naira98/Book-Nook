@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import Lottie, { type LottieRefCurrentProps } from "lottie-react";
 import { RotateCw, XCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
