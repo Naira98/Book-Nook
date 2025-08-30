@@ -9,7 +9,7 @@ import type {
   ReturnOrder,
   ReturnOrderStatus,
 } from "../../types/Orders";
-import Sidebar from "../Sidebar";
+import Sidebar from "../layouts/Sidebar";
 
 const navItems = [
   { to: "/staff/books", label: "Books", icon: <LibraryBig /> },

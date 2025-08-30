@@ -5,7 +5,7 @@ import { useGetBooksTable } from "../../hooks/books/useGetBooksTable";
 
 import { CirclePlus } from "lucide-react";
 import { Link } from "react-router-dom";
-import SearchBar from "../../components/shared/SearchBar";
+import SearchBar from "../../components/client/SearchBar";
 import FilterBooks from "../../components/staff/FilterBooks";
 import { useFiltering } from "../../hooks/books/useFiltering";
 import { FilterAvailability, type IBookTable } from "../../types/BookTable";

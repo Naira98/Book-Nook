@@ -16,12 +16,7 @@ const PurchaseDetailsPage = () => {
   const { cartItems, isPending: isPendingGettingCartItems } = useGetCartItems();
 
   if (isPendingGettingPurchaseDetails || isPendingGettingCartItems) {
-    return (
-      <FullScreenSpinner
-        minDisplayTime={3000}
-        message="Loading Book Details..."
-      />
-    );
+    return <FullScreenSpinner />;
   }
 
   const bookInCart = cartItems!.purchase_items.find(

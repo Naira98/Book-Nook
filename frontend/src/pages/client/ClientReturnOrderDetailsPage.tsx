@@ -2,9 +2,10 @@ import { CheckCircle, Circle, PackageCheck, Search, Truck } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useGetUserReturnOrderDetails } from "../../hooks/orders/useGetUserReturnOrderDetails";
 import type { BorrowBookProblem } from "../../types/Orders";
+import { formatMoney } from "../../utils/formatting";
 
 const statusSteps = {
-  SITE: ["CREATED", "CHICKING", "DONE"],
+  SITE: ["CREATED", "CHECKING", "DONE"],
   COURIER: ["CREATED", "ON_THE_WAY", "PICKED_UP", "CHECKING", "DONE"],
 };
 
@@ -44,7 +45,7 @@ export default function ClientReturnOrderDetailsPage() {
         return <span className="text-success text-sm">Picked Up</span>;
       case "PROBLEM":
         return <span className="text-error text-sm">Problem</span>;
-      case "CHICKING":
+      case "CHECKING":
         return <span className="text-primary text-sm">Chicking</span>;
       case "DONE":
         return <span className="text-success text-sm">Done</span>;
@@ -128,18 +129,27 @@ export default function ClientReturnOrderDetailsPage() {
           <h2 className="mb-2 text-xl font-semibold text-[var(--color-primary)]">
             Return Order Info
           </h2>
-          <p>
-            <span className="font-semibold">Address:</span>{" "}
-            {returnOrder.address}
-          </p>
-          <p>
-            <span className="font-semibold">Phone:</span>{" "}
-            {returnOrder.phone_number}
-          </p>
-          <p>
-            <span className="font-semibold">Pickup Type:</span>{" "}
-            {returnOrder.pickup_type}
-          </p>
+          {returnOrder.pickup_type === "COURIER" ? (
+            <>
+              <p>
+                <span className="font-semibold">Address:</span>{" "}
+                {returnOrder.address}
+              </p>
+              <p>
+                <span className="font-semibold">Phone:</span>{" "}
+                {returnOrder.phone_number}
+              </p>
+              <p>
+                <span className="font-semibold">Pickup Type:</span>{" "}
+                {returnOrder.pickup_type}
+              </p>
+            </>
+          ) : (
+            <p>
+              <span className="font-semibold">Pickup Type:</span>{" "}
+              {returnOrder.pickup_type}
+            </p>
+          )}
         </div>
 
         {returnOrder.borrow_order_books_details.length > 0 && (
@@ -167,10 +177,10 @@ export default function ClientReturnOrderDetailsPage() {
                     </p>
 
                     <p className="text-sm text-gray-600">
-                      Borrow Fee: ${item.borrow_fees}
+                      Borrow Fee: {formatMoney(item.borrow_fees)} EGP
                     </p>
                     <p className="text-sm text-gray-600">
-                      Deposit: ${item.deposit_fees}
+                      Deposit: {formatMoney(item.deposit_fees)} EGP
                     </p>
                   </div>
                 </div>
@@ -208,7 +218,7 @@ export default function ClientReturnOrderDetailsPage() {
             <hr />
             <div className="flex w-full items-center justify-between gap-2 capitalize">
               <span>Final Total:</span>
-              <span>{returnOrder.total_price} EGP</span>
+              <span>{formatMoney(returnOrder.total_price)} EGP</span>
             </div>
           </div>
         </div>

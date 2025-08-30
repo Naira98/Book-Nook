@@ -1,9 +1,9 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import FullScreenSpinner from "./components/shared/FullScreenSpinner";
 import { useGetMe } from "./hooks/auth/useGetMe";
 import { UserRole } from "./types/User";
-import Spinner from "./components/shared/Spinner";
 
 // Lazy load components
 const GuestOnlyRoute = lazy(
@@ -23,12 +23,13 @@ const ManagerLayout = lazy(() => import("./components/layouts/ManagerLayout"));
 const EmployeeLayout = lazy(() => import("./components/staff/EmployeeLayout"));
 
 // Lazy load auth pages
-const Login = lazy(() => import("./pages/auth/Login"));
-const Register = lazy(() => import("./pages/auth/Register"));
-const ForgetPassword = lazy(() => import("./pages/auth/ForgetPassword"));
-const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
-const OrdersListPage = lazy(() => import("./pages/auth/OrdersListPage"));
-const EmailVerification = lazy(
+const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/auth/RegisterPage"));
+const ForgetPasswordPage = lazy(
+  () => import("./pages/auth/ForgetPasswordPage"),
+);
+const ResetPasswordPage = lazy(() => import("./pages/auth/ResetPasswordPage"));
+const EmailVerificationPage = lazy(
   () => import("./pages/auth/EmailVerificationPage"),
 );
 
@@ -40,7 +41,9 @@ const BorrowDetailsPage = lazy(
 );
 const CartPage = lazy(() => import("./pages/client/CartPage"));
 const ChechoutPage = lazy(() => import("./pages/client/CheckoutPage"));
-const CheckoutSuccess = lazy(() => import("./pages/client/CheckoutSuccess"));
+const CheckoutSuccessPage = lazy(
+  () => import("./pages/client/CheckoutSuccessPage"),
+);
 const ClientOrderDetailsPage = lazy(
   () => import("./pages/client/ClientOrderDetailsPage"),
 );
@@ -50,7 +53,7 @@ const ClientReturnOrderDetailsPage = lazy(
 const CurrentBorrowsPage = lazy(
   () => import("./pages/client/CurrentBorrowsPage"),
 );
-const Interests = lazy(() => import("./pages/client/Interests"));
+const InterestsPage = lazy(() => import("./pages/client/InterestsPage"));
 const OrdersPage = lazy(() => import("./pages/client/OrdersPage"));
 const PurchaseBooksPage = lazy(
   () => import("./pages/client/PurchaseBooksPage"),
@@ -92,8 +95,8 @@ const PromoCodesPage = lazy(() => import("./pages/employee/PromoCodesPage"));
 const UpdateBookPage = lazy(() => import("./pages/employee/UpdateBookPage"));
 
 // Lazy load manager pages
-const AddNewUser = lazy(() => import("./pages/manager/addNewUser"));
-const UsersList = lazy(() => import("./pages/manager/listallUser"));
+const AddNewUserPage = lazy(() => import("./pages/manager/addNewUserPage"));
+const UsersListPage = lazy(() => import("./pages/manager/listallUserPage"));
 const ManagerDashboardPage = lazy(
   () => import("./pages/manager/ManagerDashboardPage"),
 );
@@ -105,31 +108,30 @@ const ManagerSettingsPage = lazy(
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 const UnauthorizedPage = lazy(() => import("./pages/UnauthorizedPage"));
 
-const LoadingSpinner = () => <Spinner size={500} className="h-screen" />;
-
 const App = () => {
   const { me } = useGetMe();
 
   return (
     <>
-      <Suspense fallback={<LoadingSpinner />}>
+      <Suspense fallback={<FullScreenSpinner />}>
         <Routes>
           {/* GUEST-only routes */}
-          <Route path="/verify-email" element={<EmailVerification />} />
           <Route element={<GuestOnlyRoute />}>
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/forget-password" element={<ForgetPassword />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/verify-email" element={<EmailVerificationPage />} />
+            <Route path="/forget-password" element={<ForgetPasswordPage />} />
             <Route
               path="/reset-password/:reset_token"
-              element={<ResetPassword />}
+              element={<ResetPasswordPage />}
             />
           </Route>
 
           {/* CLIENT-only routes */}
           <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}>
+            <Route path="/interests" element={<InterestsPage />} />
+            
             {/* Client pages with navbar */}
-            <Route path="/interests" element={<Interests />} />
             <Route path="/" element={<ClientWithNavbarLayout />}>
               <Route path="/" element={<HomePage />} />
               <Route path="/borrow-books" element={<BorrowBooksPage />} />
@@ -151,7 +153,6 @@ const App = () => {
             <Route path="/" element={<ClientWithSidebarLayout />}>
               <Route path="/transactions" element={<TransactionsPage />} />
               <Route path="/orders-history" element={<OrdersPage />} />
-              <Route path="/current-borrows" element={<CurrentBorrowsPage />} />
               <Route
                 path="/orders-history/order/:orderId"
                 element={<ClientOrderDetailsPage />}
@@ -160,9 +161,13 @@ const App = () => {
                 path="/orders-history/return-order/:returnOrderId"
                 element={<ClientReturnOrderDetailsPage />}
               />
+              <Route path="/current-borrows" element={<CurrentBorrowsPage />} />
             </Route>
 
-            <Route path="/transaction-success" element={<CheckoutSuccess />} />
+            <Route
+              path="/transaction-success"
+              element={<CheckoutSuccessPage />}
+            />
           </Route>
 
           {/* EMPLOYEE and MANAGER routes */}
@@ -223,7 +228,6 @@ const App = () => {
                 path="/courier/return-order/:orderId"
                 element={<CourierReturnOrderDetailsPage />}
               />
-              <Route path="/orders" element={<OrdersListPage />} />
             </Route>
           </Route>
 
@@ -245,11 +249,11 @@ const App = () => {
               />
               <Route
                 path="manager/users/add-new-user"
-                element={<AddNewUser />}
+                element={<AddNewUserPage />}
               />
               <Route
                 path="manager/users/list-all-users"
-                element={<UsersList />}
+                element={<UsersListPage />}
               />
             </Route>
           </Route>

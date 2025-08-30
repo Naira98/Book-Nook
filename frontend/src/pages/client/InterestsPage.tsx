@@ -16,17 +16,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAddInterests } from "../../hooks/recommendations/useAddInterests";
 
-const interestsList = [
-  { id: 1, name: "Novels", icon: Book, color: "text-red-500" },
-  { id: 2, name: "Fiction", icon: Sparkles, color: "text-purple-500" },
-  { id: 3, name: "Stories", icon: PenTool, color: "text-orange-500" },
-  { id: 4, name: "Education", icon: GraduationCap, color: "text-blue-500" },
-  { id: 5, name: "Science", icon: FlaskRound, color: "text-teal-500" },
-  { id: 6, name: "History", icon: Landmark, color: "text-yellow-500" },
-  { id: 7, name: "World", icon: Globe, color: "text-indigo-500" },
-  { id: 8, name: "Movies", icon: Film, color: "text-rose-500" },
-];
-
 const SelectInterests = () => {
   const [selected, setSelected] = useState<string[]>([]);
   const navigate = useNavigate();
@@ -138,3 +127,14 @@ const SelectInterests = () => {
 };
 
 export default SelectInterests;
+
+const interestsList = [
+  { id: 1, name: "Novels", icon: Book, color: "text-red-500" },
+  { id: 2, name: "Fiction", icon: Sparkles, color: "text-purple-500" },
+  { id: 3, name: "Stories", icon: PenTool, color: "text-orange-500" },
+  { id: 4, name: "Education", icon: GraduationCap, color: "text-blue-500" },
+  { id: 5, name: "Science", icon: FlaskRound, color: "text-teal-500" },
+  { id: 6, name: "History", icon: Landmark, color: "text-yellow-500" },
+  { id: 7, name: "World", icon: Globe, color: "text-indigo-500" },
+  { id: 8, name: "Movies", icon: Film, color: "text-rose-500" },
+];

@@ -3,12 +3,11 @@ import {
   MapPin,
   Phone
 } from "lucide-react";
-import React from "react";
 import { Link } from "react-router-dom";
 import mapImage from "../../assets/africa.svg";
 import logo from "../../assets/light-bg-logo.svg";
 
-const Footer: React.FC = () => {
+const Footer = () => {
   return (
     <footer className="bg-primary relative overflow-hidden py-12 text-white">
       <div className="container mx-auto grid grid-cols-1 gap-8 px-4 md:grid-cols-3">

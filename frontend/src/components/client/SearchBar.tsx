@@ -1,5 +1,5 @@
 import { Search } from "lucide-react";
-import MainButton from "./buttons/MainButton";
+import MainButton from "../shared/buttons/MainButton";
 import { useState } from "react";
 interface SearchBarProps {
   placeholder: string;

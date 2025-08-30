@@ -1,10 +1,10 @@
 import { Star } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import AddToCartButton from "../../components/client/AddToCartButton";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import { useGetBorrowBookDetails } from "../../hooks/books/useGetBorrowBookDetails";
 import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 import { formatMoney } from "../../utils/formatting";
-import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 
 const BorrowDetailsPage = () => {
   const { bookDetailsId } = useParams<{ bookDetailsId: string }>();
@@ -15,12 +15,7 @@ const BorrowDetailsPage = () => {
   const { cartItems, isPending: isPendingGettingCartItems } = useGetCartItems();
 
   if (isPendingGettingBorrowDetails || isPendingGettingCartItems) {
-    return (
-      <FullScreenSpinner
-        minDisplayTime={3000}
-        message="Loading Book Details..."
-      />
-    );
+    return <FullScreenSpinner />;
   }
 
   const bookInCart = cartItems!.borrow_items.find(
@@ -63,12 +58,9 @@ const BorrowDetailsPage = () => {
     <div className="bg-background min-h-screen">
       {/* Main Content */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Main Book Information Section */}
         <div className="mb-8 rounded-lg bg-white p-8 shadow-sm">
           <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-3">
-            {/* Left Column - Book Info */}
             <div className="flex h-full flex-col lg:col-span-2">
-              {/* Enhanced Rating and Title */}
               <div className="mb-6 flex items-center space-x-4">
                 <div className="flex items-center space-x-2 rounded-full bg-gradient-to-r from-yellow-50 to-orange-50 px-4 py-2 shadow-sm">
                   <div className="flex items-center space-x-1">

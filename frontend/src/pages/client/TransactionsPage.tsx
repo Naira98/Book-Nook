@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import { useGetMe } from "../../hooks/auth/useGetMe";
 import { useCreateCheckoutSession } from "../../hooks/transactions/useCreateCheckoutSession";
 import { useGetTransactions } from "../../hooks/transactions/useGetTransactions";
@@ -22,20 +21,11 @@ const TransactionsPage = () => {
 
   const [fundAmount, setFundAmount] = useState<string>("");
   const { me } = useGetMe();
-  const { transactions, isPending: isTransactionsPending } = useGetTransactions(
+  const { transactions } = useGetTransactions(
     me!.id,
   );
-
   const { createCheckoutSession, isPending: isCheckoutPending } =
     useCreateCheckoutSession();
-
-  if (isTransactionsPending)
-    return (
-      <FullScreenSpinner
-        minDisplayTime={3000}
-        message="Loading your account..."
-      />
-    );
 
   const addFund = () => {
     const amount = parseFloat(fundAmount) * 100; /* in piaster 100 for 1 EGP */

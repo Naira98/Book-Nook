@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
   BookOpen,
@@ -13,11 +14,10 @@ import ReturnOrderForm from "../../components/client/ReturnOrderForm";
 import SummaryCard from "../../components/client/SummaryCard";
 import MainButton from "../../components/shared/buttons/MainButton";
 import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
+import { useGetMe } from "../../hooks/auth/useGetMe";
 import { useGetClientBorrows } from "../../hooks/orders/useGetClientBorrows";
 import type { IClientBorrows } from "../../types/ReturnOrder";
 import { formatMoney } from "../../utils/formatting";
-import { useQueryClient } from "@tanstack/react-query";
-import { useGetMe } from "../../hooks/auth/useGetMe";
 
 const CurrentBorrowsPage = () => {
   const { clientBorrows, isPending } = useGetClientBorrows();
@@ -27,7 +27,7 @@ const CurrentBorrowsPage = () => {
   const [showReturnOrderForm, setShowReturnOrderForm] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  // Calculate summary statistics
+
   const summary = useMemo(() => {
     if (!clientBorrows) return null;
 
@@ -174,13 +174,7 @@ const CurrentBorrowsPage = () => {
     },
   ];
 
-  if (isPending)
-    return (
-      <FullScreenSpinner
-        minDisplayTime={3000}
-        message="Loading your account..."
-      />
-    );
+  if (isPending) return <FullScreenSpinner />;
 
   if (!clientBorrows || clientBorrows.length === 0) {
     return (

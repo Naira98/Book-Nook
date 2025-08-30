@@ -1,6 +1,7 @@
 import { CheckCircle, Circle, Truck } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useGetUserOrderDetails } from "../../hooks/orders/useGetUserOrderDetails";
+import { formatMoney } from "../../utils/formatting";
 
 const statusSteps = {
   SITE: ["CREATED", "PICKED_UP"],
@@ -114,16 +115,26 @@ export default function ClientOrderDetailsPage() {
           <h2 className="mb-2 text-xl font-semibold text-[var(--color-primary)]">
             Order Info
           </h2>
-          <p>
-            <span className="font-semibold">Address:</span> {order.address}
-          </p>
-          <p>
-            <span className="font-semibold">Phone:</span> {order.phone_number}
-          </p>
-          <p>
-            <span className="font-semibold">Pickup Type:</span>{" "}
-            {order.pickup_type}
-          </p>
+          {order.pickup_type === "COURIER" ? (
+            <>
+              <p>
+                <span className="font-semibold">Address:</span> {order.address}
+              </p>
+              <p>
+                <span className="font-semibold">Phone:</span>{" "}
+                {order.phone_number}
+              </p>
+              <p>
+                <span className="font-semibold">Pickup Type:</span>{" "}
+                {order.pickup_type}
+              </p>
+            </>
+          ) : (
+            <p>
+              <span className="font-semibold">Pickup Type:</span>{" "}
+              {order.pickup_type}
+            </p>
+          )}
         </div>
 
         {order.purchase_order_books_details.length > 0 && (
@@ -143,9 +154,8 @@ export default function ClientOrderDetailsPage() {
                     <p className="font-semibold">
                       {item.book_details.book.title}
                     </p>
-                    <p className="text-sm text-gray-600">Purchase</p>
                     <p className="text-sm text-gray-600">
-                      Price: ${item.paid_price_per_book}
+                      Price: {formatMoney(item.paid_price_per_book)} EGP
                     </p>
                     <p className="text-sm text-gray-600">
                       Qty: {item.quantity}
@@ -174,12 +184,11 @@ export default function ClientOrderDetailsPage() {
                     <p className="font-semibold">
                       {item.book_details.book.title}
                     </p>
-                    <p className="text-sm text-gray-600">Borrow</p>
                     <p className="text-sm text-gray-600">
-                      Borrow Fee: ${item.borrow_fees}
+                      Borrow Fee: {formatMoney(item.borrow_fees)} EGP
                     </p>
                     <p className="text-sm text-gray-600">
-                      Deposit: ${item.deposit_fees}
+                      Deposit: {formatMoney(item.deposit_fees)} EGP
                     </p>
                   </div>
                 </div>
@@ -223,7 +232,7 @@ export default function ClientOrderDetailsPage() {
             <hr />
             <div className="flex w-full items-center justify-between gap-2 capitalize">
               <span>Final Total:</span>
-              <span>{order.total_price} EGP</span>
+              <span>{formatMoney(order.total_price)} EGP</span>
             </div>
           </div>
         </div>

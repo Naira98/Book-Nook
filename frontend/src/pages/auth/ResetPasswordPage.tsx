@@ -7,7 +7,7 @@ import TextInput from "../../components/shared/formInputs/TextInput";
 import { useResetPassword } from "../../hooks/auth/useResetPassword";
 import type { ResetPasswordValues } from "../../types/auth";
 
-const ResetPassword = () => {
+const ResetPasswordPage = () => {
   const { resetPassword, isPending } = useResetPassword();
   const { reset_token } = useParams();
 
@@ -19,7 +19,6 @@ const ResetPassword = () => {
   const validate = (values: ResetPasswordValues) => {
     const errors: Partial<ResetPasswordValues> = {};
 
-    // Update the validation to use the corrected names
     if (!values.new_password) {
       errors.new_password = "Password is required";
     }
@@ -84,7 +83,7 @@ const ResetPassword = () => {
   );
 };
 
-export default ResetPassword;
+export default ResetPasswordPage;
 
 const formData = [
   {

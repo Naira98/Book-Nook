@@ -4,8 +4,7 @@ import PurchaseCartItem from "../../components/cart/PurchaseCartItem";
 import MainButton from "../../components/shared/buttons/MainButton";
 import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 
-// Component to display the checkout page with cart items.
-const CheckoutPage = () => {
+const CartPage = () => {
   const { cartItems } = useGetCartItems();
   const navigate = useNavigate();
 
@@ -116,7 +115,7 @@ const CheckoutPage = () => {
         {/* Action Buttons */}
         <div className="mt-12 flex w-full flex-col-reverse items-center justify-center gap-4 sm:flex-row">
           <MainButton
-            className="text-layout !w-full cursor-pointer rounded-xl bg-gray-200 hover:bg-gray-300 md:!w-[200px]"
+            className="text-layout !w-full cursor-pointer rounded-md bg-gray-200 hover:bg-gray-300 md:!w-[200px] px-4 py-2"
             onClick={() => navigate(-1)}
           >
             Back
@@ -124,7 +123,7 @@ const CheckoutPage = () => {
           {(cartItems?.borrow_items.length !== 0 ||
             cartItems?.purchase_items.length !== 0) && (
             <MainButton
-              className="bg-primary hover:bg-hover !w-full cursor-pointer rounded-xl text-white md:!w-[200px]"
+              className="bg-primary hover:bg-hover !w-full cursor-pointer rounded-md text-white md:!w-[200px] px-4 py-2"
               onClick={() => navigate("/checkout")}
             >
               Checkout
@@ -150,4 +149,4 @@ const CheckoutPage = () => {
   );
 };
 
-export default CheckoutPage;
+export default CartPage;

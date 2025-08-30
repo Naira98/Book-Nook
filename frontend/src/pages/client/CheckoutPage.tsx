@@ -1,13 +1,6 @@
 import Decimal from "decimal.js";
 import type { FormApi } from "final-form";
-import {
-  Loader2,
-  PackageX,
-  ShoppingCart,
-  Store,
-  Tag,
-  Truck,
-} from "lucide-react";
+import { PackageX, ShoppingCart, Store, Tag, Truck } from "lucide-react";
 import {
   useEffect,
   useLayoutEffect,
@@ -20,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import MainButton from "../../components/shared/buttons/MainButton";
 import TextInput from "../../components/shared/formInputs/TextInput";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import { useGetMe } from "../../hooks/auth/useGetMe";
 import { useApplyPromoCode } from "../../hooks/cart/useApplyPromoCode";
 import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
@@ -27,6 +21,7 @@ import { useGetAddress } from "../../hooks/cart/useGetUserAddress";
 import { useCreateOrder } from "../../hooks/orders/useCreateOrder";
 import { PickUpType } from "../../types/Orders";
 import type { PromoCodeData } from "../../types/promoCode";
+import { formatMoney } from "../../utils/formatting";
 import { getPosition } from "../../utils/getUserPosition";
 
 type Prices = {
@@ -47,7 +42,7 @@ export default function CheckoutPage() {
   const { me } = useGetMe();
   const formRef = useRef<FormApi<CourierInfo, Partial<CourierInfo>>>(null);
   const { getAddress, isPending: isAddressPending } = useGetAddress();
-  const { cartItems, isPending, error } = useGetCartItems(0);
+  const { cartItems, isPending: isCartPending, error } = useGetCartItems(0);
   const { createOrder } = useCreateOrder();
   const { applyPromoCode, isPending: isPromoCodePending } = useApplyPromoCode();
   const [pickupType, setPickupType] = useState<PickUpType>(PickUpType.SITE);
@@ -225,13 +220,8 @@ export default function CheckoutPage() {
     );
   };
 
-  if (isPending) {
-    return (
-      <div className="flex items-center justify-center gap-2 p-6 text-gray-600">
-        <Loader2 className="text-primary h-6 w-6 animate-spin" />
-        Loading your cart...
-      </div>
-    );
+  if (isCartPending) {
+    return <FullScreenSpinner />;
   }
 
   if (error) {
@@ -267,51 +257,6 @@ export default function CheckoutPage() {
 
         {/* Combined Checkout Section */}
         <div className="rounded-2xl bg-white/95 p-6 shadow-xl md:p-8">
-          {/* Purchase Books Section */}
-          {cartItems.purchase_items?.length > 0 && (
-            <div className="mb-8">
-              <h2 className="text-primary mb-4 text-2xl font-bold">
-                Purchase Books
-              </h2>
-              <div className="space-y-4">
-                {cartItems.purchase_items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center gap-4 border-b border-gray-100 pb-4 last:border-none"
-                  >
-                    <img
-                      src={item.book.cover_img}
-                      alt={item.book.title}
-                      className="h-24 w-20 rounded-lg object-cover"
-                    />
-                    <div className="flex-1">
-                      <p className="text-layout font-medium">
-                        {item.book.title}
-                      </p>
-                      <p className="text-layout/70 text-sm">
-                        {item.book.author.name}
-                      </p>
-                      <p className="text-layout/70 mt-1 text-sm">
-                        <span className="font-bold text-slate-600">
-                          {item.quantity}
-                        </span>{" "}
-                        ×{" "}
-                        <span className="text-slate-700">
-                          {item.book_price}
-                        </span>{" "}
-                        EGP
-                      </p>
-                    </div>
-                    <p className="text-lg font-bold text-slate-600">
-                      {(parseFloat(item.book_price) * item.quantity).toFixed(2)}{" "}
-                      EGP
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Borrow Books Section */}
           {cartItems.borrow_items?.length > 0 && (
             <div className="mb-8">
@@ -340,15 +285,15 @@ export default function CheckoutPage() {
                         <span className="font-bold text-slate-600">
                           {item.borrowing_weeks}
                         </span>{" "}
-                        weeks ×{" "}
+                        {item.borrowing_weeks === 1 ? "week" : "weeks"} ×{" "}
                         <span className="text-slate-700">
-                          {item.borrow_fees_per_week}
+                          ( {formatMoney(item.borrow_fees_per_week)}
                         </span>{" "}
                         EGP + deposit{" "}
-                        <span className="text-primary font-bold">
-                          {item.deposit_fees}
+                        <span className="text-primary">
+                          {formatMoney(item.deposit_fees)}
                         </span>{" "}
-                        EGP
+                        EGP )
                       </p>
                     </div>
                     <p className="text-lg font-bold text-slate-600">
@@ -357,6 +302,51 @@ export default function CheckoutPage() {
                           item.borrowing_weeks +
                         parseFloat(item.deposit_fees)
                       ).toFixed(2)}{" "}
+                      EGP
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Purchase Books Section */}
+          {cartItems.purchase_items?.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-primary mb-4 text-2xl font-bold">
+                Purchase Books
+              </h2>
+              <div className="space-y-4">
+                {cartItems.purchase_items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-4 border-b border-gray-100 pb-4 last:border-none"
+                  >
+                    <img
+                      src={item.book.cover_img}
+                      alt={item.book.title}
+                      className="h-24 w-20 rounded-lg object-cover"
+                    />
+                    <div className="flex-1">
+                      <p className="text-layout font-medium">
+                        {item.book.title}
+                      </p>
+                      <p className="text-layout/70 text-sm">
+                        {item.book.author.name}
+                      </p>
+                      <p className="text-layout/70 mt-1 text-sm">
+                        <span className="font-bold text-slate-600">
+                          {item.quantity}{" "}
+                        </span>{" "}
+                        {item.quantity === 1 ? "book" : "books"} ×{" "}
+                        <span className="text-slate-700">
+                          {formatMoney(item.book_price)}
+                        </span>{" "}
+                        EGP
+                      </p>
+                    </div>
+                    <p className="text-lg font-bold text-slate-600">
+                      {(parseFloat(item.book_price) * item.quantity).toFixed(2)}{" "}
                       EGP
                     </p>
                   </div>
@@ -410,7 +400,7 @@ export default function CheckoutPage() {
                 <Truck className="text-primary h-6 w-6" />
                 <span className="font-medium">Courier Delivery</span>
                 <span className="ml-auto text-sm font-bold text-amber-700">
-                  (+{cartItems.delevary_fees || 0} EGP)
+                  (+{formatMoney(cartItems.delevary_fees) || 0} EGP)
                 </span>
               </label>
             </div>
@@ -496,7 +486,7 @@ export default function CheckoutPage() {
                         placeholder="Enter Promo Code"
                         value={promoCode}
                         onChange={(e) => setPromoCode(e.target.value)}
-                        className={`focus:ring-none border-accent placeholder-layout/70 focus:border-secondary w-full border-b-2 p-2 transition-colors focus:outline-none`}
+                        className={`focus:ring-none border-primary placeholder-layout/70 focus:border-secondary w-full border-b-1 p-2 transition-colors focus:outline-none`}
                       />
                       <MainButton
                         loading={isPromoCodePending}
@@ -550,20 +540,20 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* Submit and Back Buttons */}
-                  <div className="flex justify-center gap-4">
+                  <div className="mt-12 flex w-full flex-col-reverse items-center justify-center gap-4 sm:flex-row">
                     <MainButton
                       onClick={(e) => {
                         e.preventDefault();
                         navigate(-1);
                       }}
-                      className="rounded-xl bg-gray-500 px-6 py-2 text-white transition-colors duration-300 hover:bg-gray-600"
+                      className="text-layout !w-full cursor-pointer rounded-md bg-gray-200 !px-4 !py-2 hover:bg-gray-300 md:!w-[200px]"
                     >
                       Back
                     </MainButton>
                     <MainButton
                       disabled={submitting}
                       onClick={handleSubmit}
-                      className="bg-primary hover:bg-hover rounded-xl px-6 py-2 text-white transition-colors duration-300"
+                      className="bg-primary hover:bg-hover !w-full cursor-pointer rounded-md !px-4 !py-2 text-white md:!w-[200px]"
                     >
                       Confirm Order
                     </MainButton>

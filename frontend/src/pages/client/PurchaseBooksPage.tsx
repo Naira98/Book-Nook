@@ -1,38 +1,33 @@
 import { Clock, Filter } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import FilteringSection from "../../components/client/FilteringSection";
 import HorizontalBookCard from "../../components/client/HorizontalBookCard";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import Pagination from "../../components/shared/pagination/Pagination";
-import SearchBar from "../../components/shared/SearchBar";
-import Spinner from "../../components/shared/Spinner";
-// Update the import to use the new hook with filters
-import { Link } from "react-router-dom";
+import SearchBar from "../../components/client/SearchBar";
 import { useGetAuthors } from "../../hooks/books/useGetAuthors";
 import { useGetCategories } from "../../hooks/books/useGetCategories";
 import { useGetPurchaseBooks } from "../../hooks/books/useGetPruchaseBooks";
 import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 
 const PurchaseBooksPage = () => {
-  // State for user input (search, filters, page)
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const [selectedAuthorIds, setSelectedAuthorIds] = useState<number[]>([]);
   const [isFilterSidebarOpen, setIsFilterSidebarOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Define a fixed limit for items per page
   const PAGE_LIMIT = 10;
 
-  // Build the filter object to pass to the hook
   const filters = {
-    search: searchTerm || undefined, // Pass undefined if empty
-    authors_ids: selectedAuthorIds.join(",") || undefined, // Convert array to comma-separated string
-    categories_ids: selectedCategoryIds.join(",") || undefined, // Convert array to comma-separated string
+    search: searchTerm || undefined,
+    authors_ids: selectedAuthorIds.join(",") || undefined,
+    categories_ids: selectedCategoryIds.join(",") || undefined,
     page: currentPage,
     limit: PAGE_LIMIT,
   };
 
-  // Call the new hook with the filters object
   const {
     books,
     pagination,
@@ -41,7 +36,6 @@ const PurchaseBooksPage = () => {
   const { isPending: isPendingCategories } = useGetCategories();
   const { isPending: isPendingAuthors } = useGetAuthors();
 
-  // Fetch cart items as before
   const { cartItems, isPending: isPendingGettingCartItems } = useGetCartItems();
 
   const isLoading =
@@ -50,7 +44,7 @@ const PurchaseBooksPage = () => {
     isPendingCategories ||
     isPendingAuthors;
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <FullScreenSpinner />;
 
   if (!cartItems) return <div>No cart data available.</div>;
 
@@ -81,7 +75,6 @@ const PurchaseBooksPage = () => {
               <SearchBar
                 placeholder="Search purchase books..."
                 searchTerm={searchTerm}
-                // When search changes, reset to the first page
                 handleSearchChange={(e) => {
                   setSearchTerm(e);
                   setCurrentPage(1);

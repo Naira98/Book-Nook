@@ -8,7 +8,7 @@ import TextInput from "../../components/shared/formInputs/TextInput";
 import { useRegister } from "../../hooks/auth/useRegister";
 import type { RegisterFormData } from "../../types/auth";
 
-export default function Register() {
+export default function RegisterPage() {
   const [resendCountdown, setResendCountdown] = useState<number>(30);
   const [emailSent, setEmailSent] = useState<boolean>(false);
   const [formValues, setFormValues] = useState<RegisterFormData>();

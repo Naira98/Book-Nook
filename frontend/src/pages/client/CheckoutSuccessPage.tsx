@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import animationData from "../../assets/json/Success.json";
 import logo from "../../assets/logo_without_sharshora.svg";
 
-const CheckoutSuccess = () => {
+const CheckoutSuccessPage = () => {
   const navigate = useNavigate();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lottieRef = useRef<any>(null);
@@ -58,4 +58,4 @@ const CheckoutSuccess = () => {
   );
 };
 
-export default CheckoutSuccess;
+export default CheckoutSuccessPage;

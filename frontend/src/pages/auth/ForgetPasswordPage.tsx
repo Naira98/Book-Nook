@@ -6,7 +6,7 @@ import TextInput from "../../components/shared/formInputs/TextInput";
 import { useForgetPassword } from "../../hooks/auth/useForgetPassword";
 import type { EmailFormValues } from "../../types/auth";
 
-const ForgetPassword = () => {
+const ForgetPasswordPage = () => {
   const [resendCountdown, setResendCountdown] = useState<number>(30);
   const [emailSent, setEmailSent] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
@@ -122,4 +122,4 @@ const ForgetPassword = () => {
   );
 };
 
-export default ForgetPassword;
+export default ForgetPasswordPage;

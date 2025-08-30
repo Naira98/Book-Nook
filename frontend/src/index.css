@@ -2,22 +2,13 @@
 @import url("https://fonts.googleapis.com/css2?family=Moon+Dance&display=swap");
 
 @theme {
-  /* --color-background: #dfe8ef;
-  --color-primary: #0b3460;
-  --color-hover: #0d4a8f;
-  --color-secondary: #f2b63d; */
-
-  /* --color-primary: #34d399;  emerald-400 */
-  /* --color-primary: #22D3EE; cyan-400 */
-  /* --color-primary: #38bdf8; sky-400 */
-
   --color-primary: #012e4a;
   --color-secondary: #fb923c; /* orange-400 */
   --color-accent: #f1f5f9; /* slate-100 */
   --color-hover: #036280;
   --color-layout: #4f536c;
 
-  --color-success: #34d399; /* green-400 */
+  --color-success: #059669; /* green-600 */
   --color-error: #f87171; /* red-400 */
 
   --animate-up-and-down: up-and-down 3s linear infinite;
@@ -59,9 +50,6 @@
       color: #fb923c;
     }
   }
-
-  --color-success: #4ade80; /* green-600 */
-  --color-error: #dc2626; /* red-600 */
 }
 
 .btn-sky {

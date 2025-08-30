@@ -1,6 +1,6 @@
 import { Spinner } from "flowbite-react";
 import { Calendar, ClipboardClock, Clock, Store, Truck } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom"; // Import useSearchParams
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGetUserOrders } from "../../hooks/orders/useGetUserOrders";
 import { useGetUserReturnOrders } from "../../hooks/orders/useGetUserReturnOrders";
 import { PickUpType } from "../../types/Orders";
@@ -9,9 +9,8 @@ import { groupOrdersByDate } from "../../utils/orders";
 import { groupReturnOrdersByDate } from "../../utils/returnOrders";
 
 const OrdersPage = () => {
-  // Replace useState with useSearchParams
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "orders"; // Read from URL or default to 'orders'
+  const activeTab = searchParams.get("tab") || "orders";
 
   const navigate = useNavigate();
   const { orders, isPending: isOrdersPending } = useGetUserOrders();
@@ -56,7 +55,7 @@ const OrdersPage = () => {
       <div className="mb-8 border-b border-gray-200">
         <div className="flex space-x-8">
           <button
-            onClick={() => setSearchParams({ tab: "orders" })} // Set URL param
+            onClick={() => setSearchParams({ tab: "orders" })}
             className={`cursor-pointer px-1 pb-4 font-semibold transition-colors duration-200 ${
               activeTab === "orders"
                 ? "text-secondary border-secondary border-b"
@@ -66,7 +65,7 @@ const OrdersPage = () => {
             Orders
           </button>
           <button
-            onClick={() => setSearchParams({ tab: "returnOrders" })} // Set URL param
+            onClick={() => setSearchParams({ tab: "returnOrders" })}
             className={`cursor-pointer px-1 pb-4 font-semibold transition-colors duration-200 ${
               activeTab === "returnOrders"
                 ? "text-secondary border-secondary border-b"

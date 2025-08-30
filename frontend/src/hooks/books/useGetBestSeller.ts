@@ -4,18 +4,17 @@ import { type BestSellersResponse } from "../../types/BestSeller";
 
 export const useGetBestSeller = () => {
   const {
-    data: bestSellerData,
+    data: bestBooksData,
     isPending,
     error,
   } = useQuery<BestSellersResponse>({
     queryKey: ["bestSellers"],
     queryFn: async () => await apiReq("GET", "/books/bestsellers"),
-    staleTime: 1000 * 60 * 60, // 60 minutes
-    // Medium priority - important but not critical
-    gcTime: 1000 * 60 * 15, // 15 minutes cache
-    refetchOnWindowFocus: false, // Don't refetch on focus
-    refetchOnMount: true, // Refetch on mount for fresh data
+    staleTime: 1000 * 60 * 60,
+    gcTime: 1000 * 60 * 15,
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
   });
 
-  return { bestSellerData, isPending, error };
+  return { bestBooksData, isPending, error };
 };

@@ -7,7 +7,7 @@ import { Swiper } from "swiper/react";
 import "../../../node_modules/swiper/modules/navigation.css";
 import "../../../node_modules/swiper/modules/pagination.css";
 import "../../../node_modules/swiper/swiper.css";
-import MainButton from "./buttons/MainButton";
+import MainButton from "../shared/buttons/MainButton";
 
 export default function HomeSlider({
   children,

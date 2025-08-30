@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import type { MouseEvent, ReactNode } from "react";
-import SmallSpinner from "../SmallSpinner";
+import SmallSpinner from "./SmallSpinner";
 
 export default function MainButton({
   disabled,

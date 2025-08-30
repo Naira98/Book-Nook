@@ -1,6 +1,6 @@
 import { ArrowRightLeft, BookOpen, ShoppingBag } from "lucide-react";
 import { Outlet } from "react-router-dom";
-import Sidebar from "../Sidebar";
+import Sidebar from "./Sidebar";
 
 const ClientWithSidebarLayout = () => {
   return (

@@ -24,7 +24,6 @@ const EmailVerificationSuccess = () => {
     }, 3000);
   };
 
-  // Extract token from URL
   const token = searchParams.get("token");
 
   useEffect(() => {

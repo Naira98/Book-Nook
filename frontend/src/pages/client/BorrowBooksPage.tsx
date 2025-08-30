@@ -3,13 +3,13 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import FilteringSection from "../../components/client/FilteringSection";
 import HorizontalBookCard from "../../components/client/HorizontalBookCard";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import Pagination from "../../components/shared/pagination/Pagination";
-import SearchBar from "../../components/shared/SearchBar";
-import Spinner from "../../components/shared/Spinner";
-import { useGetBorrowBooks } from "../../hooks/books/useGetBorrowBooks";
-import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
-import { useGetCategories } from "../../hooks/books/useGetCategories";
+import SearchBar from "../../components/client/SearchBar";
 import { useGetAuthors } from "../../hooks/books/useGetAuthors";
+import { useGetBorrowBooks } from "../../hooks/books/useGetBorrowBooks";
+import { useGetCategories } from "../../hooks/books/useGetCategories";
+import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 
 const BorrowBooksPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -44,7 +44,7 @@ const BorrowBooksPage = () => {
     isPendingCategories ||
     isPendingAuthors;
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <FullScreenSpinner />;
 
   if (!cartItems) return <div>No cart data available.</div>;
 
@@ -75,10 +75,7 @@ const BorrowBooksPage = () => {
               <SearchBar
                 placeholder="Search borrow books..."
                 searchTerm={searchTerm}
-                // When search changes, reset to the first page
                 handleSearchChange={(e) => {
-                  console.log("Search term changed:", e);
-
                   setSearchTerm(e);
                   setCurrentPage(1);
                 }}
