@@ -1,7 +1,6 @@
-import { lazy, Suspense } from "react";
+import { lazy } from "react";
 import { Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import FullScreenSpinner from "./components/shared/FullScreenSpinner";
 import { useGetMe } from "./hooks/auth/useGetMe";
 import { UserRole } from "./types/User";
 
@@ -113,158 +112,150 @@ const App = () => {
 
   return (
     <>
-      <Suspense fallback={<FullScreenSpinner />}>
-        <Routes>
-          {/* GUEST-only routes */}
-          <Route element={<GuestOnlyRoute />}>
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/verify-email" element={<EmailVerificationPage />} />
-            <Route path="/forget-password" element={<ForgetPasswordPage />} />
+      <Routes>
+        {/* GUEST-only routes */}
+        <Route element={<GuestOnlyRoute />}>
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/verify-email" element={<EmailVerificationPage />} />
+          <Route path="/forget-password" element={<ForgetPasswordPage />} />
+          <Route
+            path="/reset-password/:reset_token"
+            element={<ResetPasswordPage />}
+          />
+        </Route>
+
+        {/* CLIENT-only routes */}
+        <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}>
+          <Route path="/interests" element={<InterestsPage />} />
+
+          {/* Client pages with navbar */}
+          <Route path="/" element={<ClientWithNavbarLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/borrow-books" element={<BorrowBooksPage />} />
+            <Route path="/purchase-books" element={<PurchaseBooksPage />} />
             <Route
-              path="/reset-password/:reset_token"
-              element={<ResetPasswordPage />}
+              path="/details/borrow/:bookDetailsId"
+              element={<BorrowDetailsPage />}
             />
+            <Route
+              path="/details/purchase/:bookDetailsId"
+              element={<PurchaseDetailsPage />}
+            />
+
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<ChechoutPage />} />
           </Route>
 
-          {/* CLIENT-only routes */}
-          <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}>
-            <Route path="/interests" element={<InterestsPage />} />
-
-            {/* Client pages with navbar */}
-            <Route path="/" element={<ClientWithNavbarLayout />}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/borrow-books" element={<BorrowBooksPage />} />
-              <Route path="/purchase-books" element={<PurchaseBooksPage />} />
-              <Route
-                path="/details/borrow/:bookDetailsId"
-                element={<BorrowDetailsPage />}
-              />
-              <Route
-                path="/details/purchase/:bookDetailsId"
-                element={<PurchaseDetailsPage />}
-              />
-
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/checkout" element={<ChechoutPage />} />
-            </Route>
-
-            {/* Client pages with sidebar */}
-            <Route path="/" element={<ClientWithSidebarLayout />}>
-              <Route path="/transactions" element={<TransactionsPage />} />
-              <Route path="/orders-history" element={<OrdersPage />} />
-              <Route
-                path="/orders-history/order/:orderId"
-                element={<ClientOrderDetailsPage />}
-              />
-              <Route
-                path="/orders-history/return-order/:returnOrderId"
-                element={<ClientReturnOrderDetailsPage />}
-              />
-              <Route path="/current-borrows" element={<CurrentBorrowsPage />} />
-            </Route>
-
+          {/* Client pages with sidebar */}
+          <Route path="/" element={<ClientWithSidebarLayout />}>
+            <Route path="/transactions" element={<TransactionsPage />} />
+            <Route path="/orders-history" element={<OrdersPage />} />
             <Route
-              path="/transaction-success"
-              element={<CheckoutSuccessPage />}
+              path="/orders-history/order/:orderId"
+              element={<ClientOrderDetailsPage />}
             />
+            <Route
+              path="/orders-history/return-order/:returnOrderId"
+              element={<ClientReturnOrderDetailsPage />}
+            />
+            <Route path="/current-borrows" element={<CurrentBorrowsPage />} />
           </Route>
 
-          {/* EMPLOYEE and MANAGER routes */}
+          <Route
+            path="/transaction-success"
+            element={<CheckoutSuccessPage />}
+          />
+        </Route>
+
+        {/* EMPLOYEE and MANAGER routes */}
+        <Route
+          element={
+            <RoleBasedRoute
+              allowedRoles={[UserRole.EMPLOYEE, UserRole.MANAGER]}
+            />
+          }
+        >
           <Route
             element={
-              <RoleBasedRoute
-                allowedRoles={[UserRole.EMPLOYEE, UserRole.MANAGER]}
-              />
+              me?.role === UserRole.EMPLOYEE ? (
+                <EmployeeLayout />
+              ) : (
+                <ManagerLayout />
+              )
             }
           >
+            <Route path="/staff/books" element={<BooksTablePage />} />
+            <Route path="/staff/books/create-book" element={<AddBookPage />} />
             <Route
-              element={
-                me?.role === UserRole.EMPLOYEE ? (
-                  <EmployeeLayout />
-                ) : (
-                  <ManagerLayout />
-                )
-              }
-            >
-              <Route path="/staff/books" element={<BooksTablePage />} />
-              <Route
-                path="/staff/books/create-book"
-                element={<AddBookPage />}
-              />
-              <Route
-                path="/staff/books/create-author"
-                element={<AddAuthorPage />}
-              />
-              <Route
-                path="/staff/books/create-category"
-                element={<AddCategoryPage />}
-              />
-              <Route
-                path="/staff/books/update-book/:book_id"
-                element={<UpdateBookPage />}
-              />
-              <Route path="/staff/orders" element={<EmployeeOrdersPage />} />
-              <Route
-                path="/staff/order/:orderId"
-                element={<EmployeeOrderDetailsPage />}
-              />
-              <Route
-                path="/staff/return-order/:orderId"
-                element={<EmployeeReturnOrderDetailsPage />}
-              />
-            </Route>
+              path="/staff/books/create-author"
+              element={<AddAuthorPage />}
+            />
+            <Route
+              path="/staff/books/create-category"
+              element={<AddCategoryPage />}
+            />
+            <Route
+              path="/staff/books/update-book/:book_id"
+              element={<UpdateBookPage />}
+            />
+            <Route path="/staff/orders" element={<EmployeeOrdersPage />} />
+            <Route
+              path="/staff/order/:orderId"
+              element={<EmployeeOrderDetailsPage />}
+            />
+            <Route
+              path="/staff/return-order/:orderId"
+              element={<EmployeeReturnOrderDetailsPage />}
+            />
           </Route>
+        </Route>
 
-          {/* COURIER-only routes */}
-          <Route element={<RoleBasedRoute allowedRoles={[UserRole.COURIER]} />}>
-            <Route element={<CourierLayout />}>
-              <Route path="/courier/orders" element={<CourierOrdersPage />} />
-              <Route
-                path="/courier/order/:orderId"
-                element={<CourierOrderDetailsPage />}
-              />
-              <Route
-                path="/courier/return-order/:orderId"
-                element={<CourierReturnOrderDetailsPage />}
-              />
-            </Route>
+        {/* COURIER-only routes */}
+        <Route element={<RoleBasedRoute allowedRoles={[UserRole.COURIER]} />}>
+          <Route element={<CourierLayout />}>
+            <Route path="/courier/orders" element={<CourierOrdersPage />} />
+            <Route
+              path="/courier/order/:orderId"
+              element={<CourierOrderDetailsPage />}
+            />
+            <Route
+              path="/courier/return-order/:orderId"
+              element={<CourierReturnOrderDetailsPage />}
+            />
           </Route>
+        </Route>
 
-          {/* MANAGER-only routes */}
-          <Route element={<RoleBasedRoute allowedRoles={[UserRole.MANAGER]} />}>
-            <Route element={<ManagerLayout />}>
-              <Route
-                path="/manager/dashboard"
-                element={<ManagerDashboardPage />}
-              />
-              <Route path="/manager/promo-codes" element={<PromoCodesPage />} />
-              <Route
-                path="/manager/promo-codes/create"
-                element={<CreatePromoCodePage />}
-              />
-              <Route
-                path="/manager/settings"
-                element={<ManagerSettingsPage />}
-              />
-              <Route
-                path="manager/users/add-new-user"
-                element={<AddNewUserPage />}
-              />
-              <Route
-                path="manager/users/list-all-users"
-                element={<UsersListPage />}
-              />
-            </Route>
+        {/* MANAGER-only routes */}
+        <Route element={<RoleBasedRoute allowedRoles={[UserRole.MANAGER]} />}>
+          <Route element={<ManagerLayout />}>
+            <Route
+              path="/manager/dashboard"
+              element={<ManagerDashboardPage />}
+            />
+            <Route path="/manager/promo-codes" element={<PromoCodesPage />} />
+            <Route
+              path="/manager/promo-codes/create"
+              element={<CreatePromoCodePage />}
+            />
+            <Route path="/manager/settings" element={<ManagerSettingsPage />} />
+            <Route
+              path="manager/users/add-new-user"
+              element={<AddNewUserPage />}
+            />
+            <Route
+              path="manager/users/list-all-users"
+              element={<UsersListPage />}
+            />
           </Route>
+        </Route>
 
-          {/* Unauthorized route */}
-          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+        {/* Unauthorized route */}
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-          {/* Notfound route */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </Suspense>
+        {/* Notfound route */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
 
       <ToastContainer
         position="top-right"

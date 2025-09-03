@@ -1,9 +1,11 @@
-import { Outlet } from "react-router-dom";
-import CourierNavbar from "./CourierNavbar";
-import { connectWebSocket } from "../../services/websocketService";
 import { useQueryClient } from "@tanstack/react-query";
-import type { AllOrdersResponse, Order, ReturnOrder } from "../../types/Orders";
+import { Outlet } from "react-router-dom";
 import { useGetMe } from "../../hooks/auth/useGetMe";
+import {
+  connectWebSocket
+} from "../../services/websocketService";
+import type { AllOrdersResponse, Order, ReturnOrder } from "../../types/Orders";
+import CourierNavbar from "./CourierNavbar";
 
 const CourierLayout = () => {
   const queryClient = useQueryClient();
@@ -97,6 +99,7 @@ const CourierLayout = () => {
   }
 
   connectWebSocket(onSocketOpen, onSocketMessage, onSocketClose, onSocketError);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <CourierNavbar />
