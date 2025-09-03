@@ -1,18 +1,19 @@
-import { useGetManagerDashboardStats } from "../../hooks/manager/useGetManagerDashboardStats";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
   ArcElement,
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
   Title,
   Tooltip,
-  Legend,
-  PointElement,
-  LineElement,
 } from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
 import { useSearchParams } from "react-router-dom";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
+import { useGetManagerDashboardStats } from "../../hooks/manager/useGetManagerDashboardStats";
 
 // Register ChartJS components
 ChartJS.register(
@@ -35,13 +36,7 @@ const ManagerDashboardPage = () => {
 
   const tabs = ["overview", "financial", "inventory", "users"];
 
-  if (isPending) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="border-primary h-12 w-12 animate-spin rounded-full border-t-2 border-b-2"></div>
-      </div>
-    );
-  }
+  if (isPending) return <FullScreenSpinner />;
 
   if (error) {
     return (
@@ -408,7 +403,8 @@ const ManagerDashboardPage = () => {
                 Wallet Withdrawals
               </h3>
               <p className="text-error text-2xl font-bold">
-                - {financial_stats.total_wallet_withdrawals.toLocaleString()} EGP
+                - {financial_stats.total_wallet_withdrawals.toLocaleString()}{" "}
+                EGP
               </p>
             </div>
           </div>

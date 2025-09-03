@@ -96,7 +96,7 @@ const UpdateBookPage = lazy(() => import("./pages/employee/UpdateBookPage"));
 
 // Lazy load manager pages
 const AddNewUserPage = lazy(() => import("./pages/manager/addNewUserPage"));
-const UsersListPage = lazy(() => import("./pages/manager/listallUserPage"));
+const UsersListPage = lazy(() => import("./pages/manager/UsersListPage"));
 const ManagerDashboardPage = lazy(
   () => import("./pages/manager/ManagerDashboardPage"),
 );
@@ -130,7 +130,7 @@ const App = () => {
           {/* CLIENT-only routes */}
           <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}>
             <Route path="/interests" element={<InterestsPage />} />
-            
+
             {/* Client pages with navbar */}
             <Route path="/" element={<ClientWithNavbarLayout />}>
               <Route path="/" element={<HomePage />} />

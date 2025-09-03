@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
-import { Form, Field } from "react-final-form";
+import { useEffect, useState } from "react";
+import { Field, Form } from "react-final-form";
+import TextInput from "../../components/shared/formInputs/TextInput";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import { useGetSettings } from "../../hooks/manager/useGetSettings";
 import { useUpdateSettings } from "../../hooks/manager/useUpdateSettings";
-import TextInput from "../../components/shared/formInputs/TextInput";
 import type { Settings } from "../../types/Settings";
 
 interface SettingsFormValues {
@@ -33,13 +34,7 @@ const ManagerSettingsPage = () => {
     }
   }, [isSuccess]);
 
-  if (isLoading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="border-primary h-12 w-12 animate-spin rounded-full border-t-2 border-b-2"></div>
-      </div>
-    );
-  }
+  if (isLoading) return <FullScreenSpinner />;
 
   if (loadError) {
     return (

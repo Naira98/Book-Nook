@@ -1,7 +1,7 @@
 import { ArrowLeft, Tag } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Spinner from "../../components/shared/Spinner";
+import SmallSpinner from "../../components/shared/buttons/SmallSpinner";
 import { useCreatePromoCode } from "../../hooks/promoCodes/useCreatePromoCode";
 import type { PromoCodeCreate } from "../../types/promoCode";
 
@@ -163,7 +163,7 @@ const CreatePromoCodePage = () => {
                 disabled={isPending}
                 className="bg-primary hover:bg-primary/90 focus:ring-primary flex cursor-pointer items-center gap-2 rounded-lg px-6 py-3 font-semibold text-white transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isPending ? <Spinner /> : <Tag className="h-5 w-5" />}
+                {isPending ? <SmallSpinner /> : <Tag className="h-5 w-5" />}
                 {isPending ? "Creating..." : "Create Promo Code"}
               </button>
               <button

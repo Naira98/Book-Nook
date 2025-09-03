@@ -1,6 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import MainButton from "../../components/shared/buttons/MainButton";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import OrderItemsTableWithQuantity from "../../components/shared/orderCards/OrderItemsTableWithQuantity";
 import CourierOrderInfo from "../../components/staff/CourierOrderInfo";
 import { useGetMe } from "../../hooks/auth/useGetMe";
@@ -20,11 +21,7 @@ const CourierReturnOrderDetailsPage = () => {
     useChangeReturnOrderStatus();
 
   if (isPending) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
-      </div>
-    );
+    return <FullScreenSpinner />;
   }
 
   if (error) {

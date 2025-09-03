@@ -1,6 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import MainButton from "../../components/shared/buttons/MainButton";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import OrderItemsTableWithQuantity from "../../components/shared/orderCards/OrderItemsTableWithQuantity";
 import CourierOrderInfo from "../../components/staff/CourierOrderInfo";
 import { useGetMe } from "../../hooks/auth/useGetMe";
@@ -16,13 +17,7 @@ const CourierOrderDetailsPage = () => {
   const { changeOrderStatus, isPending: isUpdatingStatus } =
     useChangeOrderStatus();
 
-  if (isPending) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
-      </div>
-    );
-  }
+  if (isPending) return <FullScreenSpinner />;
 
   if (error) {
     return (
@@ -64,7 +59,7 @@ const CourierOrderDetailsPage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <MainButton onClick={() => navigate(-1)} className="mb-4 !w-auto px-4">
-        <ArrowLeft className="mr-2" size={16}/>
+        <ArrowLeft className="mr-2" size={16} />
         Back
       </MainButton>
 

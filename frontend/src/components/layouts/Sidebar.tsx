@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { LogOut, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import logo from "../assets/logo_without_sharshora.svg";
+import logo from "../../assets/logo_without_sharshora.svg";
 import { useGetMe } from "../../hooks/auth/useGetMe";
 import { useLogout } from "../../hooks/auth/useLogout";
 import { getHomePath } from "../../utils/getHomePath";

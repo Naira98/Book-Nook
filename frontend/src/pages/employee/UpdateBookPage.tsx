@@ -5,7 +5,7 @@ import MainButton from "../../components/shared/buttons/MainButton";
 import Dropzone from "../../components/shared/formInputs/Dropzone";
 import SelectInput from "../../components/shared/formInputs/SelectInput";
 import TextInput from "../../components/shared/formInputs/TextInput";
-import Spinner from "../../components/shared/Spinner";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import { useGetAuthors } from "../../hooks/books/useGetAuthors";
 import { useGetBookDetailsForUpdate } from "../../hooks/books/useGetBookDetailsForUpdate";
 import { useGetCategories } from "../../hooks/books/useGetCategories";
@@ -27,7 +27,7 @@ const UpdateBookPage = () => {
     isCategoriesPending ||
     isAuthorsPending
   ) {
-    return <Spinner />;
+    return <FullScreenSpinner />;
   }
 
   const onSubmit = (values: IUpdateBookData) => {

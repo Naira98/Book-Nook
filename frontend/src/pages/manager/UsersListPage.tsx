@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import { useGetUsers } from "../../hooks/manager/useGetUsers";
 import { UserRole } from "../../types/User";
 
-const UsersPage = () => {
+const UsersListPage = () => {
   const { users = [], isPending } = useGetUsers();
 
   const [filter, setFilter] = useState<"ALL" | UserRole>("ALL");
@@ -20,7 +21,7 @@ const UsersPage = () => {
     return filteredUsers.slice(start, start + pageSize);
   }, [filteredUsers, currentPage, pageSize]);
 
-  if (isPending) return <p>Loading users...</p>;
+  if (isPending) return <FullScreenSpinner />;
 
   return (
     <div
@@ -244,4 +245,4 @@ const UsersPage = () => {
   );
 };
 
-export default UsersPage;
+export default UsersListPage;

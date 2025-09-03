@@ -6,6 +6,7 @@ import { useGetBooksTable } from "../../hooks/books/useGetBooksTable";
 import { CirclePlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import SearchBar from "../../components/client/SearchBar";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import FilterBooks from "../../components/staff/FilterBooks";
 import { useFiltering } from "../../hooks/books/useFiltering";
 import { FilterAvailability, type IBookTable } from "../../types/BookTable";
@@ -46,13 +47,7 @@ export default function BooksTablePage() {
     setCurrentPage(1);
   };
 
-  if (isPending) {
-    return (
-      <div className="flex h-screen items-center justify-center text-lg text-gray-700">
-        Loading books...
-      </div>
-    );
-  }
+  if (isPending) return <FullScreenSpinner />;
 
   return (
     <>

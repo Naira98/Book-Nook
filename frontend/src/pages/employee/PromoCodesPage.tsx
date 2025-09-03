@@ -1,7 +1,7 @@
 import { ClipboardClock, Plus, Tag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ToggleButton from "../../components/shared/buttons/ToggleButton";
-import Spinner from "../../components/shared/Spinner";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import { useGetPromoCodes } from "../../hooks/promoCodes/useGetPromoCodes";
 import { useUpdatePromoCode } from "../../hooks/promoCodes/useUpdatePromoCode";
 
@@ -10,7 +10,7 @@ const PromoCodesPage = () => {
   const { promoCodes, isPending } = useGetPromoCodes();
   const { updatePromoCode } = useUpdatePromoCode();
 
-  if (isPending) return <Spinner />;
+  if (isPending) return <FullScreenSpinner />;
 
   const handleToggleActive = (id: number, currentStatus: boolean) => {
     updatePromoCode({

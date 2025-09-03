@@ -1,6 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import MainButton from "../../components/shared/buttons/MainButton";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import EmployeeOrderInfo from "../../components/staff/EmployeeOrderInfo";
 import { useGetMe } from "../../hooks/auth/useGetMe";
 import { useChangeOrderStatus } from "../../hooks/orders/useChangeOrderStatus";
@@ -15,13 +16,7 @@ const EmployeeOrderDetailsPage = () => {
   const { changeOrderStatus, isPending: isUpdatingStatus } =
     useChangeOrderStatus();
 
-  if (isPending) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="border-primary h-10 w-10 animate-spin rounded-full border-2 border-t-transparent"></div>
-      </div>
-    );
-  }
+  if (isPending) return <FullScreenSpinner />;
 
   if (error) {
     return (

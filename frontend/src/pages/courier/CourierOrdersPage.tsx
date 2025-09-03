@@ -8,6 +8,7 @@ import {
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import NoOrders from "../../components/courier/OrderPage/NoOrders";
+import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import CourierOrderCard from "../../components/shared/orderCards/CourierOrderCard";
 import { useGetMe } from "../../hooks/auth/useGetMe";
 import { useGetAllOrders } from "../../hooks/orders/useGetAllOrders";
@@ -84,9 +85,7 @@ const CourierOrdersPage = () => {
 
       {/* Order List */}
       {isPending ? (
-        <div className="flex h-64 items-center justify-center">
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
-        </div>
+        <FullScreenSpinner />
       ) : (
         <div className="space-y-3">
           {!displayOrders?.orders?.length &&
