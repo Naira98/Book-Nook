@@ -1,12 +1,12 @@
+from datetime import datetime, timezone
+
+from db.database import get_db
+from fastapi import Cookie, Depends, HTTPException, status
+from models.session import Session
 from models.user import User, UserRole
 from sqlalchemy import select
-from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Cookie, HTTPException, status, Depends
-from models.session import Session
-from datetime import datetime
-from datetime import timezone
-from db.database import get_db
+from sqlalchemy.orm import joinedload
 
 
 async def get_user_by_id(id: int, db: AsyncSession):
@@ -88,6 +88,7 @@ async def get_staff_user(user: User = Depends(get_user_via_session)):
             detail="You do not have permission to perform this action.",
         )
     return user
+
 
 def manager_required(current_user: User = Depends(get_user_via_session)):
     if current_user.role != UserRole.MANAGER:

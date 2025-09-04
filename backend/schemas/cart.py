@@ -44,5 +44,5 @@ class PurchaseItemResponse(BaseModel):
 class GetCartItemsResponse(BaseModel):
     purchase_items: List[PurchaseItemResponse] = []
     borrow_items: List[BorrowItemResponse] = []
-    delevary_fees: Decimal
+    delivery_fees: Decimal
     remaining_borrow_books_count: int

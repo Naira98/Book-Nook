@@ -1,8 +1,6 @@
 from typing import List, Optional
 
-import requests
 from fastapi import HTTPException, status
-from langchain_core.documents import Document
 from models.book import Author, Book, BookDetails, BookStatus, Category
 from models.order import BorrowOrderBook, PurchaseOrderBook
 from schemas.book import (
@@ -15,7 +13,6 @@ from schemas.book import (
     SimpleBookSchema,
     UpdateBookData,
 )
-from settings import settings
 from sqlalchemy import func, insert, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -509,32 +506,6 @@ async def update_book_crud(book_id: int, book_data: UpdateBookData, db: AsyncSes
     return BookResponse.model_validate(updated_book)
 
 
-async def get_book_details(book_details_id: int, db: AsyncSession):
-    print(f"Fetching book details for ID: {book_details_id}", "🔍🔍🔍")
-    stmt = (
-        select(Book)
-        .where(Book.book_details.any(BookDetails.id == book_details_id))
-        .options(
-            selectinload(Book.author),
-            selectinload(Book.category),
-            selectinload(Book.book_details),
-        )
-    )
-    result = await db.execute(stmt)
-    book = result.scalars().first()
-    return book
-
-
-async def get_all_books(db: AsyncSession):
-    stmt = select(Book).options(
-        selectinload(Book.author),
-        selectinload(Book.category),
-        selectinload(Book.book_details),
-    )
-    result = await db.execute(stmt)
-    return result.scalars().all()
-
-
 def get_all_books_sync(db: Session):
     stmt = select(Book).options(
         selectinload(Book.author),
@@ -542,43 +513,6 @@ def get_all_books_sync(db: Session):
     )
     result = db.execute(stmt)
     return result.scalars().all()
-
-
-## this will be used to fetch books from the API and convert them into documents to be used in the vector database
-def fetch_books_from_api(api_url=f"{settings.SERVER_DOMAIN}/books/"):
-    try:
-        response = requests.get(api_url, timeout=30)  # Increased timeout
-        response.raise_for_status()  # Raises error for bad status codes
-        books = response.json()  # List of book objects
-        documents = []
-        for book in books:
-            # Extract status info from book_details
-            status_info = ", ".join(
-                f"{detail['status']} (Stock: {detail['available_stock']})"
-                for detail in book["book_details"]
-            )
-            # Combine fields for embedding
-            content = (
-                f"Title: {book['title']}\n"
-                f"Description: {book['description']}\n"
-                f"Author: {book['author']['name']}\n"
-                f"Category: {book['category']['name']}\n"
-                f"Publish Year: {book['publish_year']}\n"
-                f"Status: {status_info}"
-            )
-            # Metadata for filtering/display
-            metadata = {
-                "id": book["id"],  # Book ID for updates/deletes
-                "title": book["title"],
-                "author": book["author"]["name"],
-                "category": book["category"]["name"],
-                "publish_year": book["publish_year"],
-            }
-            doc = Document(page_content=content, metadata=metadata)
-            documents.append(doc)
-        return documents
-    except requests.RequestException as e:
-        raise Exception(f"Failed to fetch books: {e}")
 
 
 async def get_top_borrow_books(
