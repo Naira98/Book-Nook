@@ -74,8 +74,9 @@ export default function AddNewUser() {
       type: "select",
       placeholder: "Select Role",
       options: [
-        { label: "Employee", value: "employee" },
-        { label: "Courier", value: "courier" },
+        { label: "Employee", value: "EMPLOYEE" },
+        { label: "Courier", value: "COURIER" },
+        { label: "Manager", value: "MANAGER" },
       ],
       containerClassName: "!w-full",
     },

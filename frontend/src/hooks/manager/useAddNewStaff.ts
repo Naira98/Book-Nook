@@ -9,7 +9,7 @@ export function useAddNewStaff() {
 
   const { mutate: addNewStaff, isPending } = useMutation({
     mutationFn: async (values: AddNewUserFormValues) => {
-      return await apiReq("POST", "/users/add", values);
+      return await apiReq("POST", "/manager/add-user", values);
     },
     onSuccess: (data) => {
       navigate("/manager/users/list-all-users");

@@ -137,7 +137,7 @@ export default function CheckoutPage() {
     // Calculate Delivery
     if (pickupType === "COURIER") {
       newPrices.delivery = newPrices.delivery.plus(
-        new Decimal(cartItems.delevary_fees || 0),
+        new Decimal(cartItems.delivery_fees || 0),
       );
     }
 
@@ -400,7 +400,7 @@ export default function CheckoutPage() {
                 <Truck className="text-primary h-6 w-6" />
                 <span className="font-medium">Courier Delivery</span>
                 <span className="ml-auto text-sm font-bold text-amber-700">
-                  (+{formatMoney(cartItems.delevary_fees) || 0} EGP)
+                  (+{formatMoney(cartItems.delivery_fees) || 0} EGP)
                 </span>
               </label>
             </div>

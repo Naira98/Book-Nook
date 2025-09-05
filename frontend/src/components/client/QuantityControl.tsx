@@ -1,4 +1,6 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Minus, Plus } from "lucide-react";
+import { useGetMe } from "../../hooks/auth/useGetMe";
 import { useDeleteCartItem } from "../../hooks/cart/useDeleteCartItem";
 import { useUpdateCartItem } from "../../hooks/cart/useUpdateCartItem";
 import type {
@@ -6,8 +8,7 @@ import type {
   BorrowItem,
   PurchaseItem,
 } from "../../types/Cart";
-import { useQueryClient } from "@tanstack/react-query";
-import { useGetMe } from "../../hooks/auth/useGetMe";
+import SmallSpinner from "../shared/buttons/SmallSpinner";
 
 interface QuantityControlProps {
   item: PurchaseItem | BorrowItem;
@@ -100,7 +101,13 @@ const QuantityControl = ({ item }: QuantityControlProps) => {
       </button>
 
       {/* Quantity Display */}
-      <span className="text-primary text-lg font-bold">{currentQuantity}</span>
+      <span className="text-primary text-lg font-bold">
+        {isDisabled ? (
+          <SmallSpinner className="!text-primary" />
+        ) : (
+          currentQuantity
+        )}
+      </span>
 
       {/* Plus Button */}
       <button

@@ -10,7 +10,6 @@ export const useGetUserOrders = () => {
     isPending,
     error,
   } = useQuery<UserOrderesResponse>({
-    // The query will not execute if orderId is not available
     queryKey: ["userOrders", `${me?.id}`],
     queryFn: async () => {
       return await apiReq("GET", `/order/my`);

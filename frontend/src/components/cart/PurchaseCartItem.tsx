@@ -1,12 +1,12 @@
-import type { AllCartItemsResponse, PurchaseItem } from "../../types/Cart";
+import { useQueryClient } from "@tanstack/react-query";
 import { Minus, Plus, Trash2 } from "lucide-react";
+import { useGetMe } from "../../hooks/auth/useGetMe";
+import { useDeleteCartItem } from "../../hooks/cart/useDeleteCartItem";
+import { useUpdateCartItem } from "../../hooks/cart/useUpdateCartItem";
+import type { AllCartItemsResponse, PurchaseItem } from "../../types/Cart";
 import { formatMoney } from "../../utils/formatting";
 import { performDecimalOperation } from "../../utils/performDecimalOperation";
-import { useUpdateCartItem } from "../../hooks/cart/useUpdateCartItem";
-import { useQueryClient } from "@tanstack/react-query";
-import Spinner from "../shared/Spinner";
-import { useDeleteCartItem } from "../../hooks/cart/useDeleteCartItem";
-import { useGetMe } from "../../hooks/auth/useGetMe";
+import SmallSpinner from "../shared/buttons/SmallSpinner";
 
 export default function PurchaseCartItem({
   purchaseItem,
@@ -101,7 +101,7 @@ export default function PurchaseCartItem({
           </button>
           <span className="flex w-12 items-center justify-center text-center font-medium">
             {isPending ? (
-              <Spinner className="!text-black" />
+              <SmallSpinner className="!text-primary" />
             ) : (
               purchaseItem.quantity || 0
             )}
@@ -135,7 +135,7 @@ export default function PurchaseCartItem({
           className="rounded-md p-2 text-red-500 transition-colors hover:bg-red-50"
         >
           {isDeletePending ? (
-            <Spinner className="!text-black" />
+            <SmallSpinner className="!text-primary" />
           ) : (
             <Trash2 className="h-5 w-5" />
           )}

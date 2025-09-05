@@ -29,22 +29,22 @@ const CartPage = () => {
             <div className="space-y-6">
               {cartItems && cartItems?.borrow_items.length > 0 ? (
                 <div className="overflow-x-auto">
-                  <table className="w-full">
+                  <table className="w-full table-fixed">
                     <thead>
                       <tr className="border-accent border-b">
-                        <th className="text-layout p-2 text-left font-medium">
+                        <th className="text-layout w-2/5 p-2 text-left font-medium">
                           Item
                         </th>
-                        <th className="text-layout p-2 text-center font-medium">
+                        <th className="text-layout w-1/5 p-2 text-center font-medium">
                           Weeks
                         </th>
-                        <th className="text-layout p-2 text-center font-medium">
+                        <th className="text-layout w-1/5 p-2 text-center font-medium">
                           Price/Week
                         </th>
-                        <th className="text-layout p-2 text-center font-medium">
+                        <th className="text-layout w-1/5 p-2 text-center font-medium">
                           Total
                         </th>
-                        <th className="text-layout p-2 text-center font-medium">
+                        <th className="text-layout w-[120px] p-2 text-center font-medium">
                           Action
                         </th>
                       </tr>
@@ -76,22 +76,22 @@ const CartPage = () => {
             <div className="space-y-6">
               {cartItems && cartItems?.purchase_items.length > 0 ? (
                 <div className="overflow-x-auto">
-                  <table className="w-full">
+                  <table className="w-full table-fixed">
                     <thead>
                       <tr className="border-accent border-b">
-                        <th className="text-layout p-2 text-left font-medium">
+                        <th className="text-layout w-2/5 p-2 text-left font-medium">
                           Item
                         </th>
-                        <th className="text-layout p-2 text-center font-medium">
+                        <th className="text-layout w-1/5 p-2 text-center font-medium">
                           Quantity
                         </th>
-                        <th className="text-layout p-2 text-center font-medium">
+                        <th className="text-layout w-1/5 p-2 text-center font-medium">
                           Price
                         </th>
-                        <th className="text-layout p-2 text-center font-medium">
+                        <th className="text-layout w-1/5 p-2 text-center font-medium">
                           Total
                         </th>
-                        <th className="text-layout p-2 text-center font-medium">
+                        <th className="text-layout w-[120px] p-2 text-center font-medium">
                           Action
                         </th>
                       </tr>
@@ -115,7 +115,7 @@ const CartPage = () => {
         {/* Action Buttons */}
         <div className="mt-12 flex w-full flex-col-reverse items-center justify-center gap-4 sm:flex-row">
           <MainButton
-            className="text-layout !w-full cursor-pointer rounded-md bg-gray-200 hover:bg-gray-300 md:!w-[200px] px-4 py-2"
+            className="text-layout !w-full cursor-pointer rounded-md bg-gray-200 px-4 py-2 hover:bg-gray-300 md:!w-[200px]"
             onClick={() => navigate(-1)}
           >
             Back
@@ -123,7 +123,7 @@ const CartPage = () => {
           {(cartItems?.borrow_items.length !== 0 ||
             cartItems?.purchase_items.length !== 0) && (
             <MainButton
-              className="bg-primary hover:bg-hover !w-full cursor-pointer rounded-md text-white md:!w-[200px] px-4 py-2"
+              className="bg-primary hover:bg-hover !w-full cursor-pointer rounded-md px-4 py-2 text-white md:!w-[200px]"
               onClick={() => navigate("/checkout")}
             >
               Checkout

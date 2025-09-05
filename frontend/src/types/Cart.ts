@@ -1,7 +1,7 @@
 export interface AllCartItemsResponse {
   purchase_items: PurchaseItem[];
   borrow_items: BorrowItem[];
-  delevary_fees: string;
+  delivery_fees: string;
   remaining_borrow_books_count: number;
 }
 
