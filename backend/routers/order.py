@@ -106,7 +106,7 @@ async def get_order_details(
     db: AsyncSession = Depends(get_db),
     staff_user: User = Depends(get_staff_user),
 ):
-    return get_order_details_for_staff_crud(db, staff_user, order_id)
+    return await get_order_details_for_staff_crud(db, staff_user, order_id)
 
 
 @order_router.patch(

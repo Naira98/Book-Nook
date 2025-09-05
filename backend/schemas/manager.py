@@ -1,7 +1,8 @@
 from decimal import Decimal
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
+from models.user import UserRole
 
 
 class OrderStats(BaseModel):
@@ -110,3 +111,33 @@ class SettingsUpdate(BaseModel):
 
     class Config:
         json_encoders = {Decimal: str}
+
+
+class AddNewUserRequest(BaseModel):
+    first_name: str
+    last_name: str
+    email: EmailStr
+    national_id: str
+    phone_number: str
+    password: str
+    role: UserRole
+
+
+class AddNewUserResponse(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    email: EmailStr
+    national_id: str
+    phone_number: str
+    role: str
+    message: str = "User created successfully"
+
+
+class SuccessMessage(BaseModel):
+    success: bool
+    status_code: int
+    message: str
+
+    class Config:
+        orm_mode = True

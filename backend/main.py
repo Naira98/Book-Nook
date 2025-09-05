@@ -14,7 +14,6 @@ from routers.auth import auth_router
 from routers.book import book_router
 from routers.cart import cart_router
 from routers.interests import interest_router
-from routers.listAllUsers import getUsers
 from routers.manager import manager_router
 from routers.order import order_router
 from routers.promo_code import promo_code_router
@@ -65,14 +64,13 @@ api_router = APIRouter(prefix="/api")
 
 api_router.include_router(auth_router)
 api_router.include_router(book_router)
-api_router.include_router(cart_router)
-api_router.include_router(promo_code_router)
-api_router.include_router(order_router)
 api_router.include_router(interest_router)
-api_router.include_router(websocket_router)
 api_router.include_router(wallet_router)
+api_router.include_router(cart_router)
+api_router.include_router(order_router)
 api_router.include_router(return_order_router)
-api_router.include_router(getUsers)
+api_router.include_router(promo_code_router)
 api_router.include_router(manager_router)
+api_router.include_router(websocket_router)
 
 app.include_router(api_router)
