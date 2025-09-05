@@ -31,9 +31,10 @@ from utils.order import (
     validate_borrow_book_and_borrowing_weeks_and_available_stock,
     validate_purchase_book_and_available_stock,
 )
-from utils.settings import get_settings
 from utils.socket import send_created_order, send_updated_order
 from utils.wallet import pay_from_wallet
+
+from crud.settings import get_settings_crud
 
 
 async def get_orders_for_staff_crud(db: AsyncSession, staff_user: User):
@@ -198,7 +199,7 @@ async def create_order_crud(
     order_data: CreateOrderRequest,
 ):
     try:
-        settings = await get_settings(db)
+        settings = await get_settings_crud(db)
         if order_data.pickup_type == PickUpType.COURIER and (
             not order_data.address or not order_data.phone_number
         ):

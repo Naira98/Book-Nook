@@ -18,7 +18,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, joinedload, selectinload
 from utils.order import calculate_borrow_order_book_fees
-from utils.settings import get_settings
+
+from crud.settings import get_settings_crud
 
 
 async def get_borrow_books_crud(
@@ -84,7 +85,7 @@ async def get_borrow_books_crud(
     books_for_borrowing = await db.execute(query)
 
     # Fetch settings for fee calculation
-    settings = await get_settings(db)
+    settings = await get_settings_crud(db)
 
     result_list = []
     for book_details in books_for_borrowing.scalars():

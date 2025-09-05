@@ -10,7 +10,7 @@ export function useGetSettings() {
   } = useQuery<Settings, Error>({
     queryKey: ["settings"],
     queryFn: async () => {
-      const response = await apiReq("GET", "/manager/settings");
+      const response = await apiReq("GET", "/books/settings");
       return response as Settings;
     },
   });

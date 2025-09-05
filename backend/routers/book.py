@@ -22,6 +22,7 @@ from crud.book import (
     is_book_exists,
     update_book_crud,
 )
+from crud.settings import get_settings_crud
 from db.database import get_db
 from fastapi import (
     APIRouter,
@@ -49,6 +50,7 @@ from schemas.book import (
     PurchaseBookResponse,
     UpdateBookData,
 )
+from schemas.manager import SettingsResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils.auth import get_staff_user, get_user_id_via_session
 
@@ -345,3 +347,13 @@ async def update_book(
     book_data = UpdateBookData(**book_data_dict)
 
     return await update_book_crud(book_id, book_data, db)
+
+
+@book_router.get(
+    "/settings",
+    response_model=SettingsResponse,
+)
+async def get_settings(
+    _=Depends(get_user_id_via_session), db: AsyncSession = Depends(get_db)
+):
+    return await get_settings_crud(db)

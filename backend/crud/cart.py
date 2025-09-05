@@ -10,7 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 from utils.cart import validate_borrowing_limit
 from utils.order import calculate_borrow_order_book_fees
-from utils.settings import get_settings
+
+from crud.settings import get_settings_crud
 
 
 async def display_cart(db: AsyncSession, user_id: int):
@@ -30,7 +31,7 @@ async def display_cart(db: AsyncSession, user_id: int):
 
 
 async def read_user_cart_crud(db: AsyncSession, user: User) -> dict[str, Any]:
-    settings = await get_settings(db)
+    settings = await get_settings_crud(db)
     cart_items = await display_cart(db, user.id)
     borrow_items = []
     purchase_items = []
@@ -95,7 +96,7 @@ async def add_to_cart_crud(
     book_details: BookDetails,
 ):
     if book_details.status.value == "BORROW":
-        settings = await get_settings(db)
+        settings = await get_settings_crud(db)
         cart_item = Cart(
             user_id=user.id,
             book_details_id=cart_item_data.book_details_id,

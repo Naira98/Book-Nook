@@ -27,12 +27,12 @@ export default function HomeSlider({
   return (
     <section className={clsx("container mx-auto my-24", containerClassName)}>
       <div className="mb-12 flex w-full items-center justify-between">
-        <h2 className="text-[40px] font-[700]">{title}</h2>
+        <h2 className="text-primary text-[40px] font-[700]">{title}</h2>
         <MainButton
-          className="!text-primary !border-primary hover:!bg-hover flex !w-[200px] items-center justify-center gap-2 !rounded-full bg-white hover:!text-white"
+          className="!text-primary !border-primary hover:!bg-hover flex !w-[200px] items-center justify-center gap-2 !rounded-full bg-white duration-100 hover:!text-white"
           onClick={() => navigate(to)}
         >
-          Eplore More
+          Explore More
           <MoveRight size={20} />
         </MainButton>
       </div>

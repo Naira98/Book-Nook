@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Field, Form } from "react-final-form";
 import TextInput from "../../components/shared/formInputs/TextInput";
 import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
-import { useGetSettings } from "../../hooks/manager/useGetSettings";
+import { useGetSettings } from "../../hooks/books/useGetSettings";
 import { useUpdateSettings } from "../../hooks/manager/useUpdateSettings";
 import type { Settings } from "../../types/Settings";
 

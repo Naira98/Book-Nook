@@ -26,13 +26,14 @@ from utils.order import (
     validate_return_order_for_courier,
     validate_return_order_for_employee,
 )
-from utils.settings import get_settings
 from utils.socket import (
     send_courier_return_order,
     send_created_return_order,
     send_updated_return_order,
 )
 from utils.wallet import add_to_wallet, pay_from_wallet
+
+from crud.settings import get_settings_crud
 
 
 async def get_client_borrows_books_crud(
@@ -162,7 +163,7 @@ async def create_return_order_crud(
                 detail="Phone number is required for courier pickup.",
             )
 
-        settings = await get_settings(db)
+        settings = await get_settings_crud(db)
 
         delivery_fees = Decimal(settings.delivery_fees)
 

@@ -240,36 +240,6 @@ async def get_manager_dashboard_stats_crud(db: AsyncSession):
     )
 
 
-async def get_manager_settings_crud(db: AsyncSession):
-    try:
-        result = await db.execute(select(Settings))
-        settings = result.scalar_one_or_none()
-
-        if not settings:
-            # Create default settings if they don't exist
-            default_settings = Settings(
-                deposit_perc=Decimal("10.00"),
-                borrow_perc=Decimal("5.00"),
-                delay_perc=Decimal("2.00"),
-                delivery_fees=Decimal("5.00"),
-                min_borrow_fee=Decimal("1.00"),
-                max_num_of_borrow_books=5,
-            )
-            db.add(default_settings)
-            await db.commit()
-            await db.refresh(default_settings)
-            return default_settings
-
-        return settings
-
-    except Exception as e:
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error retrieving settings: {str(e)}",
-        )
-
-
 async def update_settings_crud(db: AsyncSession, settings_update: SettingsUpdate):
     try:
         # Get non-null fields from the update request

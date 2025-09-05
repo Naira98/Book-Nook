@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.settings import Settings
 
 
-async def get_settings(db: AsyncSession):
+async def get_settings_crud(db: AsyncSession):
     result = await db.execute(select(Settings).where(Settings.id == 1))
     settings = result.scalars().first()
     if settings is None:

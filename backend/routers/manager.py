@@ -1,7 +1,6 @@
 from crud.manager import (
     add_new_staff_crud,
     get_manager_dashboard_stats_crud,
-    get_manager_settings_crud,
     list_all_users_crud,
     update_settings_crud,
 )
@@ -30,14 +29,6 @@ async def get_manager_dashboard_stats(
     _=Depends(manager_required),
 ):
     return await get_manager_dashboard_stats_crud(db)
-
-
-@manager_router.get(
-    "/settings",
-    response_model=SettingsResponse,
-)
-async def get_settings(_=Depends(manager_required), db: AsyncSession = Depends(get_db)):
-    return await get_manager_settings_crud(db)
 
 
 @manager_router.patch(
