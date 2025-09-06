@@ -1,8 +1,10 @@
 from datetime import datetime, timezone
 from decimal import Decimal
+from typing import Any, Dict, List
 
 from fastapi import HTTPException, status
 from models.book import BookDetails
+from models.notification import NotificationType
 from models.order import (
     BorrowBookProblem,
     BorrowOrderBook,
@@ -22,6 +24,7 @@ from schemas.return_order import (
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
+from utils.notification import send_notification
 from utils.order import (
     validate_return_order_for_courier,
     validate_return_order_for_employee,
@@ -39,7 +42,7 @@ from crud.settings import get_settings_crud
 async def get_client_borrows_books_crud(
     user_id: int,
     db: AsyncSession,
-):
+) -> List[Dict[str, Any]]:
     stmt = (
         select(BorrowOrderBook)
         .join(Order, BorrowOrderBook.order_id == Order.id)
@@ -310,7 +313,16 @@ async def update_return_order_status_crud(
 
                     amount_to_withdraw += book_price_after_discount - book.deposit_fees
 
-            # This after for loop
+            await send_notification(
+                db,
+                db_return_order.user_id,
+                NotificationType.RETURN_ORDER_STATUS_UPDATE,
+                {
+                    "order_id": db_return_order.id,
+                    "order_status": return_order_data.status,
+                },
+            )
+
             if amount_to_add > 0:
                 await add_to_wallet(
                     db=db,
@@ -318,6 +330,17 @@ async def update_return_order_status_crud(
                     amount=amount_to_add,
                     description=f"Deposit return for Return Order ID: {db_return_order.id}",
                 )
+
+                await send_notification(
+                    db,
+                    db_return_order.user_id,
+                    NotificationType.WALLET_UPDATED,
+                    {
+                        "amount": float(amount_to_add),
+                        "order_id": db_return_order.id,
+                    },
+                )
+
             if amount_to_withdraw > 0:
                 await pay_from_wallet(
                     db=db,
@@ -327,6 +350,16 @@ async def update_return_order_status_crud(
                     apply_negative_balance=True,
                 )
 
+                await send_notification(
+                    db,
+                    db_return_order.user_id,
+                    NotificationType.WALLET_UPDATED,
+                    {
+                        "amount": -float(amount_to_withdraw),
+                        "order_id": db_return_order.id,
+                    },
+                )
+
         db_return_order.status = return_order_data.status
         await db.commit()
         await db.refresh(db_return_order)
@@ -334,7 +367,6 @@ async def update_return_order_status_crud(
             db_return_order.borrow_order_books_details
         )
 
-        # TODO send notification to user
         if return_order_data.status == ReturnOrderStatus.ON_THE_WAY.value:
             await send_updated_return_order(db_return_order, UserRole.COURIER)
 

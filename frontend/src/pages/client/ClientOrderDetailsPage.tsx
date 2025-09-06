@@ -43,13 +43,13 @@ export default function ClientOrderDetailsPage() {
   const statusFormat = (status: string) => {
     switch (status) {
       case "CREATED":
-        return <span className="text-secondary text-sm">created</span>;
+        return <span className="text-secondary text-sm">CREATED</span>;
       case "ON_THE_WAY":
-        return <span className="text-sm">On the Way</span>;
+        return <span className="text-sm">ON THE WAY</span>;
       case "PICKED_UP":
-        return <span className="text-success text-sm">Picked Up</span>;
+        return <span className="text-success text-sm">PICKED UP</span>;
       case "PROBLEM":
-        return <span className="text-error text-sm">Problem</span>;
+        return <span className="text-error text-sm">PROBLEM</span>;
       default:
         return status;
     }
@@ -74,9 +74,7 @@ export default function ClientOrderDetailsPage() {
               {idx < steps.length - 1 && (
                 <div
                   className={`absolute top-4 h-1 ${
-                    idx < currentIndex
-                      ? "bg-[var(--color-secondary)]"
-                      : "bg-gray-300"
+                    idx < currentIndex ? "bg-secondary" : "bg-gray-300"
                   }`}
                   style={{
                     left: `${(idx / (steps.length - 1)) * 100}%`,
@@ -89,7 +87,7 @@ export default function ClientOrderDetailsPage() {
               <div
                 className={`z-10 mb-2 flex h-10 w-10 items-center justify-center rounded-full ${
                   isCompleted || isActive
-                    ? "bg-[var(--color-secondary)] text-white"
+                    ? "bg-secondary text-white"
                     : "bg-gray-300 text-gray-600"
                 }`}
               >
@@ -99,10 +97,10 @@ export default function ClientOrderDetailsPage() {
               </div>
               <p
                 className={`text-sm font-medium ${
-                  isActive ? "text-[var(--color-primary)]" : "text-gray-500"
+                  isActive ? "text-primary" : "text-gray-500"
                 }`}
               >
-                {step.replace("_", " ")}
+                {step.replaceAll("_", " ")}
               </p>
             </div>
           );
@@ -112,7 +110,7 @@ export default function ClientOrderDetailsPage() {
       {/* Details */}
       <div className="space-y-8 rounded-xl bg-white">
         <div className="border-b border-slate-300 pb-8">
-          <h2 className="mb-2 text-xl font-semibold text-[var(--color-primary)]">
+          <h2 className="text-primary mb-2 text-xl font-semibold">
             Order Info
           </h2>
           {order.pickup_type === "COURIER" ? (
@@ -139,7 +137,7 @@ export default function ClientOrderDetailsPage() {
 
         {order.purchase_order_books_details.length > 0 && (
           <div className="border-b border-slate-300 pb-8">
-            <h2 className="mb-4 text-xl font-semibold text-[var(--color-primary)]">
+            <h2 className="text-primary mb-4 text-xl font-semibold">
               Purchase Books
             </h2>
             <div className="space-y-4">
@@ -169,7 +167,7 @@ export default function ClientOrderDetailsPage() {
 
         {order.borrow_order_books_details.length > 0 && (
           <div className="border-b border-slate-300 pb-8">
-            <h2 className="mb-4 text-xl font-semibold text-[var(--color-primary)]">
+            <h2 className="text-primary mb-4 text-xl font-semibold">
               Borrow Books
             </h2>
             <div className="space-y-4">
@@ -198,7 +196,7 @@ export default function ClientOrderDetailsPage() {
         )}
 
         <div className="rounded-2xl bg-white text-lg font-bold">
-          <h2 className="mb-4 text-xl font-semibold text-[var(--color-primary)]">
+          <h2 className="text-primary mb-4 text-xl font-semibold">
             Payment Summary
           </h2>
           <div className="space-y-4 text-gray-700">

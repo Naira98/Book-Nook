@@ -33,15 +33,20 @@ const OrdersPage = () => {
   const statusFormat = (status: string) => {
     switch (status) {
       case "CREATED":
-        return <span className="text-secondary text-sm">created</span>;
+        return <span className="text-secondary text-sm">Created</span>;
       case "ON_THE_WAY":
         return <span className="animate-on-the-way text-sm">On the Way</span>;
       case "PICKED_UP":
         return <span className="text-success text-sm">Picked Up</span>;
       case "PROBLEM":
         return <span className="text-error text-sm">Problem</span>;
+      case "CHECKING":
+        return <span className="text-secondary text-sm">Checking</span>;
+      case "DONE":
+        return <span className="text-success text-sm">Done</span>;
+
       default:
-        return status;
+        return <span className="text-sm text-gray-500">{status}</span>;
     }
   };
 
@@ -125,9 +130,7 @@ const OrdersPage = () => {
                         </div>
 
                         {/* Amount */}
-                        <div className="flex-shrink-0">
-                          {order.total_price} EGP
-                        </div>
+                        <div className="font-semibold text-success">{order.total_price} EGP</div>
                       </div>
                     </div>
                   ))}

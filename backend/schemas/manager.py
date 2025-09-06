@@ -1,8 +1,8 @@
 from decimal import Decimal
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel, EmailStr, Field
 from models.user import UserRole
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class OrderStats(BaseModel):
@@ -139,5 +139,4 @@ class SuccessMessage(BaseModel):
     status_code: int
     message: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True, use_enum_values=True)

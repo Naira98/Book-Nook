@@ -53,7 +53,7 @@ async def get_user_order_details(
     order_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    return get_order_details_crud(db, user, order_id)
+    return await get_order_details_crud(db, user, order_id)
 
 
 @order_router.post(
@@ -65,6 +65,9 @@ async def create_order(
     db: AsyncSession = Depends(get_db),
 ):
     return await create_order_crud(db, user, order_data)
+
+
+""" Client and Staff Router """
 
 
 @order_router.patch(

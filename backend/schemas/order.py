@@ -77,8 +77,6 @@ class OrderResponseSchema(BaseModel):
 class GetAllOrdersUserResponse(BaseModel):
     first_name: str
     last_name: str
-    email: str
-    pass
 
 
 class OrderDetailsResponseUser(GetAllOrdersUserResponse):
@@ -147,7 +145,7 @@ class AllOrdersResponseBase(BaseModel):
     address: Optional[str]
     pickup_type: PickUpType
     phone_number: Optional[str]
-    user: GetAllOrdersUserResponse
+    user: OrderDetailsResponseUser
     number_of_books: int = 0
     courier_id: Optional[int]
 

@@ -1,6 +1,7 @@
 import { lazy } from "react";
 import { Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import ClientSocketProvider from "./components/client/ClientSocketProvider";
 import { useGetMe } from "./hooks/auth/useGetMe";
 import { UserRole } from "./types/User";
 
@@ -127,45 +128,47 @@ const App = () => {
 
         {/* CLIENT-only routes */}
         <Route element={<RoleBasedRoute allowedRoles={[UserRole.CLIENT]} />}>
-          <Route path="/interests" element={<InterestsPage />} />
+          <Route element={<ClientSocketProvider />}>
+            <Route path="/interests" element={<InterestsPage />} />
 
-          {/* Client pages with navbar */}
-          <Route path="/" element={<ClientWithNavbarLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/borrow-books" element={<BorrowBooksPage />} />
-            <Route path="/purchase-books" element={<PurchaseBooksPage />} />
-            <Route
-              path="/details/borrow/:bookDetailsId"
-              element={<BorrowDetailsPage />}
-            />
-            <Route
-              path="/details/purchase/:bookDetailsId"
-              element={<PurchaseDetailsPage />}
-            />
+            {/* Client pages with navbar */}
+            <Route path="/" element={<ClientWithNavbarLayout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/borrow-books" element={<BorrowBooksPage />} />
+              <Route path="/purchase-books" element={<PurchaseBooksPage />} />
+              <Route
+                path="/details/borrow/:bookDetailsId"
+                element={<BorrowDetailsPage />}
+              />
+              <Route
+                path="/details/purchase/:bookDetailsId"
+                element={<PurchaseDetailsPage />}
+              />
 
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<ChechoutPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<ChechoutPage />} />
+            </Route>
+
+            {/* Client pages with sidebar */}
+            <Route path="/" element={<ClientWithSidebarLayout />}>
+              <Route path="/transactions" element={<TransactionsPage />} />
+              <Route path="/orders-history" element={<OrdersPage />} />
+              <Route
+                path="/orders-history/order/:orderId"
+                element={<ClientOrderDetailsPage />}
+              />
+              <Route
+                path="/orders-history/return-order/:returnOrderId"
+                element={<ClientReturnOrderDetailsPage />}
+              />
+              <Route path="/current-borrows" element={<CurrentBorrowsPage />} />
+            </Route>
+
+            <Route
+              path="/transaction-success"
+              element={<CheckoutSuccessPage />}
+            />
           </Route>
-
-          {/* Client pages with sidebar */}
-          <Route path="/" element={<ClientWithSidebarLayout />}>
-            <Route path="/transactions" element={<TransactionsPage />} />
-            <Route path="/orders-history" element={<OrdersPage />} />
-            <Route
-              path="/orders-history/order/:orderId"
-              element={<ClientOrderDetailsPage />}
-            />
-            <Route
-              path="/orders-history/return-order/:returnOrderId"
-              element={<ClientReturnOrderDetailsPage />}
-            />
-            <Route path="/current-borrows" element={<CurrentBorrowsPage />} />
-          </Route>
-
-          <Route
-            path="/transaction-success"
-            element={<CheckoutSuccessPage />}
-          />
         </Route>
 
         {/* EMPLOYEE and MANAGER routes */}

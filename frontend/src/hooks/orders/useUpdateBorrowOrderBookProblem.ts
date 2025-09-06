@@ -20,7 +20,7 @@ export const useUpdateBorrowOrderBookProblem = () => {
     },
     onSuccess: () => {
       if (me!.role == UserRole.CLIENT) {
-        toast("Book marked as lost", { type: "success" });
+        toast("Book marked as lost", { type: "warning" });
         queryClient.invalidateQueries({ queryKey: ["clientBorrows", me!.id] });
       }
     },

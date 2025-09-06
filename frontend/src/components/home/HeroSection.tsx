@@ -6,7 +6,7 @@ import heroShape from "../../assets/hero-shape.png";
 import { useNavigate } from "react-router-dom";
 
 // Create a motion-wrapped version of MainButton
-const MotionMainButton = motion(MainButton);
+const MotionMainButton = motion.create(MainButton);
 
 // Animation variants
 const containerVariants = {

@@ -13,6 +13,7 @@ export function useGetSettings() {
       const response = await apiReq("GET", "/books/settings");
       return response as Settings;
     },
+    staleTime: 60 * 1000 * 60,
   });
 
   return { settings, isPending, error };

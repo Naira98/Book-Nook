@@ -15,6 +15,7 @@ from routers.book import book_router
 from routers.cart import cart_router
 from routers.interests import interest_router
 from routers.manager import manager_router
+from routers.notification import notifications_router
 from routers.order import order_router
 from routers.promo_code import promo_code_router
 from routers.return_order import return_order_router
@@ -70,6 +71,7 @@ api_router.include_router(cart_router)
 api_router.include_router(order_router)
 api_router.include_router(return_order_router)
 api_router.include_router(promo_code_router)
+api_router.include_router(notifications_router)
 api_router.include_router(manager_router)
 api_router.include_router(websocket_router)
 

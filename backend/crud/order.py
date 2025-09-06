@@ -1,9 +1,11 @@
 from datetime import datetime, timedelta
 from decimal import Decimal
+from typing import Any, Dict
 
 from fastapi import HTTPException, status
 from models.book import BookDetails
 from models.cart import Cart
+from models.notification import NotificationType
 from models.order import (
     BorrowBookProblem,
     BorrowOrderBook,
@@ -23,6 +25,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 from utils.cart import get_user_cart, validate_borrowing_limit
+from utils.notification import send_notification
 from utils.order import (
     calculate_borrow_order_book_fees,
     calculate_purchase_order_book_fees,
@@ -111,7 +114,7 @@ async def get_orders_for_staff_crud(db: AsyncSession, staff_user: User):
         )
 
 
-async def get_orders_for_client_crud(db: AsyncSession, user: User):
+async def get_orders_for_client_crud(db: AsyncSession, user: User) -> Dict[str, Any]:
     try:
         get_orders_query = (
             select(Order)
@@ -136,8 +139,6 @@ async def get_orders_for_client_crud(db: AsyncSession, user: User):
         orders_result = await db.execute(get_orders_query)
 
         orders = orders_result.scalars().unique().all()
-
-        print(orders, "😌😌😌😌😌😌")
 
         return {"orders": orders}
 
@@ -470,11 +471,20 @@ async def update_order_status_crud(
                     weeks=book.borrowing_weeks
                 )
 
-        elif order_data.status == OrderStatus.PROBLEM:
-            # TODO: send notification to user about the problem
-            pass
-
         order.status = order_data.status
+
+        # Send notification
+        await send_notification(
+            db,
+            order.user_id,
+            NotificationType.ORDER_STATUS_UPDATE,
+            {
+                "order_id": order.id,
+                "order_status": order_data.status.value,
+                "pickup_type": order.pickup_type.value,
+            },
+        )
+
         await db.commit()
         await db.refresh(order)
 
@@ -533,8 +543,6 @@ async def update_borrow_order_book_problem_crud(
                 new_status == BorrowBookProblem.LOST
                 or new_status == BorrowBookProblem.DAMAGED
             ):
-                # TODO: send notification to user about the problem
-
                 borrow_order_book.user.current_borrowed_books -= 1
 
                 plenty_fees = borrow_order_book.original_book_price - (

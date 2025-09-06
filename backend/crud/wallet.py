@@ -2,6 +2,7 @@ from decimal import Decimal
 
 import stripe
 from fastapi import HTTPException
+from models.notification import NotificationType
 from models.transaction import Transaction
 from models.user import User
 from schemas.wallet import CreateCheckoutRequest
@@ -10,6 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import RedirectResponse
 from utils.auth import get_user_by_id
+from utils.notification import send_notification
 from utils.wallet import add_to_wallet
 
 
@@ -102,6 +104,15 @@ async def payment_success_crud(session_id: str, db: AsyncSession):
                 )
 
                 user.stripe_session_id = None
+
+                await send_notification(
+                    db,
+                    user.id,
+                    NotificationType.WALLET_UPDATED,
+                    {
+                        "amount": float(amount_egp_pounds),
+                    },
+                )
 
                 await db.commit()
 
