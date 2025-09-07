@@ -17,3 +17,9 @@ class NotificationOut(BaseModel):
 
 class MarkAsReadRequest(BaseModel):
     notification_ids: List[int]
+
+
+class NotificationRequest(BaseModel):
+    user_id: int
+    type: NotificationType
+    data: dict

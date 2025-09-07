@@ -8,7 +8,7 @@ import {
   NotificationType,
   type Notifications,
 } from "../../types/Notifications";
-import { fromatDateTime } from "../../utils/formatting";
+import { formatDate, fromatDateTime } from "../../utils/formatting";
 import FullScreenSpinner from "../shared/FullScreenSpinner";
 
 const NotificationsMenu = () => {
@@ -78,9 +78,9 @@ const NotificationsMenu = () => {
         aria-label="Notifications"
       >
         <Bell className="h-6 w-6" />
-        {unreadCount > 0 && !isOpen && (
+        {unreadCount > 0 && (
           <span className="bg-secondary absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs text-white shadow-sm">
-            {unreadCount > 9 ? "9+" : unreadCount}
+            {unreadCount}
           </span>
         )}
       </button>
@@ -214,8 +214,17 @@ function getNotificationMessage(notification: Notifications) {
       return `Your return order #${notification.data.order_id} ${
         returnStatusMap[notification.data.order_status] || "was updated"
       }`;
-    case NotificationType.RETURN_REMINDER:
-      return `⏰ Reminder: Please return "${notification.data.book_title}" by ${notification.data.due_date}`;
+    case NotificationType.RETURN_REMINDER: {
+      const reminderData = notification.data;
+      const dueDate = new Date(reminderData.due_date).toLocaleDateString();
+
+      if (reminderData.status === "upcoming") {
+        return `⏰ Reminder: Please return "${reminderData.book_title}" by ${formatDate(new Date(dueDate))}`;
+      } else if (reminderData.status === "overdue") {
+        return `🚨 Urgent: "${reminderData.book_title}" is overdue! Please return it immediately.`;
+      }
+      return "";
+    }
     case NotificationType.NEW_PROMO_CODE:
       return `🎁 New promo! Use code "${notification.data.code}" for ${notification.data.discount}% off`;
     case NotificationType.WALLET_UPDATED:

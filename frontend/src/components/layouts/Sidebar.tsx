@@ -54,7 +54,7 @@ const Sidebar = ({ navItems }: { navItems: navItem[] }) => {
                   "transition-all duration-200",
                   isActive
                     ? "bg-accent text-secondary border-l-2 md:border-l-3 lg:border-l-4"
-                    : "text-layout hover:bg-slate-200",
+                    : "text-layout hover:bg-accent",
                 )}
               >
                 <span

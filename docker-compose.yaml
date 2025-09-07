@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: pgvector/pgvector:pg17 
+    image: pgvector/pgvector:pg17
     ports:
       - 5433:5432
     environment:
@@ -9,7 +9,7 @@ services:
       POSTGRES_DB: fastapi
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./init-pg:/docker-entrypoint-initdb.d   # init scripts
+      - ./init-pg:/docker-entrypoint-initdb.d # init scripts
 
   backend:
     build: ./backend
@@ -20,6 +20,20 @@ services:
       - 8000:8000
     env_file:
       - ./backend/.env.docker
+    depends_on:
+      - postgres
+
+  scheduler:
+    build: ./backend
+    volumes:
+      - ./backend:/app
+    env_file:
+      - ./backend/.env.docker
+    command: python scheduler.py
+    depends_on:
+      - postgres
+      - backend
+    restart: on-failure
 
   frontend:
     build: ./frontend

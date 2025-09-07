@@ -19,7 +19,11 @@ export type NotificationData =
     }
   | {
       type: NotificationType.RETURN_REMINDER;
-      data: { book_title: string; due_date: string };
+      data: {
+        book_title: string;
+        due_date: string;
+        status: "upcoming" | "overdue";
+      };
     }
   | {
       type: NotificationType.NEW_PROMO_CODE;

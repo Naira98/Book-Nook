@@ -2,12 +2,13 @@ from datetime import datetime, timezone
 from typing import List
 
 from db.database import get_db
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from models.notification import Notification
-from schemas.notification import MarkAsReadRequest, NotificationOut
+from schemas.notification import MarkAsReadRequest, NotificationOut, NotificationRequest
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils.auth import get_user_id_via_session
+from utils.notification import get_scheduler_secret, send_notification
 
 notifications_router = APIRouter(
     prefix="/notifications",
@@ -47,3 +48,16 @@ async def mark_notifications_as_read(
     await db.execute(stmt)
     await db.commit()
     return {"success": True, "message": "Notifications marked as read"}
+
+
+@notifications_router.post("/notify", status_code=status.HTTP_200_OK)
+async def push_notification(
+    notification_data: NotificationRequest,
+    db: AsyncSession = Depends(get_db),
+    _: bool = Depends(get_scheduler_secret),
+):
+    await send_notification(
+        db, notification_data.user_id, notification_data.type, notification_data.data
+    )
+
+    return {"message": "Notification sent successfully"}
