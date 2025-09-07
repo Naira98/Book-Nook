@@ -1,6 +1,13 @@
 import Decimal from "decimal.js";
 import type { FormApi } from "final-form";
-import { PackageX, ShoppingCart, Store, Tag, Truck } from "lucide-react";
+import {
+  PackageX,
+  ShoppingCart,
+  Store,
+  Tag,
+  Truck,
+  Wallet,
+} from "lucide-react";
 import {
   useEffect,
   useLayoutEffect,
@@ -14,11 +21,13 @@ import { toast } from "react-toastify";
 import MainButton from "../../components/shared/buttons/MainButton";
 import TextInput from "../../components/shared/formInputs/TextInput";
 import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
+import Modal from "../../components/shared/Modal";
 import { useGetMe } from "../../hooks/auth/useGetMe";
 import { useApplyPromoCode } from "../../hooks/cart/useApplyPromoCode";
 import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 import { useGetAddress } from "../../hooks/cart/useGetUserAddress";
 import { useCreateOrder } from "../../hooks/orders/useCreateOrder";
+import { useCreateCheckoutSession } from "../../hooks/transactions/useCreateCheckoutSession";
 import { PickUpType } from "../../types/Orders";
 import type { PromoCodeData } from "../../types/promoCode";
 import { formatMoney } from "../../utils/formatting";
@@ -45,11 +54,15 @@ export default function CheckoutPage() {
   const { cartItems, isPending: isCartPending, error } = useGetCartItems(0);
   const { createOrder } = useCreateOrder();
   const { applyPromoCode, isPending: isPromoCodePending } = useApplyPromoCode();
+  const { createCheckoutSession, isPending: isCheckoutPending } =
+    useCreateCheckoutSession();
   const [pickupType, setPickupType] = useState<PickUpType>(PickUpType.SITE);
   const [promoCode, setPromoCode] = useState("");
   const [promoCodeObject, setPromoCodeObject] = useState<PromoCodeData | null>(
     null,
   );
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [fundAmount, setFundAmount] = useState("");
   const navigate = useNavigate();
 
   const [prices, setPrices] = useState<Prices>({
@@ -170,6 +183,14 @@ export default function CheckoutPage() {
 
   const onSubmit = (values: CourierInfo) => {
     if (!cartItems) return;
+
+    // Check if user has enough money in wallet
+    const walletBalance = new Decimal(me?.wallet || 0);
+    if (walletBalance.lessThan(prices.total)) {
+      setShowPaymentModal(true);
+      return;
+    }
+
     const orderData = {
       pickup_type: pickupType,
       address: values.address,
@@ -220,6 +241,17 @@ export default function CheckoutPage() {
     );
   };
 
+  const addFund = () => {
+    const amount = parseFloat(fundAmount) * 100; /* in piaster 100 for 1 EGP */
+    if (amount > 0) {
+      createCheckoutSession(amount, {
+        onSuccess: () => {
+          setShowPaymentModal(false);
+        },
+      });
+    }
+  };
+
   if (isCartPending) {
     return <FullScreenSpinner />;
   }
@@ -245,8 +277,68 @@ export default function CheckoutPage() {
     );
   }
 
+  const walletBalance = new Decimal(me?.wallet || 0);
+  const amountNeeded = prices.total.minus(walletBalance);
+
   return (
     <div className="bg-accent text-layout min-h-screen font-sans">
+      {/* Payment Modal */}
+      <Modal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        title="Insufficient Funds"
+        size="md"
+      >
+        <div className="p-4">
+          <div className="mb-4 flex items-center justify-center">
+            <Wallet className="h-12 w-12 text-amber-500" />
+          </div>
+          <p className="mb-4 text-center">
+            Your wallet balance is {formatMoney(walletBalance.toString())} EGP,
+            but you need {formatMoney(prices.total.toString())} EGP to complete
+            this purchase.
+          </p>
+          <p className="mb-6 text-center font-semibold">
+            Please add at least {formatMoney(amountNeeded.toString())} EGP to
+            complete your order.
+          </p>
+
+          <div className="mb-4">
+            <label className="mb-2 block text-sm font-medium">
+              Amount to add (EGP)
+            </label>
+            <input
+              type="number"
+              min={amountNeeded.toNumber()}
+              value={fundAmount}
+              onChange={(e) => setFundAmount(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 p-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+              placeholder={`Minimum ${formatMoney(amountNeeded.toString())} EGP`}
+            />
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowPaymentModal(false)}
+              className="flex-1 rounded-lg bg-gray-200 px-4 py-3 text-gray-800 transition-colors hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={addFund}
+              disabled={
+                isCheckoutPending ||
+                !fundAmount ||
+                parseFloat(fundAmount) < amountNeeded.toNumber()
+              }
+              className="bg-secondary disabled:bg-secondary/80 flex-1 cursor-pointer rounded-lg px-4 py-3 text-white transition-colors disabled:cursor-not-allowed"
+            >
+              {isCheckoutPending ? "Processing..." : "Add Funds"}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       {/* Main Content Container with full-width layout */}
       <div className="container mx-auto px-4 py-12">
         {/* Page Title with consistent styling */}
@@ -254,6 +346,19 @@ export default function CheckoutPage() {
           <ShoppingCart className="text-primary h-10 w-10" />
           Checkout
         </h1>
+
+        {/* Wallet Balance Display */}
+        <div className="mb-6 flex justify-center">
+          <div className="flex items-center gap-3 rounded-lg bg-white p-4 shadow-md">
+            <Wallet className="text-primary h-6 w-6" />
+            <span className="font-semibold">Wallet Balance:</span>
+            <span
+              className={`font-bold ${walletBalance.lessThan(prices.total) ? "text-secondary" : "text-success"}`}
+            >
+              {formatMoney(walletBalance.toString())} EGP
+            </span>
+          </div>
+        </div>
 
         {/* Combined Checkout Section */}
         <div className="rounded-2xl bg-white/95 p-6 shadow-xl md:p-8">
