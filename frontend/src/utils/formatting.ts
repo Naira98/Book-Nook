@@ -16,7 +16,7 @@ export const formatDate = (date: Date) => {
   }).format(date);
 };
 
-export const fromatDateTime = (dateString: string) => {
+export const formatDateTime = (dateString: string) => {
   return new Intl.DateTimeFormat("en-GB", {
     year: "numeric",
     month: "2-digit",
@@ -25,8 +25,7 @@ export const fromatDateTime = (dateString: string) => {
     minute: "2-digit",
     hour12: true,
   })
-    .format(new Date(dateString))
-    .replace(",", "");
+    .format(new Date(dateString)).replace(/am|pm/g, (match) => match.toUpperCase());
 };
 
 export const formatMoney = (money: string) => {

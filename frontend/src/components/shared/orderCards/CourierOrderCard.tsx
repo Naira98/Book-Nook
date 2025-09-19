@@ -3,7 +3,7 @@ import {
   CircleArrowOutUpRight,
   MapPin,
   Undo2,
-  User
+  User,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
@@ -16,12 +16,12 @@ import {
   type Order,
   type ReturnOrder,
 } from "../../../types/Orders";
-import { fromatDateTime } from "../../../utils/formatting";
+import { formatDateTime } from "../../../utils/formatting";
 import MainButton from "../buttons/MainButton";
 
 type CourierOrderCardProps = {
   getStatusColor: (status: OrderStatus | ReturnOrderStatus) => string;
-  getStatusIcon: (status: OrderStatus | ReturnOrderStatus) => ReactNode
+  getStatusIcon: (status: OrderStatus | ReturnOrderStatus) => ReactNode;
   order: Order | ReturnOrder;
   orderType: "order" | "return_order";
 };
@@ -175,7 +175,7 @@ export default function CourierOrderCard({
       {/* Footer Section */}
       <div className="flex items-center justify-between">
         <span className="text-layout text-xs">
-          {fromatDateTime(order.created_at)}
+          {formatDateTime(order.created_at)}
         </span>
         <div className="flex space-x-2">
           {/* Details Button - Always visible for courier's own orders */}

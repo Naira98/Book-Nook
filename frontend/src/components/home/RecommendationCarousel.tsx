@@ -6,12 +6,11 @@ import RecommendationBookCard from "./RecommendBookCard";
 
 export default function RecommendationCarousel() {
   const { recommendations, isPending } = useRecommendations();
-  
   return (
     <section className="bg-[#dce9ed] py-12">
       <div className="mx-auto max-w-7xl px-6">
         <h2 className="mb-10 text-center text-2xl font-bold text-[#0B3460]">
-          Recommended For You
+          AI Recommendations For You
         </h2>
         {isPending ? (
           <div className="flex h-40 items-center justify-center">

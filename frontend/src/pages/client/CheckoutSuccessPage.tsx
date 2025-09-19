@@ -1,5 +1,5 @@
 import Lottie from "lottie-react";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import animationData from "../../assets/json/Success.json";
 import logo from "../../assets/logo_without_sharshora.svg";
@@ -8,16 +8,12 @@ const CheckoutSuccessPage = () => {
   const navigate = useNavigate();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lottieRef = useRef<any>(null);
-  const [hasNavigated, setHasNavigated] = useState(false);
 
   const handleAnimationComplete = () => {
     // Animation completed, navigate after a short delay
     setTimeout(() => {
-      if (!hasNavigated) {
-        setHasNavigated(true);
-        navigate("/transactions?tab=history");
-      }
-    }, 1000);
+      navigate("/transactions?tab=history");
+    }, 500);
   };
 
   return (

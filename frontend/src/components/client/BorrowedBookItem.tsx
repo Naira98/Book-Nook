@@ -34,7 +34,7 @@ const BorrowedBookItem = ({
   const expectedReturnDate = new Date(borrowedBook.expected_return_date);
   const isOverdue = now > expectedReturnDate;
   const daysOverdue = isOverdue
-    ? Math.ceil(
+    ? Math.floor(
         (now.getTime() - expectedReturnDate.getTime()) / (1000 * 60 * 60 * 24),
       )
     : 0;

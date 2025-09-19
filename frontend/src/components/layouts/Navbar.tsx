@@ -29,15 +29,18 @@ const Navbar = () => {
     <nav className="border-accent sticky top-0 z-40 border-b bg-white py-3 shadow-sm">
       <div className="container mx-auto flex items-center justify-between">
         <Link to="/">
-          <img src={logo} alt="logo" className="w-20" />
+          <img src={logo} alt="logo" className="w-20 cursor-pointer" />
         </Link>
         <div className="flex items-center gap-6">
           <NavLink
             to="/borrow-books"
             className={({ isActive }) =>
-              clsx("text-primary hover:text-secondary duration-200", {
-                "text-secondary": isActive,
-              })
+              clsx(
+                "text-primary hover:text-secondary cursor-pointer duration-200",
+                {
+                  "text-secondary": isActive,
+                },
+              )
             }
           >
             Borrow Books
@@ -45,9 +48,12 @@ const Navbar = () => {
           <NavLink
             to="/purchase-books"
             className={({ isActive }) =>
-              clsx("text-primary hover:text-secondary duration-200", {
-                "text-secondary": isActive,
-              })
+              clsx(
+                "text-primary hover:text-secondary cursor-pointer duration-200",
+                {
+                  "text-secondary": isActive,
+                },
+              )
             }
           >
             Purchase Books
@@ -58,7 +64,7 @@ const Navbar = () => {
               to="/cart"
               className={({ isActive }) =>
                 clsx(
-                  "text-primary hover:text-secondary relative flex h-9 w-9 items-center justify-center duration-200",
+                  "text-primary hover:text-secondary relative flex h-9 w-9 cursor-pointer items-center justify-center duration-200",
                   {
                     "text-secondary": isActive,
                   },
@@ -79,7 +85,7 @@ const Navbar = () => {
               to="/transactions"
               className={({ isActive }) =>
                 clsx(
-                  "text-primary hover:text-secondary flex h-9 w-9 items-center justify-center duration-200",
+                  "text-primary hover:text-secondary flex h-9 w-9 cursor-pointer items-center justify-center duration-200",
                   {
                     "text-secondary": isActive,
                   },

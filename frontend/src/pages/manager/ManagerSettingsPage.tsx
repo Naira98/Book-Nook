@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Field, Form } from "react-final-form";
 import TextInput from "../../components/shared/formInputs/TextInput";
 import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
@@ -21,18 +20,8 @@ const ManagerSettingsPage = () => {
     mutate: updateSettings,
     isPending: isUpdating,
     error: updateError,
-    isSuccess,
   } = useUpdateSettings();
 
-  const [showSuccess, setShowSuccess] = useState(false);
-
-  useEffect(() => {
-    if (isSuccess) {
-      setShowSuccess(true);
-      const timer = setTimeout(() => setShowSuccess(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [isSuccess]);
 
   if (isLoading) return <FullScreenSpinner />;
 
@@ -110,12 +99,6 @@ const ManagerSettingsPage = () => {
         <h1 className="text-primary mb-6 text-3xl font-bold">
           Library Settings
         </h1>
-
-        {showSuccess && (
-          <div className="bg-success/20 text-success mb-6 rounded-md p-4">
-            Settings updated successfully!
-          </div>
-        )}
 
         {updateError && (
           <div className="bg-error/20 text-error mb-6 rounded-md p-4">

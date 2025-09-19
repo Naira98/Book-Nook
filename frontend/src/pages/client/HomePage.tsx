@@ -5,7 +5,7 @@ import BestBooks from "../../components/home/BestBooks";
 import HeroSection from "../../components/home/HeroSection";
 import OurServices from "../../components/home/OurServices";
 import PromoCodeDiscount from "../../components/home/PromoCodeDiscount";
-// import RecommendationCarousel from "../../components/home/RecommendationCarousel";
+import RecommendationCarousel from "../../components/home/RecommendationCarousel";
 import Footer from "../../components/shared/Footer";
 import FullScreenSpinner from "../../components/shared/FullScreenSpinner";
 import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
@@ -21,7 +21,7 @@ export default function HomePage() {
     <>
       <HeroSection />
       <BestBooks />
-      {/* <RecommendationCarousel /> */}
+      <RecommendationCarousel />
       <OurServices />
       <PromoCodeDiscount />
       <Footer />

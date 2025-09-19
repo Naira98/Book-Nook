@@ -43,7 +43,7 @@ const CurrentBorrowsPage = () => {
       const expectedReturnDate = new Date(book.expected_return_date);
       const isOverdue = now > expectedReturnDate;
       const daysOverdue = isOverdue
-        ? Math.ceil(
+        ? Math.floor(
             (now.getTime() - expectedReturnDate.getTime()) /
               (1000 * 60 * 60 * 24),
           )
@@ -270,10 +270,6 @@ const CurrentBorrowsPage = () => {
               <span className="text-sm text-gray-600">
                 {selectedBooks.size} book{selectedBooks.size !== 1 ? "s" : ""}{" "}
                 selected
-              </span>
-              <span className="text-sm text-gray-600">
-                {" "}
-                - Refund: {formatMoney(totalDeposit.toString())} EGP
               </span>
             </div>
             <MainButton

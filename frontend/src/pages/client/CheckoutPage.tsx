@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import {
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
   type MouseEvent,
@@ -73,16 +72,6 @@ export default function CheckoutPage() {
     promo_code: new Decimal(0),
     total: new Decimal(0),
   });
-
-  useLayoutEffect(() => {
-    if (
-      cartItems &&
-      cartItems.borrow_items?.length === 0 &&
-      cartItems.purchase_items?.length === 0
-    ) {
-      navigate("/");
-    }
-  }, [cartItems, navigate]);
 
   useEffect(() => {
     if (cartItems) {
@@ -242,8 +231,11 @@ export default function CheckoutPage() {
   };
 
   const addFund = () => {
-    const amount = parseFloat(fundAmount) * 100; /* in piaster 100 for 1 EGP */
-    if (amount > 0) {
+    const parsedAmount = parseFloat(fundAmount);
+    if (parsedAmount >= amountNeeded.toNumber()) {
+      const amount = Math.round(
+        parsedAmount * 100,
+      ); /* in piaster 100 for 1 EGP Round to the nearest whole number */
       createCheckoutSession(amount, {
         onSuccess: () => {
           setShowPaymentModal(false);
@@ -299,8 +291,11 @@ export default function CheckoutPage() {
             this purchase.
           </p>
           <p className="mb-6 text-center font-semibold">
-            Please add at least {formatMoney(amountNeeded.toString())} EGP to
-            complete your order.
+            Please add at least{" "}
+            <span className="font-extrabold">
+              {formatMoney(amountNeeded.toString())} EGP
+            </span>{" "}
+            to complete your order.
           </p>
 
           <div className="mb-4">
@@ -388,17 +383,17 @@ export default function CheckoutPage() {
                       </p>
                       <p className="text-layout/70 mt-1 text-sm">
                         <span className="font-bold text-slate-600">
-                          {item.borrowing_weeks}
+                          ( {item.borrowing_weeks}
                         </span>{" "}
                         {item.borrowing_weeks === 1 ? "week" : "weeks"} ×{" "}
                         <span className="text-slate-700">
-                          ( {formatMoney(item.borrow_fees_per_week)}
+                          {formatMoney(item.borrow_fees_per_week)} 
                         </span>{" "}
-                        EGP + deposit{" "}
+                        EGP ) + deposit{" "}
                         <span className="text-primary">
                           {formatMoney(item.deposit_fees)}
                         </span>{" "}
-                        EGP )
+                        EGP
                       </p>
                     </div>
                     <p className="text-lg font-bold text-slate-600">

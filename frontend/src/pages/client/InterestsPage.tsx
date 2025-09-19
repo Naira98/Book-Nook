@@ -31,7 +31,7 @@ const SelectInterests = () => {
     addInterests(selected, { onSuccess: () => navigate("/") });
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center px-4 pt-30 pb-12 sm:px-6">
+    <div className="bg-accent relative flex min-h-screen flex-col items-center px-4 pt-30 pb-12 sm:px-6">
       {/* Logo */}
       <img
         alt="logo"

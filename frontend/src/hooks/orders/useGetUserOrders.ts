@@ -10,9 +10,9 @@ export const useGetUserOrders = () => {
     isPending,
     error,
   } = useQuery<UserOrderesResponse>({
-    queryKey: ["userOrders", `${me?.id}`],
+    queryKey: ["userOrders", me?.id],
     queryFn: async () => {
-      return await apiReq("GET", `/order/my`);
+      return await apiReq("GET", "/order/my");
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });

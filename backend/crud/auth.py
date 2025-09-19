@@ -26,7 +26,7 @@ from schemas.auth import (
     RegisterRequest,
     ResetPasswordRequest,
 )
-from settings import settings
+from settings import settings  # type: ignore
 from sqlalchemy import delete, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession

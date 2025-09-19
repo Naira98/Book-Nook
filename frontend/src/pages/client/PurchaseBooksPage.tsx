@@ -8,7 +8,7 @@ import Pagination from "../../components/shared/pagination/Pagination";
 import SearchBar from "../../components/client/SearchBar";
 import { useGetAuthors } from "../../hooks/books/useGetAuthors";
 import { useGetCategories } from "../../hooks/books/useGetCategories";
-import { useGetPurchaseBooks } from "../../hooks/books/useGetPruchaseBooks";
+import { useGetPurchaseBooks } from "../../hooks/books/useGetPurchaseBooks";
 import { useGetCartItems } from "../../hooks/cart/useGetCartItems";
 
 const PurchaseBooksPage = () => {

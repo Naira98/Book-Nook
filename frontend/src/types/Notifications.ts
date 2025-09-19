@@ -22,7 +22,7 @@ export type NotificationData =
       data: {
         book_title: string;
         due_date: string;
-        status: "upcoming" | "overdue";
+        status: "tomorrow" | "overdue";
       };
     }
   | {
@@ -31,7 +31,7 @@ export type NotificationData =
     }
   | {
       type: NotificationType.WALLET_UPDATED;
-      data: { amount: number };
+      data: { amount: number; return_order_id: number };
     };
 
 export interface NotificationsBase {

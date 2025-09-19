@@ -4,7 +4,7 @@ import {
   type ReturnOrder,
   ReturnOrderStatus,
 } from "../../types/Orders";
-import { fromatDateTime } from "../../utils/formatting";
+import { formatDateTime } from "../../utils/formatting";
 
 interface OrderInfoProps {
   order: Order | ReturnOrder;
@@ -52,7 +52,7 @@ const OrderInfo = ({ order, isOrder }: OrderInfoProps) => {
           <div className="text-layout space-y-2">
             <p>
               <span className="font-semibold">Order Date:</span>{" "}
-              {fromatDateTime(order.created_at)}
+              {formatDateTime(order.created_at)}
             </p>
             <p>
               <span className="font-semibold">Status:</span>

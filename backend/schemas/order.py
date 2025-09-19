@@ -275,7 +275,7 @@ class UserOrderDetails(BaseModel):
             total_price += data.delivery_fees
 
         for book in data.borrow_order_books_details:
-            total_price += (book.borrow_fees * book.borrowing_weeks) + book.deposit_fees
+            total_price += book.borrow_fees + book.deposit_fees
 
         for book in data.purchase_order_books_details:
             total_price += book.paid_price_per_book * book.quantity

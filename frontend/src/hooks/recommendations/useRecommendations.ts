@@ -10,11 +10,15 @@ export type Recommendation = {
   category: {
     name: string;
   };
-  status: string;
+  book_details: {
+    id: number;
+    available_stock: number;
+    status: "BORROW" | "PURCHASE";
+    book_id: number;
+  }[];
   reason: string;
   cover_img: string;
   description: string;
-  available_stock: number;
 };
 
 type RecommendResponse = {

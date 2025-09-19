@@ -10,7 +10,7 @@ import {
   type ReturnOrder,
   type changeOrderStatusRequest,
 } from "../../../types/Orders";
-import { fromatDateTime } from "../../../utils/formatting";
+import { formatDateTime } from "../../../utils/formatting";
 import MainButton from "../buttons/MainButton";
 
 type EmployeeOrderCardProps = {
@@ -106,7 +106,7 @@ const EmployeeOrderCard = ({
       {/* Footer Section */}
       <div className="flex items-center justify-between">
         <span className="text-layout text-xs">
-          {fromatDateTime(order.created_at.toLocaleString())}
+          {formatDateTime(order.created_at.toLocaleString())}
         </span>
         <div className="flex space-x-2">
           {isReturnOrderAndCreated ? (

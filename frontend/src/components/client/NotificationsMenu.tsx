@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Bell, Clock, PackageCheck, Tag, Undo2, Wallet } from "lucide-react";
+import { Bell, TriangleAlert, Package, Tag, Undo2, Wallet } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGetNotifications } from "../../hooks/notifications/useGetNotifications";
@@ -8,7 +8,7 @@ import {
   NotificationType,
   type Notifications,
 } from "../../types/Notifications";
-import { formatDate, fromatDateTime } from "../../utils/formatting";
+import { formatDateTime, formatMoney } from "../../utils/formatting";
 import FullScreenSpinner from "../shared/FullScreenSpinner";
 
 const NotificationsMenu = () => {
@@ -102,7 +102,7 @@ const NotificationsMenu = () => {
                   <div
                     key={notification.id}
                     className={clsx(
-                      "group hover:bg-accent flex cursor-pointer items-start gap-3 border-b-1 border-l-4 border-gray-200 px-4 py-3 transition-all duration-150",
+                      "group hover:bg-accent flex cursor-pointer items-start gap-3 border-l-4 px-4 py-3 transition-all duration-150",
                       {
                         "border-l-secondary": isUnread,
                         "border-l-transparent": !isUnread,
@@ -141,7 +141,7 @@ const NotificationsMenu = () => {
                             "text-gray-500": !isUnread,
                           })}
                         >
-                          {fromatDateTime(
+                          {formatDateTime(
                             notification.created_at.toLocaleString(),
                           )}
                         </span>
@@ -177,29 +177,29 @@ const NotificationsMenu = () => {
 export default NotificationsMenu;
 
 const notificationIcons: Record<string, ReactNode> = {
-  ORDER_STATUS_UPDATE: <PackageCheck className="text-primary h-4 w-4" />,
+  ORDER_STATUS_UPDATE: <Package className="text-primary h-4 w-4" />,
   RETURN_ORDER_STATUS_UPDATE: <Undo2 className="text-primary h-4 w-4" />,
-  RETURN_REMINDER: <Clock className="text-primary h-4 w-4" />,
+  RETURN_REMINDER: <TriangleAlert className="text-primary h-4 w-4" />,
   NEW_PROMO_CODE: <Tag className="text-primary-500 h-4 w-4" />,
   WALLET_UPDATED: <Wallet className="text-primary-600 h-4 w-4" />,
 };
 
 function getNotificationMessage(notification: Notifications) {
   const orderStatusMap = (pickupType?: string): Record<string, string> => ({
-    ON_THE_WAY: "is on its way 🚚",
+    ON_THE_WAY: "is on its way to you",
     PICKED_UP:
       pickupType === "SITE"
-        ? "has been collected from the library ✅"
-        : "has been delivered to you ✅",
-    PROBLEM: "has an issue ⚠️",
+        ? "has been collected from the library"
+        : "has been delivered to you",
+    PROBLEM: "has an issue",
   });
 
   const returnStatusMap: Record<string, string> = {
-    ON_THE_WAY: "A courier is on the way to collect your books 🚚",
-    PICKED_UP: "A courier has picked up your returned books ✅",
-    CHECKING: "Your returned books are being checked at the library 🔍",
-    DONE: "Your return order has been successfully completed 🎉",
-    PROBLEM: "There’s an issue with your return order ⚠️",
+    ON_THE_WAY: "A courier is on the way to collect your books",
+    PICKED_UP: "A courier has picked up your returned books",
+    CHECKING: "Your returned books are being checked at the library",
+    DONE: "Your return order has been successfully completed",
+    PROBLEM: "There’s an issue with your return order",
   };
 
   switch (notification.type) {
@@ -216,19 +216,30 @@ function getNotificationMessage(notification: Notifications) {
       }`;
     case NotificationType.RETURN_REMINDER: {
       const reminderData = notification.data;
-      const dueDate = new Date(reminderData.due_date).toLocaleDateString();
+      const today = new Date();
+      const dueDate = new Date(reminderData.due_date);
+      const overdueDays = Math.floor(
+        (today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24),
+      );
 
-      if (reminderData.status === "upcoming") {
-        return `⏰ Reminder: Please return "${reminderData.book_title}" by ${formatDate(new Date(dueDate))}`;
+      if (reminderData.status === "tomorrow") {
+        return `Just a reminder! Your book, "${reminderData.book_title}", is due for return tomorrow.`;
       } else if (reminderData.status === "overdue") {
-        return `🚨 Urgent: "${reminderData.book_title}" is overdue! Please return it immediately.`;
+        return `Your book, "${reminderData.book_title}", is ${overdueDays} days overdue. This may lead to a deduction from your deposit.`;
       }
-      return "";
+      return `Your return reminder for "${reminderData.book_title}" has been updated.`;
     }
     case NotificationType.NEW_PROMO_CODE:
-      return `🎁 New promo! Use code "${notification.data.code}" for ${notification.data.discount}% off`;
+      return `New promo! Use code "${notification.data.code}" for ${notification.data.discount}% off`;
     case NotificationType.WALLET_UPDATED:
-      return `💰 Wallet ${notification.data.amount > 0 ? "credited" : "debited"}: ${notification.data.amount} EGP`;
+      if (notification.data.amount > 0 && notification.data.return_order_id) {
+        return `Deposit returned for Return Order #${notification.data.return_order_id}: ${formatMoney(notification.data.amount.toString())} EGP has been credited to your wallet.`;
+      }
+      if (notification.data.amount < 0 && notification.data.return_order_id) {
+        return `Penalty charged for Return Order #${notification.data.return_order_id}: ${formatMoney(Math.abs(notification.data.amount).toString())} EGP has been debited from your wallet.`;
+      }
+      return `Wallet ${notification.data.amount > 0 ? "credited" : "debited"}: ${formatMoney(notification.data.amount.toString())} EGP`;
+
     default:
       return "You have a new notification";
   }

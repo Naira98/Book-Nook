@@ -14,8 +14,6 @@ interface Recommendation {
   }[];
   cover_img: string;
   description: string;
-  available_stock: number; // This is redundant with book_details, but kept for context.
-  status: string; // This is also redundant. The true status is in book_details.
 }
 
 const RecommendationBookCard = ({ rec }: { rec: Recommendation }) => {

@@ -300,7 +300,13 @@ async def update_return_order_status_crud(
                         and book.expected_return_date < now_utc
                     ):
                         days_overdue = (now_utc - book.expected_return_date).days
-                        amount_to_withdraw += days_overdue * book.delay_fees_per_day
+                        overdue_fees = days_overdue * book.delay_fees_per_day
+
+                        if overdue_fees <= book.deposit_fees:
+                            amount_to_add += book.deposit_fees - overdue_fees
+                        else:
+                            amount_to_withdraw += overdue_fees - book.deposit_fees
+
                     else:
                         amount_to_add += book.deposit_fees
 
@@ -323,11 +329,13 @@ async def update_return_order_status_crud(
                 },
             )
 
-            if amount_to_add > 0:
+            total_amount_change = amount_to_add - amount_to_withdraw
+
+            if total_amount_change > 0:
                 await add_to_wallet(
                     db=db,
                     user=db_return_order.user,
-                    amount=amount_to_add,
+                    amount=total_amount_change,
                     description=f"Deposit return for Return Order ID: {db_return_order.id}",
                 )
 
@@ -336,16 +344,16 @@ async def update_return_order_status_crud(
                     db_return_order.user_id,
                     NotificationType.WALLET_UPDATED,
                     {
-                        "amount": float(amount_to_add),
-                        "order_id": db_return_order.id,
+                        "amount": float(total_amount_change),
+                        "return_order_id": db_return_order.id,
                     },
                 )
 
-            if amount_to_withdraw > 0:
+            if total_amount_change < 0:
                 await pay_from_wallet(
                     db=db,
                     user=db_return_order.user,
-                    amount=amount_to_withdraw,
+                    amount=abs(total_amount_change),
                     description=f"Penalty fees for Return Order ID: {db_return_order.id}",
                     apply_negative_balance=True,
                 )
@@ -355,8 +363,8 @@ async def update_return_order_status_crud(
                     db_return_order.user_id,
                     NotificationType.WALLET_UPDATED,
                     {
-                        "amount": -float(amount_to_withdraw),
-                        "order_id": db_return_order.id,
+                        "amount": -float(total_amount_change),
+                        "return_order_id": db_return_order.id,
                     },
                 )
 

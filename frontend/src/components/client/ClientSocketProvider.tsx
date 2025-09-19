@@ -12,17 +12,41 @@ const ClientSocketProvider = () => {
   }
 
   function onSocketMessage(event: MessageEvent) {
-    const newData = JSON.parse(event.data);
+    const newNotification = JSON.parse(event.data);
+
     queryClient.setQueryData(
       ["notifications", me?.id],
       (oldData: Notification[] | undefined) => {
         if (oldData === undefined) return oldData;
-        const updated = [newData, ...oldData];
+        const updated = [newNotification, ...oldData];
         return updated.slice(0, 5);
       },
     );
-  }
 
+    switch (newNotification.type) {
+      case "ORDER_STATUS_UPDATE":
+        queryClient.invalidateQueries({
+          queryKey: ["userOrders", me?.id],
+        });
+        queryClient.invalidateQueries({ queryKey: ["me"] });
+        break;
+
+      case "RETURN_ORDER_STATUS_UPDATE":
+        queryClient.invalidateQueries({
+          queryKey: ["userOrders", me?.id],
+        });
+        queryClient.invalidateQueries({ queryKey: ["me"] });
+        break;
+
+      case "WALLET_UPDATED":
+        queryClient.invalidateQueries({ queryKey: ["me"] });
+        break;
+
+      default:
+        console.warn("Unknown notification type:", newNotification.type);
+        break;
+    }
+  }
   function onSocketClose() {
     console.log("Socket closed");
   }

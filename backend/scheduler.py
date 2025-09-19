@@ -75,7 +75,7 @@ async def check_for_due_books():
                         else None
                     )
                     notification_data = {
-                        "status": "upcoming",
+                        "status": "tomorrow",
                         "book_title": book_title,
                         "due_date": due_date_str,
                     }
